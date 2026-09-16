@@ -582,7 +582,6 @@ function renderBookings(bookings) {
                 </div>
             </div>
             <span class="item-status status-${statusClass}">${escapeHtml(b.status || 'Pending')}</span>
-            <div class="item-actions"><button class="btn-sm-view" onclick="alert('Coming soon.')"><i class="fas fa-eye"></i> View</button></div>
         </div>`;
     }).join('');
 }

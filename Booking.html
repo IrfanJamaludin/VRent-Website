@@ -25,7 +25,7 @@
     <header class="header">
         <nav class="navbar">
             <div class="logo">
-                <img src="WhatsApp Image 2026-08-12 at 18.52.58.jpeg" alt="VRental Logo" />
+                <img src="vrent-logo.jpeg" alt="VRental Logo" />
             </div>
 
             <ul class="nav-links" id="navLinks">
@@ -142,32 +142,10 @@
                                 <input type="text" id="pickupLocation" placeholder="e.g. Kuala Lumpur" required />
                             </div>
 
-                            <!-- Return Location -->
+                            <!-- Return Address (NOW MANDATORY) -->
                             <div class="form-group full">
-                                <label for="returnLocation">Return Location</label>
-                                <input type="text" id="returnLocation" placeholder="Same as pickup" />
-                            </div>
-
-                            <!-- Return Address -->
-                            <div class="form-group full">
-                                <label for="returnAddress">Return Address</label>
-                                <input type="text" id="returnAddress" placeholder="Leave blank if same as pickup address" />
-                            </div>
-
-                            <!-- Outstation Declaration -->
-                            <div class="form-group full">
-                                <label>Will you travel outstation?</label>
-                                <div class="tick-group" data-field="outstation">
-                                    <button type="button" class="tick-btn active" data-value="No">
-                                        <i class="fas fa-check"></i> No — Same State
-                                    </button>
-                                    <button type="button" class="tick-btn" data-value="Yes">
-                                        <i class="fas fa-check"></i> Yes — Cross-State
-                                    </button>
-                                </div>
-                                <small class="field-hint" id="outstationHint">
-                                    Same-state travel only. Additional charges apply if detected.
-                                </small>
+                                <label for="returnAddress">Return Address <span class="required">*</span></label>
+                                <input type="text" id="returnAddress" placeholder="Full address where the vehicle will be returned" required />
                             </div>
 
                             <!-- Notes -->
@@ -446,10 +424,6 @@
                 <span class="auth-gate-lock"><i class="fas fa-lock"></i></span>
             </div>
 
-            <span class="auth-gate-badge">
-                <i class="fas fa-bolt"></i> Ready in 60 seconds
-            </span>
-
             <h2 class="auth-gate-title" id="authGateTitle">Sign in to book this vehicle</h2>
             <p class="auth-gate-subtitle">
                 Free forever. No credit card needed to browse — you only pay when you book.
@@ -490,7 +464,6 @@
                 <a href="MainPage.html" class="auth-gate-primary">
                     <i class="fas fa-sign-in-alt"></i>
                     Log In / Sign Up
-                    <i class="fas fa-arrow-right auth-gate-arrow"></i>
                 </a>
                 <a href="Vehicles.html" class="auth-gate-secondary">Browse More Vehicles</a>
             </div>

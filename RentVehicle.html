@@ -246,27 +246,21 @@
                                 <label for="rentalLocation">Rental Location <span class="required">*</span></label>
                                 <select id="rentalLocation" required>
                                     <option value="">Select Location</option>
-                                    <optgroup label="Peninsular Malaysia">
-                                        <option value="Johor">Johor</option>
-                                        <option value="Kedah">Kedah</option>
-                                        <option value="Kelantan">Kelantan</option>
-                                        <option value="Melaka">Melaka</option>
-                                        <option value="Negeri Sembilan">Negeri Sembilan</option>
-                                        <option value="Pahang">Pahang</option>
-                                        <option value="Penang">Penang</option>
-                                        <option value="Perak">Perak</option>
-                                        <option value="Perlis">Perlis</option>
-                                        <option value="Selangor">Selangor</option>
-                                        <option value="Terengganu">Terengganu</option>
-                                        <option value="Kuala Lumpur">Kuala Lumpur</option>
-                                        <option value="Putrajaya">Putrajaya</option>
-                                        <option value="Labuan">Labuan</option>
-                                    </optgroup>
+                                    <option value="Johor">Johor</option>
+                                    <option value="Kedah">Kedah</option>
+                                    <option value="Kelantan">Kelantan</option>
+                                    <option value="Melaka">Melaka</option>
+                                    <option value="Negeri Sembilan">Negeri Sembilan</option>
+                                    <option value="Pahang">Pahang</option>
+                                    <option value="Penang">Penang</option>
+                                    <option value="Perak">Perak</option>
+                                    <option value="Perlis">Perlis</option>
+                                    <option value="Selangor">Selangor</option>
+                                    <option value="Terengganu">Terengganu</option>
+                                    <option value="Kuala Lumpur">Kuala Lumpur</option>
+                                    <option value="Putrajaya">Putrajaya</option>
+                                    <option value="Labuan">Labuan</option>
                                 </select>
-                                <small class="field-hint">
-                                    <i class="fas fa-info-circle"></i>
-                                    V-Rent currently operates in Peninsular Malaysia only.
-                                </small>
                             </div>
 
                             <div class="form-group full">
@@ -283,7 +277,7 @@
                                 </div>
                             </div>
 
-                            <!-- MILEAGE POLICY (replaces "Mileage Limit") -->
+                            <!-- MILEAGE POLICY -->
                             <div class="form-group full">
                                 <label>Mileage Policy</label>
                                 <div class="tick-group" data-field="mileagePolicy">
@@ -308,28 +302,6 @@
                             <div class="form-group" id="mileageExcessGroup" style="display:none;">
                                 <label for="mileageExcess">Excess Charge (RM / km)</label>
                                 <input type="number" id="mileageExcess" placeholder="0.50" min="0" step="0.10" />
-                            </div>
-
-                            <!-- OUTSTATION POLICY -->
-                            <div class="form-group full">
-                                <label>Outstation Travel</label>
-                                <div class="tick-group" data-field="outstation">
-                                    <button type="button" class="tick-btn active" data-value="SameState">
-                                        <i class="fas fa-check"></i> Same State Only
-                                    </button>
-                                    <button type="button" class="tick-btn" data-value="Peninsular">
-                                        <i class="fas fa-check"></i> Peninsular Malaysia
-                                    </button>
-                                </div>
-                                <small class="field-hint">
-                                    <i class="fas fa-info-circle"></i>
-                                    Cross-border travel (Thailand, Singapore, Brunei) is not allowed on V-Rent.
-                                </small>
-                            </div>
-
-                            <div class="form-group" id="outstationFeeGroup" style="display:none;">
-                                <label for="outstationFee">Outstation Surcharge (RM)</label>
-                                <input type="number" id="outstationFee" placeholder="50" min="0" value="0" />
                             </div>
 
                             <div class="form-group full" id="pickupMethodGroup">
@@ -557,10 +529,6 @@
                 <span class="auth-gate-lock"><i class="fas fa-shield-alt"></i></span>
             </div>
 
-            <span class="auth-gate-badge">
-                <i class="fas fa-clock"></i> 2-minute setup
-            </span>
-
             <h2 class="auth-gate-title" id="verifyGateTitle">Let's get you verified</h2>
             <p class="auth-gate-subtitle" id="verifyGateSubtitle">
                 One-time verification keeps every V-Rent listing safe and trusted. Once approved, you can start listing immediately.
@@ -601,7 +569,6 @@
                 <a href="Dashboard.html" class="auth-gate-primary">
                     <i class="fas fa-shield-alt"></i>
                     Verify on Dashboard
-                    <i class="fas fa-arrow-right auth-gate-arrow"></i>
                 </a>
                 <button type="button" class="auth-gate-secondary" id="verifyGateLaterBtn">
                     Maybe later

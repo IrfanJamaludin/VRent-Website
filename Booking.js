@@ -1,5 +1,6 @@
 // Booking.js - Vehicle booking with verified licence check + V-Rent machinery delivery
 // + Insurance tiers + Booking fee + Down payment + Handover confirmation
+// Peninsular Malaysia only — no outstation field
 
 // ============================================================
 // 1. MACHINERY DELIVERY TIERS (auto-calculated from operating weight)
@@ -48,7 +49,6 @@ function normalizeLicenseArray(value) {
     return [];
 }
 
-// Fallback if LicenseRules.js fails to load
 function getVehicleRequirements(vehicle) {
     if (typeof window.getRequiredLicense === 'function') {
         return window.getRequiredLicense(vehicle);
@@ -92,7 +92,6 @@ const returnTime = document.getElementById('returnTime');
 const quantity = document.getElementById('quantity');
 const quantityGroup = document.getElementById('quantityGroup');
 const pickupLocation = document.getElementById('pickupLocation');
-const returnLocation = document.getElementById('returnLocation');
 const deliveryAddress = document.getElementById('deliveryAddress');
 const returnAddress = document.getElementById('returnAddress');
 const bookingNotes = document.getElementById('bookingNotes');
@@ -119,8 +118,6 @@ const summarySubtotal = document.getElementById('summarySubtotal');
 const summaryDownPayment = document.getElementById('summaryDownPayment');
 const summaryBalance = document.getElementById('summaryBalance');
 const summaryTotal = document.getElementById('summaryTotal');
-
-const outstationHint = document.getElementById('outstationHint');
 
 // ============================================================
 // 6. SHOW/HIDE HELPERS
@@ -154,14 +151,13 @@ async function fetchVehicle(id) {
 const PLACEHOLDER_IMG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='150' viewBox='0 0 200 150'><rect fill='%2311141A' width='200' height='150'/><text x='50%' y='50%' fill='%23D4AF37' font-family='Inter,sans-serif' font-size='14' text-anchor='middle' dominant-baseline='middle'>No Image</text></svg>";
 
 // ============================================================
-// 8. TICK GROUP HANDLERS (outstation + payment method)
+// 8. TICK GROUP HANDLERS (payment method only — outstation removed)
 // ============================================================
 function initTickGroups() {
     if (tickListenersBound) return;
     tickListenersBound = true;
 
     document.querySelectorAll('.tick-group').forEach(group => {
-        const field = group.dataset.field;
         // Initial selected value = active button
         const initial = group.querySelector('.tick-btn.active');
         if (initial) group.dataset.selected = initial.dataset.value;
@@ -173,16 +169,6 @@ function initTickGroups() {
             group.querySelectorAll('.tick-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             group.dataset.selected = btn.dataset.value;
-
-            if (field === 'outstation' && outstationHint) {
-                if (btn.dataset.value === 'Yes') {
-                    outstationHint.innerHTML =
-                        '<i class="fas fa-exclamation-circle" style="color:#D4AF37;"></i> Cross-state travel requires owner approval and may incur additional charges.';
-                } else {
-                    outstationHint.innerHTML =
-                        'Same-state travel only. Additional charges apply if detected.';
-                }
-            }
         });
     });
 }
@@ -199,7 +185,6 @@ function initInsuranceOptions() {
         const radio = opt.querySelector('input[name="insurance"]');
         if (!radio) return;
 
-        // Set initial selected class based on which radio is checked
         if (radio.checked) opt.classList.add('selected');
 
         radio.addEventListener('change', () => {
@@ -276,7 +261,7 @@ function renderVehicle(vehicle) {
 }
 
 // ============================================================
-// 11. PRICE SUMMARY (with insurance, fee, down payment)
+// 11. PRICE SUMMARY
 // ============================================================
 function updateSummary() {
     const start = new Date(pickupDate.value + 'T' + (pickupTime.value || '09:00'));
@@ -287,22 +272,17 @@ function updateSummary() {
     const qty = parseInt(quantity.value) || 1;
     const rentalTotal = pricePerDay * days * qty;
 
-    // Delivery fee (V-Rent machinery)
     let deliveryFee = 0;
     if (shouldChargeDelivery(vehicleData)) {
         deliveryFee = getMachineryDeliveryFee(vehicleData.operatingWeight);
     }
 
-    // Insurance fee (per day × days × qty)
     const { tier, feePerDay } = getSelectedInsurance();
     const insuranceFee = feePerDay * days * qty;
     lastInsuranceFee = insuranceFee;
     lastInsuranceTier = tier;
 
-    // Subtotal
     const subtotal = rentalTotal + deliveryFee + insuranceFee + BOOKING_FEE;
-
-    // Down payment 20%, balance due on pickup
     const downPayment = Math.round(subtotal * DOWN_PAYMENT_PERCENT);
     const balance = subtotal - downPayment;
 
@@ -310,19 +290,16 @@ function updateSummary() {
     lastDownPayment = downPayment;
     lastBalance = balance;
 
-    // ---- Write base rows ----
     summaryPricePerDay.textContent = `RM ${pricePerDay}`;
     summaryDays.textContent = `${days} day${days > 1 ? 's' : ''}`;
     summaryQuantity.textContent = qty;
 
-    // Quantity row visibility
     if (quantityGroup.style.display === 'block') {
         showEl(summaryQuantityRow, 'flex');
     } else {
         hideEl(summaryQuantityRow);
     }
 
-    // Delivery row
     const deliveryRow = document.getElementById('summaryDeliveryRow');
     const deliveryValue = document.getElementById('summaryDeliveryFee');
     if (deliveryRow && deliveryValue) {
@@ -334,7 +311,6 @@ function updateSummary() {
         }
     }
 
-    // Insurance row
     if (summaryInsurance) {
         if (insuranceFee > 0) {
             summaryInsurance.textContent = `RM ${insuranceFee} (${tier})`;
@@ -345,7 +321,6 @@ function updateSummary() {
         }
     }
 
-    // Subtotal / down payment / balance / total
     if (summarySubtotal) summarySubtotal.textContent = `RM ${subtotal}`;
     if (summaryDownPayment) summaryDownPayment.textContent = `RM ${downPayment}`;
     if (summaryBalance) summaryBalance.textContent = `RM ${balance}`;
@@ -383,9 +358,6 @@ async function loadUserData(user) {
     }
 }
 
-/**
- * Renders the verified licence chip inside the Booking form.
- */
 function renderLicenceDisplay() {
     if (!licenceDisplay) return;
 
@@ -457,7 +429,6 @@ form.addEventListener('submit', async function (e) {
         return;
     }
 
-    // Auto-derived requirement from vehicle specs (JPJ categories)
     const { required, reason } = getVehicleRequirements(vehicleData);
 
     if (required.length > 0) {
@@ -484,6 +455,13 @@ form.addEventListener('submit', async function (e) {
 
     if (!pickupLocation.value.trim()) {
         alert('Please enter a pickup location.');
+        return;
+    }
+
+    // ---- RETURN ADDRESS (MANDATORY) ----
+    if (!returnAddress || !returnAddress.value.trim()) {
+        alert('Please enter a return address.');
+        returnAddress && returnAddress.focus();
         return;
     }
 
@@ -520,10 +498,8 @@ form.addEventListener('submit', async function (e) {
     const downPayment = Math.round(subtotal * DOWN_PAYMENT_PERCENT);
     const balanceDue = subtotal - downPayment;
 
-    // ---- Outstation + payment method from tick groups ----
-    const outstationGroup = document.querySelector('[data-field="outstation"]');
+    // ---- Payment method from tick group ----
     const paymentGroup = document.querySelector('[data-field="paymentMethod"]');
-    const outstationValue = outstationGroup ? (outstationGroup.dataset.selected || 'No') : 'No';
     const paymentMethod = paymentGroup ? (paymentGroup.dataset.selected || 'FPX') : 'FPX';
 
     const ownerId = vehicleData.ownerId || vehicleData.ownerUID || null;
@@ -552,10 +528,8 @@ form.addEventListener('submit', async function (e) {
         pickupTime: pickupTime.value,
         returnTime: returnTime.value,
         pickupLocation: pickupLocation.value.trim(),
-        returnLocation: returnLocation.value.trim() || pickupLocation.value.trim(),
         deliveryAddress: deliveryAddress ? deliveryAddress.value.trim() : '',
-        returnAddress: returnAddress ? returnAddress.value.trim() : '',
-        outstation: outstationValue,
+        returnAddress: returnAddress.value.trim(),
         quantity: qty,
         days: days,
         pricePerDay: pricePerDay,
@@ -578,9 +552,8 @@ form.addEventListener('submit', async function (e) {
         // ---- Status & timestamps ----
         status: 'Pending',
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        // Handover states
-        renterReceivedAt: null,      // set when renter taps "I've Received the Vehicle"
-        ownerReceivedAt: null,       // set when owner taps "I've Received the Vehicle Back" (Dashboard)
+        renterReceivedAt: null,
+        ownerReceivedAt: null,
 
         // ---- Contractor (trucks & heavy machinery only) ----
         isContractor: isTruckOrHeavy,
@@ -600,15 +573,10 @@ form.addEventListener('submit', async function (e) {
     try {
         const docRef = await window.db.collection('bookings').add(bookingData);
 
-        // Store booking ID for handover confirmation
         sessionStorage.setItem('lastBookingId', docRef.id);
 
         hideEl(form);
         showEl(bookingStatus, 'block');
-
-        // Show pickup confirm box only if owner already approved (edge case: instant approve)
-        // Normally shown later when owner approves — for now we keep it hidden.
-        // (The confirmReceivedBtn is always in DOM; safe to leave hidden initially.)
     } catch (err) {
         console.error('Booking error:', err);
         alert('Failed to submit booking: ' + err.message);
@@ -675,21 +643,17 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    // Bind "Received Vehicle" button once (it exists in DOM even if hidden)
     initReceivedButton();
 
     window.auth.onAuthStateChanged(async function (user) {
-        // ---- Gate 1: not logged in ----
         if (!user) {
             currentUser = null;
             if (typeof window.showAuthGate === 'function') window.showAuthGate();
             return;
         }
 
-        // ---- Load user data ----
         await loadUserData(user);
 
-        // ---- Gate 2: not verified ----
         const status = currentUser.verificationStatus;
         const classes = currentUser.licenseClasses || [];
 
@@ -701,7 +665,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // ---- Proceed to load vehicle ----
         const id = getVehicleId();
         if (!id) {
             hideEl(loadingState);
@@ -717,8 +680,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         renderVehicle(vehicle);
-
-        // Re-render licence pill now that vehicle data is loaded
         renderLicenceDisplay();
     });
 });

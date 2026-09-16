@@ -1,4 +1,5 @@
 // RentVehicle.js - Full listing logic for V-Rent (with verification gate + auto-license)
+// Peninsular Malaysia only — no cross-border, no outstation configuration needed
 
 // ============================================================
 // 1. DATA CONFIGURATION
@@ -424,12 +425,10 @@ const pickupMethodGroup = document.getElementById('pickupMethodGroup');
 const vrentDeliveryBadge = document.getElementById('vrentDeliveryBadge');
 const deliveryFeeGroup = document.getElementById('deliveryFeeGroup');
 
-// NEW — tick group references
+// Tick group references (Outstation removed — Peninsular-only platform)
 const mileagePolicyGroup = document.querySelector('[data-field="mileagePolicy"]');
-const outstationGroup = document.querySelector('[data-field="outstation"]');
 const mileageLimitGroup = document.getElementById('mileageLimitGroup');
 const mileageExcessGroup = document.getElementById('mileageExcessGroup');
-const outstationFeeGroup = document.getElementById('outstationFeeGroup');
 
 let uploadedImageUrls = [];
 let currentUser = null;
@@ -451,47 +450,32 @@ function populateYears() {
 populateYears();
 
 // ============================================================
-// 7. TICK GROUPS — MILEAGE POLICY + OUTSTATION
+// 7. TICK GROUPS — MILEAGE POLICY ONLY
 // ============================================================
 function initTickGroups() {
-    [mileagePolicyGroup, outstationGroup].forEach(group => {
-        if (!group) return;
+    if (!mileagePolicyGroup) return;
 
-        // Sync initial dataset
-        const initial = group.querySelector('.tick-btn.active');
-        if (initial) group.dataset.selected = initial.dataset.value;
+    // Sync initial dataset
+    const initial = mileagePolicyGroup.querySelector('.tick-btn.active');
+    if (initial) mileagePolicyGroup.dataset.selected = initial.dataset.value;
 
-        group.addEventListener('click', (e) => {
-            const btn = e.target.closest('.tick-btn');
-            if (!btn) return;
+    mileagePolicyGroup.addEventListener('click', (e) => {
+        const btn = e.target.closest('.tick-btn');
+        if (!btn) return;
 
-            group.querySelectorAll('.tick-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            group.dataset.selected = btn.dataset.value;
+        mileagePolicyGroup.querySelectorAll('.tick-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        mileagePolicyGroup.dataset.selected = btn.dataset.value;
 
-            // Mileage → toggle conditional fields
-            if (group === mileagePolicyGroup) {
-                const isLimited = btn.dataset.value === 'Limited';
-                if (mileageLimitGroup) mileageLimitGroup.style.display = isLimited ? 'flex' : 'none';
-                if (mileageExcessGroup) mileageExcessGroup.style.display = isLimited ? 'flex' : 'none';
-                if (isLimited) {
-                    const ml = document.getElementById('mileageLimit');
-                    if (ml && !ml.value) ml.value = '300';
-                    const me = document.getElementById('mileageExcess');
-                    if (me && !me.value) me.value = '0.50';
-                }
-            }
-
-            // Outstation → toggle surcharge field
-            if (group === outstationGroup) {
-                const isPeninsular = btn.dataset.value === 'Peninsular';
-                if (outstationFeeGroup) outstationFeeGroup.style.display = isPeninsular ? 'flex' : 'none';
-                if (isPeninsular) {
-                    const fee = document.getElementById('outstationFee');
-                    if (fee && !fee.value) fee.value = '50';
-                }
-            }
-        });
+        const isLimited = btn.dataset.value === 'Limited';
+        if (mileageLimitGroup) mileageLimitGroup.style.display = isLimited ? 'flex' : 'none';
+        if (mileageExcessGroup) mileageExcessGroup.style.display = isLimited ? 'flex' : 'none';
+        if (isLimited) {
+            const ml = document.getElementById('mileageLimit');
+            if (ml && !ml.value) ml.value = '300';
+            const me = document.getElementById('mileageExcess');
+            if (me && !me.value) me.value = '0.50';
+        }
     });
 }
 initTickGroups();
@@ -634,7 +618,7 @@ function attachLicenseFieldListeners() {
 }
 
 // ============================================================
-// 10. WEEKLY PRICE (cap = pricePerDay × 7, suggestion = 10% off)
+// 10. WEEKLY PRICE
 // ============================================================
 function getStandardWeeklyPrice() {
     const perDay = parseFloat(pricePerDayInput.value) || 0;
@@ -749,7 +733,7 @@ function setupAvailabilityGuards() {
 setupAvailabilityGuards();
 
 // ============================================================
-// 12. INSPECTION GUARDS (weekdays + office hours)
+// 12. INSPECTION GUARDS
 // ============================================================
 function setupInspectionGuards() {
     const today = new Date();
@@ -941,7 +925,7 @@ function getCheckboxValues(containerId) {
 }
 
 // ============================================================
-// 16. FORM SUBMISSION (with auth + verification gate + auto-license)
+// 16. FORM SUBMISSION
 // ============================================================
 form.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -1023,12 +1007,6 @@ form.addEventListener('submit', async function (e) {
         ? (parseFloat(document.getElementById('mileageExcess').value) || 0)
         : 0;
 
-    // ---- Outstation (from tick group) ----
-    const outstationScope = outstationGroup?.dataset.selected || 'SameState';
-    const outstationFee = outstationScope === 'Peninsular'
-        ? (parseFloat(document.getElementById('outstationFee').value) || 0)
-        : 0;
-
     const pickupMethod = isMachinery
         ? 'Delivery'
         : (document.querySelector('input[name="pickupMethod"]:checked')?.value || 'Pickup');
@@ -1052,7 +1030,7 @@ form.addEventListener('submit', async function (e) {
 
     // ---- PENINSULAR-ONLY SAFETY CHECK ----
     if (!PENINSULAR_LOCATIONS.includes(rentalLocation)) {
-        alert('V-Rent currently operates in Peninsular Malaysia only. Please pick a valid state.');
+        alert('Please select a valid rental location.');
         return;
     }
 
@@ -1124,20 +1102,20 @@ form.addEventListener('submit', async function (e) {
         availableFrom: availableFrom || null,
         availableTo: availableTo || null,
 
-        // ---- NEW mileage policy fields ----
-        mileagePolicy,       // 'Unlimited' | 'Limited'
-        mileageLimit,        // 0 if unlimited
-        mileageExcessRate,   // 0 if unlimited
+        // ---- Mileage policy fields ----
+        mileagePolicy,
+        mileageLimit,
+        mileageExcessRate,
 
-        // ---- NEW outstation fields ----
-        outstationScope,     // 'SameState' | 'Peninsular'
-        outstationAllowed: outstationScope === 'Peninsular',
-        outstationFee,
+        // ---- Outstation: hardcoded — Peninsular-only platform ----
+        outstationScope: 'Peninsular',
+        outstationAllowed: true,
+        outstationFee: 0,
 
         pickupMethod,
         deliveryFee,
         securityDeposit,
-        rentalRules,         // commercial use removed
+        rentalRules,
         description,
         images: uploadedImageUrls,
         inspectionDate,
@@ -1201,7 +1179,7 @@ form.addEventListener('submit', async function (e) {
         vehicleData.deliveredByVRent = (arrangement === 'VRent');
     }
 
-    // ---- AUTO-DERIVE required license from vehicle data (JPJ categories) ----
+    // ---- AUTO-DERIVE required license ----
     if (typeof window.getRequiredLicense === 'function') {
         const licenseInfo = window.getRequiredLicense(vehicleData);
         vehicleData.requiredLicense = licenseInfo.required || [];
