@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#11141A" />
+    <title>V-Rent | Categories</title>
+
+    <!-- Nav CSS -->
+    <link rel="stylesheet" href="Nav.css" />
+    <!-- Page CSS -->
+    <link rel="stylesheet" href="Categories.css" />
+
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Mobile-First Critical Styles (Universal) -->
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        html {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
+        /* Prevent iOS auto-zoom on form focus */
+        input,
+        select,
+        textarea,
+        button {
+            font-size: 16px;
+            touch-action: manipulation;
+        }
+
+        /* Touch-friendly targets */
+        .menu-toggle,
+        .btn-login,
+        .btn-rent-vehicle,
+        .filter-btn {
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* iPhone safe area support */
+        @supports (padding: env(safe-area-inset-bottom)) {
+            body {
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+            }
+            .footer {
+                padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            }
+        }
+
+        /* Categories grid mobile adjustments */
+        @media (max-width: 768px) {
+            .categories-page .container {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+            .category-card {
+                min-height: 44px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="logo">
+                <img src="vrent-logo.jpeg" alt="VRental Logo" />
+            </div>
+
+            <ul class="nav-links" id="navLinks">
+                <li><a href="Home.html">Home</a></li>
+                <li><a href="Vehicles.html">Vehicles</a></li>
+                <li><a href="Categories.html" class="active">Categories</a></li>
+                <li><a href="About.html">About Us</a></li>
+                <li class="rent-vehicle-nav">
+                    <a href="RentVehicle.html" class="btn-rent-vehicle">
+                        <i class="fas fa-plus-circle"></i> Rent Your Vehicle
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-actions">
+                <div id="authButton">
+                    <a href="MainPage.html" class="btn-login">Log In / Sign Up</a>
+                </div>
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero (mini) -->
+    <section class="categories-hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <p class="hero-subtitle">Explore by</p>
+            <h1>Categories</h1>
+            <p class="hero-description">Find the perfect vehicle from your favourite brands.</p>
+        </div>
+    </section>
+
+    <!-- Categories Container -->
+    <section class="categories-page">
+        <div class="container">
+            <div id="categoriesContainer">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading categories...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 VRental. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Terms &amp; Conditions</a>
+                <a href="#">Privacy Notice</a>
+                <a href="#">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDvE1_9PpviXzJZJZ0Z6GnAcDJ5AFljAcE",
+            authDomain: "v-rent-9048c.firebaseapp.com",
+            projectId: "v-rent-9048c",
+            storageBucket: "v-rent-9048c.firebasestorage.app",
+            messagingSenderId: "1005234060424",
+            appId: "1:1005234060424:web:34d0207a3589a70ff7333d",
+            measurementId: "G-P827PD43LS"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        window.auth = firebase.auth();
+        window.db = firebase.firestore();
+        window.firebase = firebase;
+    </script>
+
+    <!-- Nav JS -->
+    <script src="Nav.js"></script>
+
+    <!-- Categories JS -->
+    <script src="Categories.js"></script>
+
+</body>
+</html>

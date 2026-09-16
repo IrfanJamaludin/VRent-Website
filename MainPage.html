@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#11141A" />
+    <title>VRental | Main</title>
+
+    <!-- External CSS -->
+    <link rel="stylesheet" href="MainPage.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Mobile-First Universal Overrides (matches SignUp / LogIn) -->
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        html {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+        a,
+        button,
+        input,
+        select,
+        textarea {
+            touch-action: manipulation;
+        }
+        .btn-main,
+        .back-btn {
+            min-height: 48px;
+        }
+
+        @supports (padding: env(safe-area-inset-bottom)) {
+            body {
+                padding-top: max(20px, env(safe-area-inset-top));
+                padding-left: max(20px, env(safe-area-inset-left));
+                padding-right: max(20px, env(safe-area-inset-right));
+                padding-bottom: max(20px, env(safe-area-inset-bottom));
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background slideshow -->
+    <div class="bg-container">
+        <div class="bg-slide" style="background-image: url('bikes.png');"></div>
+        <div class="bg-slide" style="background-image: url('supercar.png');"></div>
+        <div class="bg-slide" style="background-image: url('pickup.png');"></div>
+        <div class="bg-slide" style="background-image: url('mechinery.png');"></div>
+        <div class="bg-slide" style="background-image: url('excavator.png');"></div>
+    </div>
+    <div class="bg-overlay"></div>
+
+    <!-- Main card -->
+    <div class="main-card">
+
+        <!-- Back button (always → Home.html) -->
+        <a href="Home.html" class="back-btn" aria-label="Go to Home">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+            </svg>
+            <span>Back</span>
+        </a>
+
+        <!-- Brand section -->
+        <div class="brand">
+            <div class="brand-center">
+                <img src="vrent-logo.jpeg" alt="VRental Logo" />
+                <h1>V-Rent</h1>
+                <div class="subtitle">Rent anything, anywhere</div>
+            </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="button-group">
+            <a href="LogIn.html" class="btn-main btn-login">Log In</a>
+            <a href="SignUp.html" class="btn-main btn-signup">Sign Up</a>
+        </div>
+
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase Configuration -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDvE1_9PpviXzJZJZ0Z6GnAcDJ5AFljAcE",
+            authDomain: "v-rent-9048c.firebaseapp.com",
+            projectId: "v-rent-9048c",
+            storageBucket: "v-rent-9048c.firebasestorage.app",
+            messagingSenderId: "1005234060424",
+            appId: "1:1005234060424:web:34d0207a3589a70ff7333d",
+            measurementId: "G-P827PD43LS"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        window.auth = firebase.auth();
+        window.db = firebase.firestore();
+    </script>
+
+    <!-- External JavaScript -->
+    <script src="MainPage.js"></script>
+
+    <!-- Signed-in users skip this page → Dashboard -->
+    <script>
+        (function () {
+            if (window.auth) {
+                window.auth.onAuthStateChanged(function (user) {
+                    if (user) {
+                        window.location.href = 'Dashboard.html';
+                    }
+                });
+            }
+        })();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,723 @@
+/* ============================================================
+   VRENTAL LUXURY GOLD — VEHICLES.CSS
+   Primary (60%): #FFFFFF / #F8F9FA
+   Secondary (30%): #11141A (Obsidian Charcoal)
+   Accent (10%): #D4AF37 (Brushed Luxury Gold)
+
+   Mobile-first. Optimized for iPhone & Android viewports.
+   ============================================================ */
+
+/* ============================================================ */
+/* RESET & BASE                                                 */
+/* ============================================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #F8F9FA;
+    color: #11141A;
+    line-height: 1.6;
+    padding-top: 70px;
+    overflow-x: hidden;
+}
+
+input,
+select,
+textarea,
+button {
+    font-family: 'Inter', sans-serif;
+    touch-action: manipulation;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ============================================================ */
+/* VEHICLES PAGE                                                */
+/* ============================================================ */
+.vehicles-page {
+    padding: 40px 0 80px;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.page-title {
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #11141A;
+    line-height: 1.15;
+}
+
+.page-title span {
+    color: #D4AF37;
+}
+
+.page-subtitle {
+    color: #2D333B;
+    font-size: 1.1rem;
+}
+
+/* ============================================================ */
+/* CATEGORY FILTER BUTTONS                                      */
+/* ============================================================ */
+.category-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.filter-btn {
+    padding: 10px 24px;
+    border: 1px solid #EBEEF2;
+    border-radius: 40px;
+    background: #FFFFFF;
+    color: #4A5568;
+    font-size: 0.85rem;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(17, 20, 26, 0.04);
+    white-space: nowrap;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-btn:hover {
+    background: rgba(212, 175, 55, 0.06);
+    color: #11141A;
+    border-color: #D4AF37;
+    transform: translateY(-2px);
+}
+
+.filter-btn.active {
+    background: #11141A;
+    color: #FFFFFF;
+    border-color: #11141A;
+    box-shadow: 0 4px 16px rgba(17, 20, 26, 0.12);
+}
+
+/* ============================================================ */
+/* SEARCH & FILTER BAR                                          */
+/* ============================================================ */
+.search-filter-bar {
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 20px 24px;
+    border: 1px solid #EBEEF2;
+    box-shadow: 0 2px 12px rgba(17, 20, 26, 0.04);
+    margin-bottom: 32px;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: #F8F9FA;
+    border-radius: 12px;
+    border: 1px solid #EBEEF2;
+    margin-bottom: 16px;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.search-bar:focus-within {
+    border-color: #D4AF37;
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.08);
+}
+
+.search-bar i {
+    color: #88909C;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.search-bar input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #11141A;
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+}
+
+.search-bar input::placeholder {
+    color: #A0AEC0;
+}
+
+/* ---------- Mobile filter toggle (hidden on desktop) ---------- */
+.mobile-filter-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 48px;
+    padding: 0 18px;
+    background: transparent;
+    color: #D4AF37;
+    border: 1.5px solid #D4AF37;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.mobile-filter-toggle:hover {
+    background: rgba(212, 175, 55, 0.06);
+}
+
+.mobile-filter-toggle.active {
+    background: #D4AF37;
+    color: #11141A;
+    box-shadow: 0 4px 14px rgba(212, 175, 55, 0.25);
+}
+
+.mobile-filter-toggle i {
+    font-size: 0.9rem;
+}
+
+/* ---------- Additional filters ---------- */
+.additional-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.additional-filters select {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #EBEEF2;
+    background: #F8F9FA;
+    color: #11141A;
+    font-size: 0.85rem;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234A5568' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.additional-filters select:hover {
+    border-color: #D4AF37;
+}
+
+.additional-filters select:focus {
+    border-color: #D4AF37;
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.08);
+}
+
+.additional-filters select option {
+    background: #FFFFFF;
+    color: #11141A;
+}
+
+/* ============================================================ */
+/* VEHICLE GRID                                                 */
+/* ============================================================ */
+.vehicle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+/* ---------- Loading Spinner ---------- */
+.loading-spinner {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 0;
+    color: #88909C;
+}
+
+.loading-spinner i {
+    font-size: 2.5rem;
+    color: #D4AF37;
+    margin-bottom: 12px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ---------- No Results ---------- */
+.no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 0;
+    color: #4A5568;
+}
+
+.no-results i {
+    font-size: 3rem;
+    color: #D4AF37;
+    opacity: 0.2;
+    margin-bottom: 16px;
+}
+
+.no-results h3 {
+    color: #11141A;
+    margin-bottom: 8px;
+}
+
+.btn-reset-filters {
+    margin-top: 16px;
+    padding: 12px 32px;
+    background: #11141A;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 40px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 4px 12px rgba(17, 20, 26, 0.10);
+    min-height: 44px;
+}
+
+.btn-reset-filters:hover {
+    background: #D4AF37;
+    color: #11141A;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.20);
+}
+
+/* ============================================================ */
+/* VEHICLE CARD                                                 */
+/* ============================================================ */
+.vehicle-card {
+    background: #FFFFFF;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #EBEEF2;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 12px rgba(17, 20, 26, 0.04);
+}
+
+.vehicle-card:hover {
+    transform: translateY(-8px);
+    border-color: #D4AF37;
+    box-shadow: 0 12px 40px rgba(212, 175, 55, 0.08);
+}
+
+.vehicle-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+    background: #F8F9FA;
+}
+
+.vehicle-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.vehicle-card:hover .vehicle-image img {
+    transform: scale(1.05);
+}
+
+/* ---------- Year Badge ---------- */
+.vehicle-year-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 4px 12px;
+    border-radius: 40px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    color: #11141A;
+    border: 1px solid rgba(17, 20, 26, 0.06);
+    box-shadow: 0 2px 8px rgba(17, 20, 26, 0.04);
+    z-index: 2;
+}
+
+/* ---------- License Badge ---------- */
+.vehicle-license-required {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    padding: 4px 12px;
+    border-radius: 40px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    background: #D4AF37;
+    color: #11141A;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    z-index: 2;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.15);
+}
+
+.vehicle-info {
+    padding: 16px 18px 18px;
+}
+
+.vehicle-info h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #11141A;
+    margin-bottom: 2px;
+}
+
+.vehicle-brand {
+    font-size: 0.85rem;
+    color: #4A5568;
+    margin-bottom: 10px;
+    text-transform: capitalize;
+}
+
+.vehicle-specs {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.vehicle-specs span {
+    font-size: 0.8rem;
+    color: #4A5568;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.vehicle-specs i {
+    font-size: 0.7rem;
+    color: #D4AF37;
+}
+
+.vehicle-price {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px solid #EBEEF2;
+    gap: 12px;
+}
+
+.vehicle-price .price {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #D4AF37;
+}
+
+.vehicle-price .per-day {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: #88909C;
+}
+
+.btn-view {
+    padding: 8px 18px;
+    background: #11141A;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 40px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 12px rgba(17, 20, 26, 0.08);
+    white-space: nowrap;
+}
+
+.btn-view:hover {
+    background: #D4AF37;
+    color: #11141A;
+    transform: translateX(4px);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.20);
+}
+
+.btn-view i {
+    font-size: 0.7rem;
+    transition: transform 0.3s ease;
+}
+
+.btn-view:hover i {
+    transform: translateX(4px);
+}
+
+/* ============================================================ */
+/* FOOTER                                                       */
+/* ============================================================ */
+.footer {
+    background: #11141A;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 32px 0;
+    text-align: center;
+    border-top: 2px solid rgba(212, 175, 55, 0.12);
+}
+
+.footer .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.footer-links {
+    display: flex;
+    gap: 24px;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: #D4AF37;
+}
+
+/* ============================================================ */
+/* RESPONSIVE — TABLET / MOBILE (≤ 768px)                       */
+/* ============================================================ */
+@media (max-width: 768px) {
+
+    /* ---------- Prevent iOS auto-zoom on focus ---------- */
+    .search-bar input,
+    .additional-filters select {
+        font-size: 16px;
+    }
+
+    /* ---------- Page header ---------- */
+    .page-title {
+        font-size: 2rem;
+    }
+
+    /* ---------- Category chips: horizontal scroll ---------- */
+    .category-filter {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        overflow-x: auto;
+        gap: 8px;
+        padding: 4px 20px 12px;
+        margin: 0 -20px 20px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        scroll-snap-type: x proximity;
+    }
+
+    .category-filter::-webkit-scrollbar {
+        display: none;
+    }
+
+    .filter-btn {
+        flex: 0 0 auto;
+        scroll-snap-align: start;
+        min-height: 44px;
+        padding: 10px 20px;
+        font-size: 0.85rem;
+    }
+
+    /* ---------- Search + filter: grid layout ---------- */
+    .search-filter-bar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+        padding: 16px;
+        align-items: stretch;
+    }
+
+    .search-bar {
+        grid-column: 1;
+        grid-row: 1;
+        margin-bottom: 0;
+        min-height: 48px;
+    }
+
+    .mobile-filter-toggle {
+        grid-column: 2;
+        grid-row: 1;
+        display: inline-flex;
+    }
+
+    /* Hidden by default on mobile; toggled via .mobile-open */
+    .additional-filters {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        padding-top: 4px;
+    }
+
+    .additional-filters.mobile-open {
+        display: flex;
+    }
+
+    .additional-filters select {
+        width: 100%;
+        min-height: 48px;
+        padding: 12px 36px 12px 16px;
+        border-radius: 12px;
+        font-size: 16px;
+    }
+
+    /* ---------- Vehicle grid ---------- */
+    .vehicle-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    /* ---------- Footer ---------- */
+    .footer .container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 16px;
+    }
+}
+
+/* ============================================================ */
+/* RESPONSIVE — SMALL PHONES (≤ 480px)                          */
+/* ============================================================ */
+@media (max-width: 480px) {
+
+    .vehicles-page {
+        padding: 24px 0 60px;
+    }
+
+    .page-header {
+        margin-bottom: 24px;
+    }
+
+    .page-title {
+        font-size: 1.75rem;
+    }
+
+    .page-subtitle {
+        font-size: 0.95rem;
+    }
+
+    .vehicle-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .vehicle-image {
+        height: 200px;
+    }
+
+    .vehicle-price {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .btn-view {
+        justify-content: center;
+        min-height: 44px;
+        padding: 10px 20px;
+    }
+
+    .search-filter-bar {
+        padding: 12px;
+        border-radius: 14px;
+    }
+
+    .search-bar {
+        padding: 10px 14px;
+        border-radius: 10px;
+    }
+
+    .mobile-filter-toggle {
+        padding: 0 14px;
+    }
+
+    .mobile-filter-toggle span {
+        display: none; /* Icon only on small phones */
+    }
+
+    .mobile-filter-toggle i {
+        font-size: 1rem;
+    }
+
+    .footer {
+        padding: 24px 0;
+    }
+
+    .footer-links a {
+        font-size: 0.8rem;
+    }
+}
+
+/* ============================================================ */
+/* iPHONE SAFE-AREA (Notch / Dynamic Island / Home Bar)         */
+/* ============================================================ */
+@supports (padding: env(safe-area-inset-bottom)) {
+    @media (max-width: 768px) {
+        .container {
+            padding-left: calc(20px + env(safe-area-inset-left));
+            padding-right: calc(20px + env(safe-area-inset-right));
+        }
+
+        .footer {
+            padding-bottom: calc(32px + env(safe-area-inset-bottom));
+        }
+
+        /* Category scroll needs safe-area on landscape */
+        .category-filter {
+            padding-left: calc(20px + env(safe-area-inset-left));
+            padding-right: calc(20px + env(safe-area-inset-right));
+        }
+    }
+}

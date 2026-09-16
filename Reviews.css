@@ -1,0 +1,683 @@
+/* ============================================================
+   VRENTAL LUXURY GOLD - REVIEWS.CSS
+   Primary (60%): #FFFFFF / #F8F9FA
+   Secondary (30%): #11141A (Obsidian Charcoal)
+   Accent (10%): #D4AF37 (Brushed Luxury Gold)
+   ============================================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #F8F9FA;
+    color: #11141A;
+    line-height: 1.6;
+    padding-top: 70px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ============================================================
+   UNIVERSAL MOBILE RESETS
+   ============================================================ */
+input,
+select,
+textarea,
+button {
+    font-size: 16px;
+    touch-action: manipulation;
+    font-family: 'Inter', sans-serif;
+}
+
+.menu-toggle,
+.btn-login,
+.btn-rent-vehicle,
+.panel-submit-btn,
+.floating-review-btn,
+.review-panel-close {
+    min-height: 44px;
+}
+
+/* ============================================================
+   IPHONE SAFE AREA
+   ============================================================ */
+@supports (padding: env(safe-area-inset-bottom)) {
+    body {
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+    .footer {
+        padding-bottom: calc(32px + env(safe-area-inset-bottom));
+    }
+    .floating-review-btn {
+        bottom: calc(24px + env(safe-area-inset-bottom)) !important;
+        right: calc(24px + env(safe-area-inset-right)) !important;
+    }
+    .review-panel {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* ============================================================
+   PAGE
+   ============================================================ */
+.reviews-page {
+    padding: 40px 0 120px;
+    min-height: 80vh;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.page-title {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #11141A;
+    margin-bottom: 6px;
+}
+
+.page-subtitle {
+    color: #4A5568;
+    font-size: 1.05rem;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    background: #FFFFFF;
+    border: 1px solid #EBEEF2;
+    border-radius: 40px;
+    color: #11141A;
+    font-weight: 500;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(17, 20, 26, 0.04);
+    min-height: 40px;
+}
+
+.btn-back:hover {
+    background: rgba(212, 175, 55, 0.08);
+    border-color: #D4AF37;
+    color: #D4AF37;
+    transform: translateX(-3px);
+}
+
+/* ============================================================
+   REVIEWS LIST
+   ============================================================ */
+.reviews-list-container {
+    background: #FFFFFF;
+    border-radius: 20px;
+    border: 1px solid #EBEEF2;
+    padding: 28px 32px;
+    box-shadow: 0 4px 20px rgba(17, 20, 26, 0.04);
+}
+
+.reviews-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 2px solid rgba(212, 175, 55, 0.15);
+    margin-bottom: 20px;
+}
+
+.reviews-list-header h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #11141A;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.reviews-list-header h2 i {
+    color: #D4AF37;
+}
+
+.review-count-badge {
+    background: rgba(212, 175, 55, 0.12);
+    color: #D4AF37;
+    padding: 4px 14px;
+    border-radius: 40px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.review-card {
+    background: #F8F9FA;
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-bottom: 14px;
+    border: 1px solid #EBEEF2;
+    transition: all 0.3s ease;
+}
+
+.review-card:hover {
+    background: #FFFFFF;
+    border-color: #D4AF37;
+    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.08);
+}
+
+.review-card:last-child {
+    margin-bottom: 0;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.reviewer {
+    font-weight: 600;
+    color: #11141A;
+    font-size: 0.95rem;
+}
+
+.review-date {
+    font-size: 0.8rem;
+    color: #88909C;
+}
+
+.review-vehicle {
+    font-size: 0.85rem;
+    color: #4A5568;
+    margin-bottom: 4px;
+}
+
+.review-vehicle::before {
+    content: '🚗 ';
+    opacity: 0.6;
+}
+
+.review-stars {
+    color: #D4AF37;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    margin: 4px 0 8px;
+}
+
+.review-text {
+    color: #4A5568;
+    line-height: 1.7;
+    font-size: 0.95rem;
+}
+
+/* Loading & Empty */
+.loading-spinner {
+    text-align: center;
+    padding: 40px 0;
+    color: #88909C;
+}
+
+.loading-spinner i {
+    font-size: 2rem;
+    color: #D4AF37;
+    margin-bottom: 10px;
+    display: block;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #88909C;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: #D4AF37;
+    opacity: 0.3;
+    display: block;
+    margin-bottom: 12px;
+}
+
+/* ============================================================
+   FLOATING REVIEW BUTTON
+   ============================================================ */
+.floating-review-btn {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 999;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 26px;
+    background: linear-gradient(135deg, #D4AF37 0%, #C5A028 100%);
+    color: #11141A;
+    border: none;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    box-shadow:
+        0 8px 30px rgba(212, 175, 55, 0.4),
+        0 0 0 3px rgba(255, 255, 255, 0.08);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.floating-review-btn:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow:
+        0 12px 40px rgba(212, 175, 55, 0.55),
+        0 0 0 5px rgba(212, 175, 55, 0.15);
+}
+
+.floating-review-btn i {
+    font-size: 1.05rem;
+}
+
+.floating-review-btn:active {
+    transform: scale(0.97);
+}
+
+/* ============================================================
+   SLIDE-IN REVIEW PANEL
+   ============================================================ */
+.review-panel-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 20, 26, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.review-panel-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.review-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    height: 100dvh;
+    width: 100%;
+    max-width: 460px;
+    background: #FFFFFF;
+    box-shadow: -20px 0 60px rgba(17, 20, 26, 0.15);
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.review-panel.open {
+    transform: translateX(0);
+}
+
+.review-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 26px;
+    border-bottom: 1px solid #EBEEF2;
+    background: linear-gradient(135deg, #F8F9FA 0%, #FFFFFF 100%);
+    padding-top: calc(22px + env(safe-area-inset-top, 0px));
+    flex-shrink: 0;
+}
+
+.review-panel-header h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #11141A;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.review-panel-header h3 i {
+    color: #D4AF37;
+}
+
+.review-panel-close {
+    background: rgba(17, 20, 26, 0.04);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: #88909C;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.review-panel-close:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.review-panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 26px;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Loading / Message */
+.panel-loading,
+.panel-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: #88909C;
+}
+
+.panel-loading i,
+.panel-message i {
+    font-size: 2.5rem;
+    color: #D4AF37;
+    display: block;
+    margin-bottom: 12px;
+}
+
+.panel-loading i {
+    animation: spin 1s linear infinite;
+}
+
+.panel-message p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #4A5568;
+}
+
+/* Vehicle info in panel */
+.panel-vehicle-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: #F8F9FA;
+    border-radius: 12px;
+    border: 1px solid #EBEEF2;
+    margin-bottom: 20px;
+}
+
+.vehicle-thumb {
+    width: 54px;
+    height: 54px;
+    border-radius: 10px;
+    background: #FFFFFF center/cover no-repeat;
+    border: 1px solid #EBEEF2;
+    flex-shrink: 0;
+}
+
+.vehicle-name {
+    font-weight: 600;
+    color: #11141A;
+    font-size: 0.95rem;
+}
+
+.vehicle-booking {
+    font-size: 0.8rem;
+    color: #88909C;
+    margin-top: 2px;
+}
+
+/* Form groups */
+.panel-form-group {
+    margin-bottom: 20px;
+}
+
+.panel-form-group label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #4A5568;
+    margin-bottom: 8px;
+}
+
+.panel-form-group .required {
+    color: #EF4444;
+}
+
+.panel-form-group textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #EBEEF2;
+    border-radius: 12px;
+    background: #F8F9FA;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    color: #11141A;
+    resize: vertical;
+    min-height: 110px;
+    transition: all 0.2s ease;
+}
+
+.panel-form-group textarea:focus {
+    outline: none;
+    border-color: #D4AF37;
+    background: #FFFFFF;
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.08);
+}
+
+/* Star rating */
+.star-rating {
+    display: flex;
+    gap: 8px;
+    padding: 6px 0;
+}
+
+.star-rating i {
+    font-size: 2rem;
+    color: #D1D5DB;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 4px;
+}
+
+.star-rating i.active {
+    color: #fbbf24;
+    text-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
+}
+
+.star-rating i:hover {
+    transform: scale(1.15);
+}
+
+/* Submit button */
+.panel-submit-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #11141A 0%, #1F2937 100%);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 16px rgba(17, 20, 26, 0.15);
+}
+
+.panel-submit-btn:hover {
+    background: linear-gradient(135deg, #D4AF37 0%, #C5A028 100%);
+    color: #11141A;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.35);
+}
+
+.panel-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer {
+    background: #11141A;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 32px 0;
+    text-align: center;
+    border-top: 2px solid rgba(212, 175, 55, 0.12);
+}
+
+.footer .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.footer-links {
+    display: flex;
+    gap: 24px;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: #D4AF37;
+}
+
+/* ============================================================
+   RESPONSIVE — 640px (Tablet / Large phones)
+   ============================================================ */
+@media (max-width: 640px) {
+    .reviews-page .container {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .page-title {
+        font-size: 1.8rem;
+    }
+
+    .reviews-list-container {
+        padding: 20px;
+    }
+
+    /* Floating button → compact circle */
+    .floating-review-btn {
+        width: 56px;
+        height: 56px;
+        padding: 0;
+        justify-content: center;
+        border-radius: 50%;
+        bottom: 20px;
+        right: 20px;
+        gap: 0;
+    }
+
+    .floating-review-btn span {
+        display: none;
+    }
+
+    .floating-review-btn i {
+        font-size: 1.3rem;
+    }
+
+    .review-panel {
+        max-width: 100%;
+    }
+}
+
+/* ============================================================
+   RESPONSIVE — 480px (Small phones)
+   ============================================================ */
+@media (max-width: 480px) {
+    .reviews-list-header h2 {
+        font-size: 1.1rem;
+    }
+
+    .review-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .panel-vehicle-info {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .panel-submit-btn {
+        font-size: 0.95rem;
+        padding: 13px;
+    }
+
+    .review-panel-header {
+        padding: 18px 20px;
+        padding-top: calc(18px + env(safe-area-inset-top, 0px));
+    }
+
+    .review-panel-body {
+        padding: 20px;
+    }
+
+    .star-rating i {
+        font-size: 1.8rem;
+    }
+}
+
+/* ============================================================
+   RESPONSIVE — 380px (iPhone SE / small phones)
+   ============================================================ */
+@media (max-width: 380px) {
+    .page-title {
+        font-size: 1.5rem;
+    }
+
+    .reviews-list-container {
+        padding: 16px;
+        border-radius: 16px;
+    }
+
+    .review-card {
+        padding: 14px 16px;
+    }
+}

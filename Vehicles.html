@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#11141A" />
+    <title>V-Rent | Vehicles</title>
+
+    <link rel="stylesheet" href="Nav.css" />
+    <link rel="stylesheet" href="Vehicles.css" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="logo">
+                <img src="vrent-logo.jpeg" alt="VRental Logo" />
+            </div>
+
+            <ul class="nav-links" id="navLinks">
+                <li><a href="Home.html">Home</a></li>
+                <li><a href="Vehicles.html" class="active">Vehicles</a></li>
+                <li><a href="Categories.html">Categories</a></li>
+                <li><a href="About.html">About Us</a></li>
+                <li class="rent-vehicle-nav">
+                    <a href="RentVehicle.html" class="btn-rent-vehicle">
+                        <i class="fas fa-plus-circle"></i> Rent Your Vehicle
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-actions">
+                <div id="authButton">
+                    <a href="MainPage.html" class="btn-login">Log In / Sign Up</a>
+                </div>
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Vehicles Page -->
+    <section class="vehicles-page">
+        <div class="container">
+
+            <div class="page-header">
+                <h1 class="page-title">Our Vehicles</h1>
+                <p class="page-subtitle">Choose from cars, motorcycles, 4x4s, trucks, and more.</p>
+            </div>
+
+            <!-- Category filter buttons -->
+            <div class="category-filter">
+                <button class="filter-btn active" data-category="all" id="filterAll">All Vehicles</button>
+                <button class="filter-btn" data-category="cars">Cars</button>
+                <button class="filter-btn" data-category="motorcycles">Motorcycles</button>
+                <button class="filter-btn" data-category="4x4">4x4</button>
+                <button class="filter-btn" data-category="trucks">Trucks</button>
+                <button class="filter-btn" data-category="heavy-machinery">Heavy Machinery</button>
+            </div>
+
+            <!-- Search & filters -->
+            <div class="search-filter-bar">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search vehicle or brand..." />
+                </div>
+
+                <button class="mobile-filter-toggle" id="mobileFilterToggle"
+                        aria-label="Toggle filters" aria-expanded="false">
+                    <i class="fas fa-sliders-h"></i>
+                    <span>Filters</span>
+                </button>
+
+                <div class="additional-filters" id="additionalFilters">
+
+                    <!-- Brand: populated dynamically by Vehicles.js -->
+                    <select id="filterBrand" aria-label="Filter by brand">
+                        <option value="all">All Brands</option>
+                    </select>
+
+                    <!-- Location: static list -->
+                    <select id="filterLocation" aria-label="Filter by location">
+                        <option value="all">All Locations</option>
+                        <option value="Selangor">Selangor</option>
+                        <option value="Kuala Lumpur">Kuala Lumpur</option>
+                        <option value="Johor">Johor</option>
+                        <option value="Penang">Penang</option>
+                        <option value="Perak">Perak</option>
+                        <option value="Pahang">Pahang</option>
+                        <option value="Kedah">Kedah</option>
+                        <option value="Kelantan">Kelantan</option>
+                        <option value="Terengganu">Terengganu</option>
+                        <option value="Melaka">Melaka</option>
+                        <option value="Negeri Sembilan">Negeri Sembilan</option>
+                        <option value="Perlis">Perlis</option>
+                        <option value="Labuan">Labuan</option>
+                        <option value="Putrajaya">Putrajaya</option>
+                    </select>
+
+                    <select id="filterPrice" aria-label="Filter by price">
+                        <option value="all">All Prices</option>
+                        <option value="0-100">RM 0 - RM 100</option>
+                        <option value="100-200">RM 100 - RM 200</option>
+                        <option value="200-300">RM 200 - RM 300</option>
+                        <option value="300-500">RM 300 - RM 500</option>
+                        <option value="500+">RM 500+</option>
+                    </select>
+
+                    <select id="filterTransmission" aria-label="Filter by transmission">
+                        <option value="all">All Transmissions</option>
+                        <option value="automatic">Automatic</option>
+                        <option value="manual">Manual</option>
+                    </select>
+
+                    <select id="filterFuel" aria-label="Filter by fuel type">
+                        <option value="all">All Fuel Types</option>
+                        <option value="petrol">Petrol</option>
+                        <option value="diesel">Diesel</option>
+                        <option value="electric">Electric</option>
+                    </select>
+
+                    <!-- Seats: populated dynamically by Vehicles.js -->
+                    <select id="filterSeats" aria-label="Filter by seats">
+                        <option value="all">All Seats</option>
+                    </select>
+
+                </div>
+            </div>
+
+            <!-- Vehicle grid -->
+            <div class="vehicle-grid" id="vehicleGrid">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading vehicles...</p>
+                </div>
+            </div>
+
+            <!-- No results -->
+            <div class="no-results" id="noResults" style="display: none;">
+                <i class="fas fa-search"></i>
+                <h3>No vehicles found</h3>
+                <p>Try adjusting your filters or search terms</p>
+                <button class="btn-reset-filters" id="resetFilters">Reset Filters</button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 VRental. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Terms &amp; Conditions</a>
+                <a href="#">Privacy Notice</a>
+                <a href="#">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="LicenseRules.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDvE1_9PpviXzJZJZ0Z6GnAcDJ5AFljAcE",
+            authDomain: "v-rent-9048c.firebaseapp.com",
+            projectId: "v-rent-9048c",
+            storageBucket: "v-rent-9048c.firebasestorage.app",
+            messagingSenderId: "1005234060424",
+            appId: "1:1005234060424:web:34d0207a3589a70ff7333d",
+            measurementId: "G-P827PD43LS"
+        };
+        firebase.initializeApp(firebaseConfig);
+        window.auth = firebase.auth();
+        window.db = firebase.firestore();
+    </script>
+
+    <script src="Nav.js"></script>
+    <script src="Vehicles.js"></script>
+</body>
+</html>

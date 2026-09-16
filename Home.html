@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#11141A" />
+    <title>VRental | Home</title>
+
+    <link rel="stylesheet" href="Nav.css" />
+    <link rel="stylesheet" href="Home.css" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="logo">
+                <img src="vrent-logo.jpeg" alt="VRental Logo" />
+            </div>
+
+            <ul class="nav-links" id="navLinks">
+                <li><a href="Home.html" class="active">Home</a></li>
+                <li><a href="Vehicles.html">Vehicles</a></li>
+                <li><a href="Categories.html">Categories</a></li>
+                <li><a href="About.html">About Us</a></li>
+                <li class="rent-vehicle-nav">
+                    <a href="RentVehicle.html" class="btn-rent-vehicle">
+                        <i class="fas fa-plus-circle"></i> Rent Your Vehicle
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-actions">
+                <div id="authButton">
+                    <a href="MainPage.html" class="btn-login">Log In / Sign Up</a>
+                </div>
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero" id="home">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <p class="hero-subtitle">Drive Your Journey with</p>
+            <h1>V-Rent</h1>
+            <p class="hero-description">
+                Find cars, motorcycles, 4x4s, trucks and more.<br />
+                Easy booking. Best prices. Trusted by thousands.
+            </p>
+
+            <!-- Search Form -->
+            <form class="search-form" id="searchForm" role="search">
+                <div class="form-row single-row">
+                    <div class="form-group">
+                        <label for="startDate">Start Date</label>
+                        <input type="date" id="startDate" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate">End Date</label>
+                        <input type="date" id="endDate" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="startTime">Start Time</label>
+                        <input type="time" id="startTime" value="09:00" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="endTime">End Time</label>
+                        <input type="time" id="endTime" value="18:00" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <select id="location">
+                            <option value="">All Locations</option>
+                            <option value="Selangor">Selangor</option>
+                            <option value="Kuala Lumpur">Kuala Lumpur</option>
+                            <option value="Johor">Johor</option>
+                            <option value="Penang">Penang</option>
+                            <option value="Perak">Perak</option>
+                            <option value="Pahang">Pahang</option>
+                            <option value="Kedah">Kedah</option>
+                            <option value="Kelantan">Kelantan</option>
+                            <option value="Terengganu">Terengganu</option>
+                            <option value="Melaka">Melaka</option>
+                            <option value="Negeri Sembilan">Negeri Sembilan</option>
+                            <option value="Perlis">Perlis</option>
+                        </select>
+                    </div>
+                    <div class="form-group search-btn-group">
+                        <button type="submit" class="btn-search">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Quick Categories -->
+    <section class="categories" id="categories">
+        <div class="container">
+            <h2 class="section-title">Quick Categories</h2>
+            <div class="category-scroll-wrapper">
+                <div class="category-grid">
+                    <a href="Categories.html#motorcycles" class="category-card">
+                        <img src="https://res.cloudinary.com/ggxrhjdr/image/upload/v1789197310/uy7pnkzsocxb8lgsqlzc.avif" alt="Motorcycles" loading="lazy" />
+                        <div class="category-overlay">
+                            <h3>Motorcycles</h3>
+                            <p>Fast &amp; Easy</p>
+                        </div>
+                    </a>
+                    <a href="Categories.html#cars" class="category-card">
+                        <img src="https://res.cloudinary.com/ggxrhjdr/image/upload/v1789195775/pkkyyiz0y2pavkhk2bg7.avif" alt="Cars" loading="lazy" />
+                        <div class="category-overlay">
+                            <h3>Cars</h3>
+                            <p>Comfort &amp; Reliable</p>
+                        </div>
+                    </a>
+                    <a href="Categories.html#4x4" class="category-card">
+                        <img src="https://res.cloudinary.com/ggxrhjdr/image/upload/v1789432791/x71uv196j5w1eadmwb5q.avif" alt="4x4" loading="lazy" />
+                        <div class="category-overlay">
+                            <h3>4x4</h3>
+                            <p>Built for Adventure</p>
+                        </div>
+                    </a>
+                    <a href="Categories.html#trucks" class="category-card">
+                        <img src="https://res.cloudinary.com/ggxrhjdr/image/upload/v1789432942/vwprvxakwhqi1ad0nkjp.avif" alt="Trucks" loading="lazy" />
+                        <div class="category-overlay">
+                            <h3>Trucks</h3>
+                            <p>Strong &amp; Spacious</p>
+                        </div>
+                    </a>
+                    <a href="Categories.html#heavy-machinery" class="category-card">
+                        <img src="https://res.cloudinary.com/ggxrhjdr/image/upload/v1789433026/za8clax2wztdcxlgkd5b.avif" alt="Heavy Machinery" loading="lazy" />
+                        <div class="category-overlay">
+                            <h3>Machinery</h3>
+                            <p>Power Your Projects</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Smart Sections -->
+    <div class="container smart-sections-container">
+        <div class="smart-section" id="forYouSection">
+            <div id="forYouContainer"></div>
+        </div>
+        <div class="smart-section" id="bestDealsSection">
+            <div id="bestDealsContainer"></div>
+        </div>
+        <div class="smart-section" id="recentlyViewedSection">
+            <div id="recentlyViewedContainer"></div>
+        </div>
+    </div>
+
+    <!-- Popular Vehicles -->
+    <section class="popular-vehicles" id="popular">
+        <div class="container">
+            <h2 class="section-title">Popular Vehicles</h2>
+            <div class="vehicle-scroll-wrapper" id="popularVehiclesWrapper">
+                <div class="vehicle-grid" id="popularVehiclesGrid">
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recommendation Form -->
+    <section class="recommendation" id="rent">
+        <div class="container">
+            <div class="recommendation-content">
+                <div class="recommendation-text">
+                    <h2>Not sure which vehicle suits you?</h2>
+                    <p>Answer a few questions and we'll recommend the perfect vehicle for you.</p>
+
+                    <form class="recommendation-form" id="recommendationForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="budget">Budget</label>
+                                <select id="budget" required>
+                                    <option value="">Select budget</option>
+                                    <option value="0-100">RM 0 - RM 100</option>
+                                    <option value="100-200">RM 100 - RM 200</option>
+                                    <option value="200-300">RM 200 - RM 300</option>
+                                    <option value="300-500">RM 300 - RM 500</option>
+                                    <option value="500+">RM 500+</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="passengers">Passengers</label>
+                                <select id="passengers" required>
+                                    <option value="">Select passengers</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3-4">3 - 4</option>
+                                    <option value="5-7">5 - 7</option>
+                                    <option value="8+">8+</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="purpose">Rental purpose</label>
+                                <select id="purpose" required>
+                                    <option value="">Select purpose</option>
+                                    <option value="Travel">Travel</option>
+                                    <option value="Business">Business</option>
+                                    <option value="Adventure">Adventure</option>
+                                    <option value="Family">Family</option>
+                                    <option value="Work">Work</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="duration">Rental duration</label>
+                                <select id="duration" required>
+                                    <option value="">Select duration</option>
+                                    <option value="1">1 day</option>
+                                    <option value="2-3">2 - 3 days</option>
+                                    <option value="4-7">4 - 7 days</option>
+                                    <option value="7+">7+ days</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-recommend">
+                            <i class="fas fa-wand-magic-sparkles"></i> Get Recommendation
+                        </button>
+                    </form>
+                </div>
+
+                <div class="recommendation-image">
+                    <div class="recommendation-image-bg">
+                        <div class="recommendation-img-slide" style="background-image: url('bikes.png');"></div>
+                        <div class="recommendation-img-slide" style="background-image: url('supercar.png');"></div>
+                        <div class="recommendation-img-slide" style="background-image: url('pickup.png');"></div>
+                        <div class="recommendation-img-slide" style="background-image: url('mechinery.png');"></div>
+                        <div class="recommendation-img-slide" style="background-image: url('excavator.png');"></div>
+                        <div class="recommendation-img-overlay"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose -->
+    <section class="why-choose" id="about">
+        <div class="container">
+            <h2 class="section-title">Why Choose <span>V-Rent?</span></h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-car-side"></i>
+                    <h3>Wide Range of Vehicles</h3>
+                    <p>Cars, bikes, 4x4s, trucks and heavy machinery.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-headset"></i>
+                    <h3>24/7 Customer Support</h3>
+                    <p>Competitive prices with no hidden charges.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-key"></i>
+                    <h3>Pick Up &amp; Drive</h3>
+                    <p>Pick up your vehicle and enjoy your journey.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <i class="fas fa-search"></i>
+                    <h3>Search</h3>
+                    <p>Enter your details and find available vehicles.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Choose</h3>
+                    <p>Compare and choose the vehicle you like.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <i class="fas fa-calendar-check"></i>
+                    <h3>Book</h3>
+                    <p>Fill in your information and confirm your booking.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 VRental. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Terms &amp; Conditions</a>
+                <a href="#">Privacy Notice</a>
+                <a href="#">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDvE1_9PpviXzJZJZ0Z6GnAcDJ5AFljAcE",
+            authDomain: "v-rent-9048c.firebaseapp.com",
+            projectId: "v-rent-9048c",
+            storageBucket: "v-rent-9048c.firebasestorage.app",
+            messagingSenderId: "1005234060424",
+            appId: "1:1005234060424:web:34d0207a3589a70ff7333d",
+            measurementId: "G-P827PD43LS"
+        };
+        firebase.initializeApp(firebaseConfig);
+        window.auth = firebase.auth();
+        window.db = firebase.firestore();
+    </script>
+
+    <script src="Nav.js"></script>
+    <script src="Home.js"></script>
+</body>
+</html>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#11141A" />
+    <title>V-Rent | Book Vehicle</title>
+
+    <!-- Nav CSS (Universal) -->
+    <link rel="stylesheet" href="Nav.css" />
+
+    <!-- Page CSS -->
+    <link rel="stylesheet" href="Booking.css" />
+
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="logo">
+                <img src="WhatsApp Image 2026-08-12 at 18.52.58.jpeg" alt="VRental Logo" />
+            </div>
+
+            <ul class="nav-links" id="navLinks">
+                <li><a href="Home.html">Home</a></li>
+                <li><a href="Vehicles.html">Vehicles</a></li>
+                <li><a href="Categories.html">Categories</a></li>
+                <li><a href="About.html">About Us</a></li>
+                <li class="rent-vehicle-nav">
+                    <a href="RentVehicle.html" class="btn-rent-vehicle">
+                        <i class="fas fa-plus-circle"></i> Rent Your Vehicle
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-actions">
+                <div id="authButton">
+                    <a href="MainPage.html" class="btn-login">Log In / Sign Up</a>
+                </div>
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Booking Page -->
+    <section class="booking-page">
+        <div class="container">
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Book This Vehicle</h1>
+                <p class="page-subtitle">Fill in the details to complete your booking.</p>
+            </div>
+
+            <!-- Loading State -->
+            <div class="loading-state" id="loadingState">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading vehicle details...</p>
+            </div>
+
+            <!-- Booking Form -->
+            <form id="bookingForm" class="hidden">
+                <div class="booking-card">
+
+                    <!-- Vehicle Summary -->
+                    <div class="vehicle-summary" id="vehicleSummary">
+                        <div class="vehicle-image">
+                            <img id="vehicleImage"
+                                 src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='150' viewBox='0 0 200 150'><rect fill='%2311141A' width='200' height='150'/><text x='50%' y='50%' fill='%23D4AF37' font-family='Inter,sans-serif' font-size='14' text-anchor='middle' dominant-baseline='middle'>No Image</text></svg>"
+                                 alt="Vehicle" />
+                        </div>
+                        <div class="vehicle-details">
+                            <h3 id="vehicleName">Vehicle Name</h3>
+                            <p id="vehicleCategory">Category</p>
+                            <p id="vehiclePrice">RM 0 <span>/ day</span></p>
+                            <p id="vehicleLocation"><i class="fas fa-map-marker-alt"></i> Location</p>
+                        </div>
+                    </div>
+
+                    <!-- V-Rent Delivery Notice (machinery only) -->
+                    <div class="vrent-delivery-notice hidden" id="vrentDeliveryNotice">
+                        <i class="fas fa-truck-moving"></i>
+                        <div>
+                            <strong>Delivered by V-Rent</strong>
+                            <span>Our team delivers this equipment directly to your site. The delivery fee is included in your total below.</span>
+                        </div>
+                    </div>
+
+                    <!-- Booking Details -->
+                    <div class="form-section">
+                        <h2 class="section-title">Booking Details</h2>
+                        <div class="form-grid">
+
+                            <div class="form-group">
+                                <label for="pickupDate">Pickup Date <span class="required">*</span></label>
+                                <input type="date" id="pickupDate" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="returnDate">Return Date <span class="required">*</span></label>
+                                <input type="date" id="returnDate" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="pickupTime">Pickup Time <span class="required">*</span></label>
+                                <input type="time" id="pickupTime" value="09:00" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="returnTime">Return Time <span class="required">*</span></label>
+                                <input type="time" id="returnTime" value="18:00" required />
+                            </div>
+
+                            <!-- Quantity (trucks & heavy machinery only) -->
+                            <div class="form-group full hidden" id="quantityGroup">
+                                <label for="quantity">Number of Units <span class="required">*</span></label>
+                                <input type="number" id="quantity" min="1" max="10" value="1" />
+                                <small class="field-hint">
+                                    For trucks and heavy machinery, you can book multiple units.
+                                </small>
+                            </div>
+
+                            <div class="form-group full">
+                                <label for="pickupLocation">Pickup Location <span class="required">*</span></label>
+                                <input type="text" id="pickupLocation" placeholder="e.g. Kuala Lumpur" required />
+                            </div>
+                            <div class="form-group full">
+                                <label for="returnLocation">Return Location</label>
+                                <input type="text" id="returnLocation" placeholder="Same as pickup" />
+                            </div>
+
+                            <div class="form-group full">
+                                <label for="bookingNotes">Special Requests / Notes</label>
+                                <textarea id="bookingNotes" rows="3" placeholder="Any special requirements, delivery instructions, etc."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contractor Information (trucks & heavy machinery only) -->
+                    <div class="form-section hidden" id="contractorSection">
+                        <h2 class="section-title"><i class="fas fa-building"></i> Contractor / Business Information</h2>
+                        <p class="section-hint">This booking is for a company or project. Please provide the following details.</p>
+                        <div class="form-grid">
+                            <div class="form-group full">
+                                <label for="companyName">Company Name <span class="required">*</span></label>
+                                <input type="text" id="companyName" placeholder="e.g. ABC Construction Sdn Bhd" />
+                            </div>
+                            <div class="form-group">
+                                <label for="contactPerson">Contact Person <span class="required">*</span></label>
+                                <input type="text" id="contactPerson" placeholder="Full name" />
+                            </div>
+                            <div class="form-group">
+                                <label for="contactPhone">Contact Phone <span class="required">*</span></label>
+                                <input type="tel" id="contactPhone" placeholder="+60 12 345 6789" />
+                            </div>
+                            <div class="form-group full">
+                                <label for="projectName">Project Name</label>
+                                <input type="text" id="projectName" placeholder="e.g. Highway Extension Project" />
+                            </div>
+                            <div class="form-group full">
+                                <label for="projectAddress">Project Address</label>
+                                <input type="text" id="projectAddress" placeholder="Site location" />
+                            </div>
+                            <div class="form-group full">
+                                <label for="purpose">Purpose of Rental</label>
+                                <select id="purpose">
+                                    <option value="Construction">Construction</option>
+                                    <option value="Earthmoving">Earthmoving</option>
+                                    <option value="Transport">Transport</option>
+                                    <option value="Heavy Haulage">Heavy Haulage</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Renter Information -->
+                    <div class="form-section">
+                        <h2 class="section-title">Your Information</h2>
+                        <p class="section-hint">This information is retrieved from your account.</p>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="text" id="renterName" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="renterEmail" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Phone</label>
+                                <input type="tel" id="renterPhone" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Your Verified Licence</label>
+                                <div class="licence-display" id="licenceDisplay">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <span>Checking your verification...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Price Summary -->
+                    <div class="form-section">
+                        <h2 class="section-title">Price Summary</h2>
+                        <div class="price-summary" id="priceSummary">
+                            <div class="price-row">
+                                <span>Price per day</span>
+                                <span id="summaryPricePerDay">RM 0</span>
+                            </div>
+                            <div class="price-row">
+                                <span>Number of days</span>
+                                <span id="summaryDays">0 days</span>
+                            </div>
+                            <div class="price-row hidden" id="summaryQuantityRow">
+                                <span>Units</span>
+                                <span id="summaryQuantity">1</span>
+                            </div>
+                            <div class="price-row delivery hidden" id="summaryDeliveryRow">
+                                <span>V-Rent Delivery Fee</span>
+                                <span id="summaryDeliveryFee">RM 0</span>
+                            </div>
+                            <div class="price-row total">
+                                <span>Total Price</span>
+                                <span id="summaryTotal">RM 0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Agreement -->
+                    <div class="form-section">
+                        <div class="agreement-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="agreeTerms" required />
+                                <span>I agree to the <a href="#">Terms &amp; Conditions</a> and <a href="#">Cancellation Policy</a>.</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <i class="fas fa-check-circle"></i> Confirm Booking
+                    </button>
+
+                </div>
+            </form>
+
+            <!-- Success -->
+            <div class="hidden" id="bookingStatus">
+                <div class="status-card">
+                    <i class="fas fa-check-circle status-icon success"></i>
+                    <h2>Booking Submitted!</h2>
+                    <p>Your booking request has been sent to the owner.</p>
+                    <p class="status-note">You will be notified once the owner approves it.</p>
+                    <a href="Dashboard.html" class="btn-home">Go to Dashboard</a>
+                </div>
+            </div>
+
+            <!-- Not Found -->
+            <div class="hidden" id="notFound">
+                <div class="status-card">
+                    <i class="fas fa-exclamation-triangle status-icon warn"></i>
+                    <h2>Vehicle Not Found</h2>
+                    <p>The vehicle you're trying to book doesn't exist or is no longer available.</p>
+                    <a href="Vehicles.html" class="btn-home">Browse Vehicles</a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 VRental. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Terms &amp; Conditions</a>
+                <a href="#">Privacy Notice</a>
+                <a href="#">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Gate Modal -->
+    <div class="auth-gate-overlay" id="authGateOverlay" role="dialog" aria-modal="true" aria-labelledby="authGateTitle">
+        <div class="auth-gate-card">
+            <button class="auth-gate-close" id="authGateClose" aria-label="Close">&times;</button>
+
+            <div class="auth-gate-icon">
+                <i class="fas fa-car-side"></i>
+                <span class="auth-gate-lock"><i class="fas fa-lock"></i></span>
+            </div>
+
+            <h2 class="auth-gate-title" id="authGateTitle">Sign In to Book</h2>
+            <p class="auth-gate-subtitle">Create your free account to book vehicles in under 60 seconds.</p>
+
+            <ul class="auth-gate-benefits">
+                <li><i class="fas fa-check-circle"></i> Book any vehicle instantly</li>
+                <li><i class="fas fa-check-circle"></i> Track your bookings in one place</li>
+                <li><i class="fas fa-check-circle"></i> Save favourites &amp; get deals</li>
+                <li><i class="fas fa-check-circle"></i> Secure payments &amp; verified owners</li>
+            </ul>
+
+            <div class="auth-gate-actions">
+                <a href="MainPage.html" class="auth-gate-primary">
+                    <i class="fas fa-sign-in-alt"></i> Log In / Sign Up
+                </a>
+                <a href="Vehicles.html" class="auth-gate-secondary">Browse More Vehicles</a>
+            </div>
+
+            <p class="auth-gate-footnote">No credit card required to browse.</p>
+        </div>
+    </div>
+
+    <!-- Verification Gate Modal -->
+    <div class="auth-gate-overlay" id="verifyGateOverlay" role="dialog" aria-modal="true" aria-labelledby="verifyGateTitle">
+        <div class="auth-gate-card">
+            <button class="auth-gate-close" id="verifyGateClose" aria-label="Close">&times;</button>
+
+            <div class="auth-gate-icon">
+                <i class="fas fa-id-card"></i>
+                <span class="auth-gate-lock"><i class="fas fa-shield-alt"></i></span>
+            </div>
+
+            <h2 class="auth-gate-title" id="verifyGateTitle">Verify Your Identity to Book</h2>
+            <p class="auth-gate-subtitle">
+                For your safety and the owner's, we verify every renter before their first booking. Takes about 2 minutes.
+            </p>
+
+            <ul class="auth-gate-benefits">
+                <li><i class="fas fa-check-circle"></i> Upload your IC (front &amp; back)</li>
+                <li><i class="fas fa-check-circle"></i> Add your driving licence details</li>
+                <li><i class="fas fa-check-circle"></i> Quick admin review (24–48 hours)</li>
+                <li><i class="fas fa-check-circle"></i> Book any vehicle once approved</li>
+            </ul>
+
+            <div class="auth-gate-actions">
+                <a href="Dashboard.html" class="auth-gate-primary">
+                    <i class="fas fa-shield-alt"></i> Go to Dashboard to Verify
+                </a>
+                <button type="button" class="auth-gate-secondary" id="verifyGateLaterBtn">
+                    Maybe Later
+                </button>
+            </div>
+
+            <p class="auth-gate-footnote">Already submitted? Your status is on the Dashboard.</p>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase Configuration -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDvE1_9PpviXzJZJZ0Z6GnAcDJ5AFljAcE",
+            authDomain: "v-rent-9048c.firebaseapp.com",
+            projectId: "v-rent-9048c",
+            storageBucket: "v-rent-9048c.firebasestorage.app",
+            messagingSenderId: "1005234060424",
+            appId: "1:1005234060424:web:34d0207a3589a70ff7333d",
+            measurementId: "G-P827PD43LS"
+        };
+        firebase.initializeApp(firebaseConfig);
+        window.auth = firebase.auth();
+        window.db = firebase.firestore();
+    </script>
+
+    <!-- Nav JS -->
+    <script src="Nav.js"></script>
+
+    <script src="LicenseRules.js"></script>
+
+    <!-- Page JS -->
+    <script src="Booking.js"></script>
+
+    <!-- Gate Controller (auth + verification) -->
+    <script>
+        (function () {
+            const authOverlay = document.getElementById('authGateOverlay');
+            const authClose   = document.getElementById('authGateClose');
+            const verifyOverlay = document.getElementById('verifyGateOverlay');
+            const verifyClose   = document.getElementById('verifyGateClose');
+            const verifyLater   = document.getElementById('verifyGateLaterBtn');
+
+            // ---- Auth gate ----
+            window.showAuthGate = function () {
+                if (!authOverlay) return;
+                authOverlay.classList.add('show');
+                document.body.classList.add('auth-gate-open');
+            };
+            window.hideAuthGate = function () {
+                if (!authOverlay) return;
+                authOverlay.classList.remove('show');
+                document.body.classList.remove('auth-gate-open');
+            };
+
+            // ---- Verification gate ----
+            window.showVerifyGate = function () {
+                if (!verifyOverlay) return;
+                verifyOverlay.classList.add('show');
+                document.body.classList.add('auth-gate-open');
+            };
+            window.hideVerifyGate = function () {
+                if (!verifyOverlay) return;
+                verifyOverlay.classList.remove('show');
+                document.body.classList.remove('auth-gate-open');
+            };
+
+            // ---- Close handlers ----
+            authClose   && authClose.addEventListener('click', window.hideAuthGate);
+            authOverlay && authOverlay.addEventListener('click', function (e) {
+                if (e.target === authOverlay) window.hideAuthGate();
+            });
+
+            verifyClose   && verifyClose.addEventListener('click', window.hideVerifyGate);
+            verifyOverlay && verifyOverlay.addEventListener('click', function (e) {
+                if (e.target === verifyOverlay) window.hideVerifyGate();
+            });
+            verifyLater   && verifyLater.addEventListener('click', window.hideVerifyGate);
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    window.hideAuthGate();
+                    window.hideVerifyGate();
+                }
+            });
+
+            // ---- Auto-gate on load (auth only) ----
+            // Verification gate is triggered by Booking.js after user doc loads.
+            window.auth.onAuthStateChanged(function (user) {
+                if (!user) {
+                    window.showAuthGate();
+                } else {
+                    window.hideAuthGate();
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

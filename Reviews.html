@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#11141A" />
+    <title>V-Rent | Reviews</title>
+
+    <link rel="stylesheet" href="Nav.css" />
+    <link rel="stylesheet" href="Reviews.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Mobile-First Universal Overrides -->
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        html {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+        input,
+        select,
+        textarea,
+        button {
+            font-size: 16px;
+            touch-action: manipulation;
+            font-family: 'Inter', sans-serif;
+        }
+        .menu-toggle,
+        .btn-login,
+        .btn-rent-vehicle,
+        .panel-submit-btn,
+        .floating-review-btn,
+        .review-panel-close {
+            min-height: 44px;
+        }
+
+        /* iPhone safe-area */
+        @supports (padding: env(safe-area-inset-bottom)) {
+            body {
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+            }
+            .footer {
+                padding-bottom: calc(32px + env(safe-area-inset-bottom));
+            }
+            /* Floating button must sit above iPhone home bar */
+            .floating-review-btn {
+                bottom: calc(24px + env(safe-area-inset-bottom)) !important;
+                right: calc(24px + env(safe-area-inset-right)) !important;
+            }
+            .review-panel {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+
+        /* Mobile tweaks */
+        @media (max-width: 768px) {
+            .reviews-page .container {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+            .page-title {
+                font-size: 1.8rem;
+            }
+            /* Floating button becomes a compact circle on phones */
+            .floating-review-btn span {
+                display: none;
+            }
+            .floating-review-btn {
+                width: 56px !important;
+                height: 56px !important;
+                padding: 0 !important;
+                border-radius: 50% !important;
+                justify-content: center;
+            }
+            .floating-review-btn i {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="logo">
+                <img src="vrent-logo.jpeg" alt="VRental Logo" />
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="Home.html">Home</a></li>
+                <li><a href="Vehicles.html">Vehicles</a></li>
+                <li><a href="Categories.html">Categories</a></li>
+                <li><a href="Reviews.html" class="active">Reviews</a></li>
+                <li><a href="About.html">About Us</a></li>
+                <li class="rent-vehicle-nav">
+                    <a href="RentVehicle.html" class="btn-rent-vehicle">
+                        <i class="fas fa-plus-circle"></i> Rent Your Vehicle
+                    </a>
+                </li>
+            </ul>
+            <div class="nav-actions">
+                <div id="authButton">
+                    <a href="MainPage.html" class="btn-login">Log In / Sign Up</a>
+                </div>
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Reviews Page -->
+    <section class="reviews-page">
+        <div class="container">
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title" id="pageTitle">Vehicle Reviews</h1>
+                <p class="page-subtitle" id="pageSubtitle">See what other renters are saying.</p>
+            </div>
+
+            <!-- Reviews List -->
+            <div class="reviews-list-container">
+                <div class="reviews-list-header">
+                    <h2><i class="fas fa-comments"></i> Reviews</h2>
+                    <span class="review-count-badge" id="reviewCountBadge">0</span>
+                </div>
+                <div id="reviewsList" class="reviews-list">
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading reviews...</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Floating "Write a Review" Button -->
+    <button id="floatingReviewBtn" class="floating-review-btn" title="Write a Review" aria-label="Write a Review">
+        <i class="fas fa-pen"></i>
+        <span>Write a Review</span>
+    </button>
+
+    <!-- Slide-in Review Panel -->
+    <div id="reviewPanelOverlay" class="review-panel-overlay"></div>
+    <div id="reviewPanel" class="review-panel" role="dialog" aria-modal="true" aria-labelledby="reviewPanelTitle">
+
+        <div class="review-panel-header">
+            <h3 id="reviewPanelTitle"><i class="fas fa-pen"></i> Write a Review</h3>
+            <button id="closeReviewPanel" class="review-panel-close" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="review-panel-body">
+            <!-- Loading -->
+            <div id="reviewPanelLoading" class="panel-loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading your booking...
+            </div>
+
+            <!-- Not eligible message -->
+            <div id="reviewPanelNotEligible" class="panel-message" style="display:none;">
+                <i class="fas fa-info-circle"></i>
+                <p id="notEligibleText">You need a completed booking to review this vehicle.</p>
+            </div>
+
+            <!-- Review form -->
+            <form id="reviewForm" style="display:none;">
+                <!-- Vehicle display (auto-filled) -->
+                <div class="panel-vehicle-info" id="panelVehicleInfo">
+                    <div class="vehicle-thumb" id="panelVehicleThumb"></div>
+                    <div>
+                        <div class="vehicle-name" id="panelVehicleName">Vehicle</div>
+                        <div class="vehicle-booking" id="panelVehicleBooking">—</div>
+                    </div>
+                </div>
+
+                <input type="hidden" id="reviewBookingId" />
+                <input type="hidden" id="reviewVehicleId" />
+                <input type="hidden" id="reviewRating" value="0" />
+
+                <div class="panel-form-group">
+                    <label>Your Rating <span class="required">*</span></label>
+                    <div class="star-rating">
+                        <i class="fas fa-star" data-value="1"></i>
+                        <i class="fas fa-star" data-value="2"></i>
+                        <i class="fas fa-star" data-value="3"></i>
+                        <i class="fas fa-star" data-value="4"></i>
+                        <i class="fas fa-star" data-value="5"></i>
+                    </div>
+                </div>
+
+                <div class="panel-form-group">
+                    <label>Your Review <span class="required">*</span></label>
+                    <textarea id="reviewText" rows="5" placeholder="Share your experience with this vehicle..." required></textarea>
+                </div>
+
+                <button type="submit" class="panel-submit-btn" id="submitReviewBtn">
+                    <i class="fas fa-paper-plane"></i> Submit Review
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 VRental. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Terms &amp; Conditions</a>
+                <a href="#">Privacy Notice</a>
+                <a href="#">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDvE1_9PpviXzJZJZ0Z6GnAcDJ5AFljAcE",
+            authDomain: "v-rent-9048c.firebaseapp.com",
+            projectId: "v-rent-9048c",
+            storageBucket: "v-rent-9048c.firebasestorage.app",
+            messagingSenderId: "1005234060424",
+            appId: "1:1005234060424:web:34d0207a3589a70ff7333d",
+            measurementId: "G-P827PD43LS"
+        };
+        firebase.initializeApp(firebaseConfig);
+        window.auth = firebase.auth();
+        window.db = firebase.firestore();
+    </script>
+
+    <script src="Nav.js"></script>
+    <script src="Reviews.js"></script>
+</body>
+</html>

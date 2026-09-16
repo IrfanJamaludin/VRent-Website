@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin | Reviews</title>
+    <link rel="stylesheet" href="AdminPanel.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+    <!-- ============================================================ -->
+    <!-- SIDEBAR                                                        -->
+    <!-- ============================================================ -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <img src="WhatsApp Image 2026-08-12 at 18.52.58.jpeg" alt="V-Rent Logo" class="sidebar-logo" />
+            <span>V-Rent Admin</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="admin-dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="admin-vehicles.html"><i class="fas fa-car"></i> Vehicles</a>
+            <a href="admin-bookings.html"><i class="fas fa-calendar-check"></i> Bookings</a>
+            <a href="admin-users.html"><i class="fas fa-users"></i> Users</a>
+            <a href="admin-verifications.html"><i class="fas fa-id-card"></i> Verifications</a>
+            <a href="admin-reviews.html" class="active"><i class="fas fa-star"></i> Reviews</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </aside>
+
+    <!-- ============================================================ -->
+    <!-- MAIN                                                           -->
+    <!-- ============================================================ -->
+    <main class="admin-main">
+        <header class="admin-header">
+            <div class="admin-header-left">
+                <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                <h1>Reviews Management</h1>
+            </div>
+        </header>
+
+        <div class="admin-content">
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card" style="--accent:#EF4444;">
+                    <div class="stat-icon"><i class="fas fa-flag"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="flaggedStat">0</span>
+                        <span class="stat-label">Flagged</span>
+                    </div>
+                </div>
+                <div class="stat-card" style="--accent:#10B981;">
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="approvedStat">0</span>
+                        <span class="stat-label">Published</span>
+                    </div>
+                </div>
+                <div class="stat-card" style="--accent:#64748B;">
+                    <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="rejectedStat">0</span>
+                        <span class="stat-label">Rejected</span>
+                    </div>
+                </div>
+                <div class="stat-card" style="--accent:#D4AF37;">
+                    <div class="stat-icon"><i class="fas fa-list"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="totalStat">0</span>
+                        <span class="stat-label">Total Reviews</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-tab="flagged">
+                    <i class="fas fa-flag"></i> Flagged
+                    <span class="badge" id="flaggedBadge">0</span>
+                </button>
+                <button class="tab-btn" data-tab="approved">
+                    <i class="fas fa-check-circle"></i> Published
+                </button>
+                <button class="tab-btn" data-tab="rejected">
+                    <i class="fas fa-times-circle"></i> Rejected
+                </button>
+                <button class="tab-btn" data-tab="all">
+                    <i class="fas fa-list"></i> All Reviews
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3 id="tableTitle"><i class="fas fa-flag" style="color:#EF4444;"></i> Flagged Reviews</h3>
+                    <span class="table-count" id="tableCount">0 items</span>
+                </div>
+                <div id="reviewsList">
+                    <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading reviews...</div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ============================================================ -->
+    <!-- MODAL: Review Details                                         -->
+    <!-- ============================================================ -->
+    <div class="modal-overlay" id="reviewModal">
+        <div class="modal modal-lg modal-futuristic">
+            <div class="modal-header-futuristic">
+                <div class="modal-header-content">
+                    <span class="modal-category-badge" id="reviewModalBadge" style="background:rgba(212,175,55,0.12);color:#D4AF37;">
+                        <i class="fas fa-star"></i> Review
+                    </span>
+                    <h2 id="reviewModalTitle">Review Details</h2>
+                </div>
+                <button class="modal-close-futuristic" onclick="closeReviewModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body-futuristic" id="reviewModalBody">
+                <!-- Dynamic content -->
+            </div>
+            <div class="modal-footer-futuristic">
+                <button class="btn-modal-cancel" onclick="closeReviewModal()">Close</button>
+                <button class="btn-modal-confirm-danger" id="modalDeleteBtn">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+                <button class="btn-modal-confirm" id="modalApproveBtn" style="background:#10B981;color:#fff;">
+                    <i class="fas fa-check"></i> Publish
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- FIREBASE SDK                                                   -->
+    <!-- ============================================================ -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDvE1_9PpviXzJZJZ0Z6GnAcDJ5AFljAcE",
+            authDomain: "v-rent-9048c.firebaseapp.com",
+            projectId: "v-rent-9048c",
+            storageBucket: "v-rent-9048c.firebasestorage.app",
+            messagingSenderId: "1005234060424",
+            appId: "1:1005234060424:web:34d0207a3589a70ff7333d",
+            measurementId: "G-P827PD43LS"
+        };
+        firebase.initializeApp(firebaseConfig);
+        window.auth = firebase.auth();
+        window.db = firebase.firestore();
+    </script>
+
+    <script src="admin-reviews.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#11141A" />
+    <title>V-Rent | Dashboard</title>
+
+    <!-- Nav CSS -->
+    <link rel="stylesheet" href="Nav.css" />
+
+    <!-- Page CSS -->
+    <link rel="stylesheet" href="Dashboard.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="logo">
+                <img src="vrent-logo.jpeg" alt="VRental Logo" />
+            </div>
+
+            <ul class="nav-links" id="navLinks">
+                <li><a href="Home.html">Home</a></li>
+                <li><a href="Vehicles.html">Vehicles</a></li>
+                <li><a href="Categories.html">Categories</a></li>
+                <li><a href="About.html">About Us</a></li>
+                <li class="rent-vehicle-nav">
+                    <a href="RentVehicle.html" class="btn-rent-vehicle">
+                        <i class="fas fa-plus-circle"></i> Rent Your Vehicle
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-actions">
+                <div id="authButton">
+                    <a href="MainPage.html" class="btn-login">Log In / Sign Up</a>
+                </div>
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Dashboard -->
+    <main class="dashboard-page">
+        <div class="container">
+
+            <!-- Welcome Hero -->
+            <section class="welcome-hero">
+                <div class="welcome-avatar" id="avatarContainer">
+                    <img id="profileAvatarImg" src="" alt="Profile" style="display:none; width:100%; height:100%; object-fit:cover; border-radius:50%;" />
+                    <span id="profileInitial">U</span>
+                    <label for="avatarUpload" class="avatar-upload-btn" title="Upload profile picture">
+                        <i class="fas fa-camera"></i>
+                    </label>
+                    <input type="file" id="avatarUpload" accept="image/*" style="display:none;" />
+                    <span class="status-dot" id="statusDot"></span>
+                </div>
+                <div class="welcome-text">
+                    <h1>Welcome back, <span id="userNameDisplay">User</span> 👋</h1>
+                    <p class="welcome-sub">
+                        <span id="verificationBadge" class="badge-pill pending">
+                            <i class="fas fa-clock"></i> Pending Verification
+                        </span>
+                        <span class="member-since">Member since <span id="profileJoined">—</span></span>
+                    </p>
+                </div>
+                <div class="welcome-actions">
+                    <button class="btn-primary" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </section>
+
+            <!-- Stats Cards -->
+            <section class="stats-grid" id="statsGrid">
+                <div class="stat-card" style="--accent:#D4AF37;">
+                    <div class="stat-icon"><i class="fas fa-car"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="totalVehicles">0</span>
+                        <span class="stat-label">Vehicles Listed</span>
+                    </div>
+                </div>
+                <div class="stat-card" style="--accent:#3B82F6;">
+                    <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="totalBookings">0</span>
+                        <span class="stat-label">My Bookings</span>
+                    </div>
+                </div>
+                <div class="stat-card" style="--accent:#EC4899;">
+                    <div class="stat-icon"><i class="fas fa-inbox"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="totalRentalRequests">0</span>
+                        <span class="stat-label">Rental Requests</span>
+                    </div>
+                </div>
+                <div class="stat-card" style="--accent:#F59E0B;">
+                    <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="pendingBookings">0</span>
+                        <span class="stat-label">Pending</span>
+                    </div>
+                </div>
+                <div class="stat-card" style="--accent:#10B981;">
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="activeBookings">0</span>
+                        <span class="stat-label">Active</span>
+                    </div>
+                </div>
+                <div class="stat-card" style="--accent:#8B5CF6;">
+                    <div class="stat-icon"><i class="fas fa-star"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="reviewCount">0</span>
+                        <span class="stat-label">Reviews</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Activity -->
+            <section class="recent-activity">
+                <div class="section-header">
+                    <h3><i class="fas fa-bolt"></i> Recent Activity</h3>
+                    <span class="badge" id="activityCount">0</span>
+                </div>
+                <div class="activity-scroll-wrapper" id="recentActivityList">
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading activity...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tabs -->
+            <section class="dashboard-tabs-wrapper">
+                <div class="dashboard-tabs">
+                    <button class="tab-btn active" data-tab="vehicles">
+                        <i class="fas fa-car"></i> My Vehicles
+                    </button>
+                    <button class="tab-btn" data-tab="bookings">
+                        <i class="fas fa-calendar-check"></i> My Bookings
+                    </button>
+                    <button class="tab-btn" data-tab="rental-requests">
+                        <i class="fas fa-inbox"></i> Rental Requests
+                        <span class="tab-badge" id="rentalRequestsTabBadge">0</span>
+                    </button>
+                    <button class="tab-btn" data-tab="favourites">
+                        <i class="fas fa-heart"></i> Favourites
+                    </button>
+                    <button class="tab-btn" data-tab="profile">
+                        <i class="fas fa-user-circle"></i> Profile
+                    </button>
+                </div>
+
+                <!-- TAB: Vehicles -->
+                <div class="tab-content active" id="tab-vehicles">
+                    <div class="section-header">
+                        <h3>Vehicles You've Listed</h3>
+                        <span class="badge" id="vehicleCountBadge">0</span>
+                    </div>
+                    <div id="vehiclesList">
+                        <div class="loading-spinner">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading your vehicles...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: My Bookings (as renter) -->
+                <div class="tab-content" id="tab-bookings">
+                    <div class="section-header">
+                        <h3>Your Bookings</h3>
+                        <span class="badge" id="bookingCountBadge">0</span>
+                    </div>
+                    <div id="bookingsList">
+                        <div class="loading-spinner">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading your bookings...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: Rental Requests (as owner) -->
+                <div class="tab-content" id="tab-rental-requests">
+                    <div class="section-header">
+                        <h3><i class="fas fa-inbox"></i> Bookings on Your Vehicles</h3>
+                        <span class="badge" id="rentalRequestsCountBadge">0</span>
+                    </div>
+                    <p class="section-hint" style="margin-bottom:16px;">
+                        Renter contact details are revealed after an admin approves the booking.
+                    </p>
+                    <div id="rentalRequestsList">
+                        <div class="loading-spinner">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading rental requests...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: Favourites -->
+                <div class="tab-content" id="tab-favourites">
+                    <div class="section-header">
+                        <h3><i class="fas fa-heart" style="color:#EC4899;"></i> Your Favourite Vehicles</h3>
+                        <span class="badge" id="favouriteCountBadge">0</span>
+                    </div>
+                    <div id="favouritesList">
+                        <div class="loading-spinner">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading favourites...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: Profile & Verification -->
+                <div class="tab-content" id="tab-profile">
+
+                    <div class="profile-card-enhanced">
+                        <div class="profile-card-header">
+                            <div class="profile-card-avatar">
+                                <img id="profileAvatarLargeImg" src="" alt="Profile" style="display:none; width:100%; height:100%; object-fit:cover; border-radius:50%;" />
+                                <span id="profileInitialLarge">U</span>
+                                <label for="avatarUploadLarge" class="avatar-upload-btn-enhanced" title="Upload profile picture">
+                                    <i class="fas fa-camera"></i>
+                                </label>
+                                <input type="file" id="avatarUploadLarge" accept="image/*" style="display:none;" />
+                            </div>
+                            <div class="profile-card-info">
+                                <h2 id="profileName">—</h2>
+                                <div class="profile-card-username">
+                                    <span id="profileUsernameDisplay">—</span>
+                                    <button class="btn-edit-username" id="editUsernameBtn">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                </div>
+                                <div id="usernameEditForm" class="username-edit-form" style="display:none;">
+                                    <input type="text" id="usernameInput" placeholder="New username" />
+                                    <button class="btn-save-username" id="saveUsernameBtn">Save</button>
+                                    <button class="btn-cancel-username" id="cancelUsernameBtn">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="profile-card-details">
+                            <div class="detail-item">
+                                <span class="detail-icon"><i class="fas fa-envelope"></i></span>
+                                <div class="detail-content">
+                                    <span class="detail-label">Email</span>
+                                    <span class="detail-value" id="profileEmail">—</span>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-icon"><i class="fas fa-phone"></i></span>
+                                <div class="detail-content">
+                                    <span class="detail-label">Phone</span>
+                                    <span class="detail-value" id="profilePhone">—</span>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-icon"><i class="fas fa-calendar-alt"></i></span>
+                                <div class="detail-content">
+                                    <span class="detail-label">Member Since</span>
+                                    <span class="detail-value" id="profileJoinedDate">—</span>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-icon"><i class="fas fa-shield-alt"></i></span>
+                                <div class="detail-content">
+                                    <span class="detail-label">Verification</span>
+                                    <span class="detail-value" id="profileVerificationStatus">Pending</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Verification -->
+                    <div class="verification-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-shield-alt"></i> Identity Verification</h3>
+                            <span class="badge" id="verificationStatusBadgeLarge">Pending</span>
+                        </div>
+                        <p class="verification-hint">
+                            Upload your IC and driving license to unlock full access.
+                            Verified users can book any vehicle.
+                        </p>
+
+                        <div id="verificationStatus" class="verification-badge pending">
+                            <i class="fas fa-clock"></i> Not verified — please submit your documents.
+                        </div>
+
+                        <form id="verificationForm">
+                            <div class="form-grid">
+                                <div class="form-group full">
+                                    <label>IC (Front) <span class="required">*</span></label>
+                                    <input type="file" id="icFront" accept="image/*" required />
+                                    <small>JPG, PNG (Max 5MB)</small>
+                                    <div id="icFrontPreview" class="verification-preview"></div>
+                                </div>
+                                <div class="form-group full">
+                                    <label>IC (Back) <span class="required">*</span></label>
+                                    <input type="file" id="icBack" accept="image/*" required />
+                                    <small>JPG, PNG (Max 5MB)</small>
+                                    <div id="icBackPreview" class="verification-preview"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label>IC Number <span class="required">*</span></label>
+                                    <input type="text" id="idNumber" placeholder="e.g. 901234-56-7890" required />
+                                </div>
+                                <div class="form-group">
+                                    <label>Full Name (as on IC) <span class="required">*</span></label>
+                                    <input type="text" id="idFullName" placeholder="e.g. AHMAD BIN ABDULLAH" required />
+                                </div>
+                                <div class="form-group full">
+                                    <label>Driving License <span class="required">*</span></label>
+                                    <input type="file" id="licenseImage" accept="image/*" required />
+                                    <small>Front of your license card</small>
+                                    <div id="licensePreview" class="verification-preview"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label>License Number <span class="required">*</span></label>
+                                    <input type="text" id="licenseNumber" placeholder="e.g. A0000001" required />
+                                </div>
+                                <div class="form-group">
+                                    <label>License Expiry <span class="required">*</span></label>
+                                    <input type="date" id="licenseExpiry" required />
+                                </div>
+                                <div class="form-group full">
+                                    <label>License Classes <span class="required">*</span></label>
+                                    <div class="license-classes-grid">
+                                        <label><input type="checkbox" value="A" /> A</label>
+                                        <label><input type="checkbox" value="A1" /> A1</label>
+                                        <label><input type="checkbox" value="B" /> B</label>
+                                        <label><input type="checkbox" value="B1" /> B1</label>
+                                        <label><input type="checkbox" value="B2" /> B2</label>
+                                        <label><input type="checkbox" value="C" /> C</label>
+                                        <label><input type="checkbox" value="D" /> D</label>
+                                        <label><input type="checkbox" value="DA" /> DA</label>
+                                        <label><input type="checkbox" value="E" /> E</label>
+                                        <label><input type="checkbox" value="E1" /> E1</label>
+                                        <label><input type="checkbox" value="E2" /> E2</label>
+                                        <label><input type="checkbox" value="F" /> F</label>
+                                        <label><input type="checkbox" value="G" /> G</label>
+                                        <label><input type="checkbox" value="H" /> H</label>
+                                        <label><input type="checkbox" value="I" /> I</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-submit" id="verifySubmitBtn">
+                                <i class="fas fa-paper-plane"></i> Submit for Verification
+                            </button>
+                        </form>
+
+                        <div id="verificationSubmitted" style="display:none;">
+                            <div class="verification-badge pending">
+                                <i class="fas fa-clock"></i> Documents submitted — waiting for admin review.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Edit Vehicle Modal -->
+    <div class="modal-overlay" id="editVehicleModal" style="display: none;">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> Edit Vehicle</h3>
+                <button class="modal-close" onclick="closeEditVehicleModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editVehicleForm">
+                    <div class="form-section">
+                        <h4>Vehicle Information</h4>
+                        <div class="form-grid">
+                            <div class="form-group full">
+                                <label>Category <span class="required">*</span></label>
+                                <select id="editCategory" required>
+                                    <option value="cars">Cars</option>
+                                    <option value="motorcycles">Motorcycles</option>
+                                    <option value="4x4">4x4</option>
+                                    <option value="trucks">Trucks</option>
+                                    <option value="heavy-machinery">Heavy Machinery</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>Brand <span class="required">*</span></label><input type="text" id="editBrand" required /></div>
+                            <div class="form-group"><label>Model <span class="required">*</span></label><input type="text" id="editModel" required /></div>
+                            <div class="form-group"><label>Year <span class="required">*</span></label><input type="number" id="editYear" min="2000" max="2026" required /></div>
+                            <div class="form-group"><label>Color <span class="required">*</span></label><input type="text" id="editColor" required /></div>
+                            <div class="form-group"><label>Registration <span class="required">*</span></label><input type="text" id="editRegistration" required /></div>
+                            <div class="form-group"><label>Price / Day (RM) <span class="required">*</span></label><input type="number" id="editPrice" min="1" required /></div>
+                            <div class="form-group"><label>Location <span class="required">*</span></label><input type="text" id="editLocation" required /></div>
+                            <div class="form-group full"><label>Description <span class="required">*</span></label><textarea id="editDescription" rows="3" required></textarea></div>
+                        </div>
+                    </div>
+                    <div class="form-section">
+                        <h4>Specifications</h4>
+                        <div class="form-grid" id="editSpecsContainer"></div>
+                    </div>
+                    <button type="submit" class="btn-submit" id="editSubmitBtn">
+                        <i class="fas fa-save"></i> Update Vehicle
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 VRental. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Terms &amp; Conditions</a>
+                <a href="#">Privacy Notice</a>
+                <a href="#">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDvE1_9PpviXzJZJZ0Z6GnAcDJ5AFljAcE",
+            authDomain: "v-rent-9048c.firebaseapp.com",
+            projectId: "v-rent-9048c",
+            storageBucket: "v-rent-9048c.firebasestorage.app",
+            messagingSenderId: "1005234060424",
+            appId: "1:1005234060424:web:34d0207a3589a70ff7333d",
+            measurementId: "G-P827PD43LS"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        window.auth = firebase.auth();
+        window.db = firebase.firestore();
+        window.storage = firebase.storage();
+    </script>
+
+    <script src="Nav.js"></script>
+    <script src="Dashboard.js"></script>
+
+</body>
+</html>

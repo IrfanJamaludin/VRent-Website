@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#11141A" />
+    <title>V-Rent | Log In</title>
+
+    <link rel="stylesheet" href="LogIn.css" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Mobile-First Universal Overrides -->
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        html {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+        input,
+        select,
+        textarea,
+        button {
+            font-size: 16px;
+            touch-action: manipulation;
+        }
+        .btn-submit {
+            min-height: 48px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .toggle-password {
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        @supports (padding: env(safe-area-inset-bottom)) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                margin: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Slideshow -->
+    <div class="bg-container">
+        <div class="bg-slide" style="background-image: url('bikes.png');"></div>
+        <div class="bg-slide" style="background-image: url('supercar.png');"></div>
+        <div class="bg-slide" style="background-image: url('pickup.png');"></div>
+        <div class="bg-slide" style="background-image: url('mechinery.png');"></div>
+        <div class="bg-slide" style="background-image: url('excavator.png');"></div>
+    </div>
+    <div class="bg-overlay"></div>
+
+    <!-- Login Card -->
+    <div class="login-card">
+        <div class="brand">
+            <div class="brand-left">
+                <img src="vrent-logo.jpeg" alt="V-Rent Logo" />
+                <div class="welcome-text">Welcome to V-Rent</div>
+            </div>
+            <a href="MainPage.html" class="back-btn">
+                <svg viewBox="0 0 24 24">
+                    <line x1="19" y1="12" x2="5" y2="12" />
+                    <polyline points="12 19 5 12 12 5" />
+                </svg>
+                <span>Back</span>
+            </a>
+        </div>
+
+        <div class="form-title">Log In</div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="loginEmail" placeholder="Enter your email" required autocomplete="email" />
+            </div>
+
+            <div class="form-group password-group">
+                <label>Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="current-password" />
+                    <button type="button" class="toggle-password" aria-label="Toggle password visibility" data-target="loginPassword">
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="forgot-password">
+                <a href="ForgotPassword.html">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="btn-submit" id="loginSubmitBtn">Continue</button>
+        </form>
+
+        <div class="signup-redirect">
+            Don't have an account? <a href="SignUp.html">Sign Up</a>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDvE1_9PpviXzJZJZ0Z6GnAcDJ5AFljAcE",
+            authDomain: "v-rent-9048c.firebaseapp.com",
+            projectId: "v-rent-9048c",
+            storageBucket: "v-rent-9048c.firebasestorage.app",
+            messagingSenderId: "1005234060424",
+            appId: "1:1005234060424:web:34d0207a3589a70ff7333d",
+            measurementId: "G-P827PD43LS"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        window.auth = firebase.auth();
+        window.db = firebase.firestore();
+    </script>
+
+    <script src="LogIn.js"></script>
+</body>
+</html>

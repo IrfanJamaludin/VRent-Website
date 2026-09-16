@@ -1,0 +1,362 @@
+/* ----- VRENTAL LUXURY GOLD - MAINPAGE.CSS ----- */
+/* Primary (60%): #FFFFFF / #F8F9FA                              */
+/* Secondary (30%): #11141A (Obsidian Charcoal)                  */
+/* Accent (10%): #D4AF37 (Brushed Luxury Gold)                   */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    min-height: 100dvh; /* iPhone: accounts for URL bar */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* Safe-area aware padding — never below 20px */
+    padding-top: max(20px, env(safe-area-inset-top));
+    padding-right: max(20px, env(safe-area-inset-right));
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    padding-left: max(20px, env(safe-area-inset-left));
+
+    background: #F8F9FA;
+    overflow-x: hidden;
+}
+
+/* Universal mobile resets */
+a,
+button,
+input,
+select,
+textarea {
+    touch-action: manipulation;
+}
+
+.btn-main,
+.back-btn {
+    min-height: 44px;
+}
+
+/* ============================================================
+   BACKGROUND SLIDESHOW — crop sides, keep middle
+   ============================================================ */
+.bg-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.bg-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat;
+    opacity: 0;
+    animation: crossfade 25s infinite;
+}
+
+.bg-slide:nth-child(1) { animation-delay: 0s; }
+.bg-slide:nth-child(2) { animation-delay: 5s; }
+.bg-slide:nth-child(3) { animation-delay: 10s; }
+.bg-slide:nth-child(4) { animation-delay: 15s; }
+.bg-slide:nth-child(5) { animation-delay: 20s; }
+
+@keyframes crossfade {
+    0%   { opacity: 0; }
+    8%   { opacity: 1; }
+    20%  { opacity: 1; }
+    28%  { opacity: 0; }
+    100% { opacity: 0; }
+}
+
+.bg-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    background: rgba(255, 255, 255, 0.15);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* ============================================================
+   MAIN CARD (LIGHT GLASS)
+   ============================================================ */
+.main-card {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 440px;
+    padding: 2rem 2rem 2.5rem;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    border-radius: 32px;
+    border: 1px solid rgba(212, 175, 55, 0.20);
+    box-shadow: 0 30px 60px rgba(17, 20, 26, 0.15);
+    color: #11141A;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+/* ============================================================
+   BRAND SECTION — logo fills frame naturally
+   ============================================================ */
+.brand {
+    position: relative;
+    padding-top: 50px;
+    margin-bottom: 2rem;
+    width: 100%;
+    min-height: 120px;
+}
+
+.brand-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 6px;
+}
+
+.brand-center img {
+    width: 100%;
+    max-width: 265px;
+    height: auto;
+    border-radius: 24px;
+    border: 2px solid rgba(212, 175, 55, 0.30);
+    box-shadow: 0 8px 30px rgba(17, 20, 26, 0.08);
+    display: block;
+    transition: transform 0.3s ease;
+    background: transparent;
+    object-fit: contain;
+}
+
+.brand-center img:hover {
+    transform: scale(1.05);
+}
+
+.brand-center h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin: 0;
+    color: #11141A;
+}
+
+.brand-center h1 .highlight {
+    color: #D4AF37;
+}
+
+.brand-center .subtitle {
+    font-size: 0.85rem;
+    opacity: 0.6;
+    letter-spacing: 2px;
+    margin-top: -4px;
+    color: #11141A;
+}
+
+/* ============================================================
+   BACK BUTTON — 16px gap from top-right corner
+   ============================================================ */
+.back-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 8px 16px 8px 12px;
+    background: rgba(17, 20, 26, 0.06);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(212, 175, 55, 0.20);
+    border-radius: 40px;
+    color: #11141A;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    z-index: 5;
+}
+
+.back-btn:hover {
+    background: rgba(212, 175, 55, 0.15);
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.15);
+    border-color: #D4AF37;
+}
+
+.back-btn:active {
+    transform: scale(0.95);
+}
+
+.back-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: #11141A;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
+}
+
+.back-btn span {
+    display: inline-block;
+    line-height: 1;
+}
+
+/* ============================================================
+   ACTION BUTTONS (Charcoal + Gold hover)
+   ============================================================ */
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.btn-main {
+    width: 100%;
+    min-height: 48px;
+    padding: 16px;
+    border: none;
+    border-radius: 40px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    color: #FFFFFF;
+    background: #11141A;
+    box-shadow: 0 4px 15px rgba(17, 20, 26, 0.20);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.btn-main:hover {
+    transform: scale(1.03) translateY(-3px);
+    background: #D4AF37;
+    color: #11141A;
+    box-shadow: 0 12px 35px rgba(212, 175, 55, 0.30);
+}
+
+.btn-main:active {
+    transform: scale(0.97);
+}
+
+.btn-login,
+.btn-signup {
+    background: #11141A;
+}
+
+.btn-login:hover,
+.btn-signup:hover {
+    background: #D4AF37;
+    color: #11141A;
+}
+
+/* ============================================================
+   RESPONSIVE — MOBILE (≤ 480px)
+   ============================================================ */
+@media (max-width: 480px) {
+    .main-card {
+        padding: 1.5rem 1.2rem 2rem;
+        border-radius: 26px;
+    }
+    .brand {
+        padding-top: 52px;
+        min-height: 100px;
+    }
+    .brand-center img {
+        max-width: 180px;
+    }
+    .brand-center h1 {
+        font-size: 1.8rem;
+    }
+    .brand-center .subtitle {
+        font-size: 0.78rem;
+        letter-spacing: 1.5px;
+    }
+    .back-btn {
+        top: 12px;
+        right: 12px;
+        padding: 8px 12px;
+        font-size: 0.72rem;
+        min-height: 40px;
+    }
+    .back-btn span {
+        display: none;
+    }
+    .btn-main {
+        padding: 15px;
+        font-size: 0.98rem;
+    }
+}
+
+/* ============================================================
+   VERY SMALL SCREENS (iPhone SE 1st gen, 320px)
+   ============================================================ */
+@media (max-width: 380px) {
+    .main-card {
+        padding: 1.25rem 1rem 1.75rem;
+        border-radius: 22px;
+    }
+    .brand {
+        padding-top: 48px;
+    }
+    .brand-center img {
+        max-width: 150px;
+    }
+    .brand-center h1 {
+        font-size: 1.55rem;
+    }
+    .btn-main {
+        padding: 14px;
+        font-size: 0.92rem;
+    }
+}
+
+/* ============================================================
+   SHORT LANDSCAPE — allow scroll instead of clipping
+   ============================================================ */
+@media (max-height: 640px) and (orientation: landscape) {
+    body {
+        align-items: flex-start;
+    }
+    .main-card {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+}

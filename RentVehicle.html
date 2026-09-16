@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#11141A" />
+    <title>V-Rent | Rent Your Vehicle</title>
+
+    <link rel="stylesheet" href="Nav.css" />
+    <link rel="stylesheet" href="RentVehicle.css" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="logo">
+                <img src="vrent-logo.jpeg" alt="VRental Logo" />
+            </div>
+
+            <ul class="nav-links" id="navLinks">
+                <li><a href="Home.html">Home</a></li>
+                <li><a href="Vehicles.html">Vehicles</a></li>
+                <li><a href="Categories.html">Categories</a></li>
+                <li><a href="About.html">About Us</a></li>
+                <li class="rent-vehicle-nav">
+                    <a href="RentVehicle.html" class="btn-rent-vehicle active">
+                        <i class="fas fa-plus-circle"></i> Rent Your Vehicle
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-actions">
+                <div id="authButton">
+                    <a href="MainPage.html" class="btn-login">Log In / Sign Up</a>
+                </div>
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Rent Vehicle Page (hidden until verified) -->
+    <div id="rentVehicleGate">
+        <section class="rent-vehicle-page">
+            <div class="container">
+
+                <div class="page-header">
+                    <h1 class="page-title">List Your Vehicle</h1>
+                    <p class="page-subtitle">Share your vehicle with the community and start earning today.</p>
+                </div>
+
+                <form id="rentVehicleForm" class="rent-vehicle-form" enctype="multipart/form-data">
+
+                    <!-- SECTION 1: Owner Information -->
+                    <div class="form-section">
+                        <h2 class="section-title">Owner Information</h2>
+                        <p class="section-hint">This information is automatically retrieved from your account.</p>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="text" id="ownerName" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" id="ownerEmail" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Phone Number <span class="required">*</span></label>
+                                <input type="tel" id="ownerPhone" placeholder="+60 12 345 6789" required />
+                            </div>
+                            <div class="form-group">
+                                <label>Preferred Contact Method</label>
+                                <select id="contactMethod">
+                                    <option value="Phone">Phone</option>
+                                    <option value="Email">Email</option>
+                                    <option value="WhatsApp">WhatsApp</option>
+                                    <option value="Both">Both Email and WhatsApp</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2: Vehicle Information -->
+                    <div class="form-section">
+                        <h2 class="section-title">Vehicle Information</h2>
+                        <div class="form-grid">
+
+                            <div class="form-group full">
+                                <label for="vehicleCategory">Vehicle Category <span class="required">*</span></label>
+                                <select id="vehicleCategory" required>
+                                    <option value="">Select Category</option>
+                                    <option value="motorcycles">Motorcycles</option>
+                                    <option value="cars">Cars</option>
+                                    <option value="4x4">4x4</option>
+                                    <option value="trucks">Trucks</option>
+                                    <option value="heavy-machinery">Heavy Machinery</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group full">
+                                <label for="vehicleSubCategory">Vehicle Type <span class="required">*</span></label>
+                                <select id="vehicleSubCategory" required>
+                                    <option value="">Select Type</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="vehicleBrand">Brand <span class="required">*</span></label>
+                                <select id="vehicleBrand" required>
+                                    <option value="">Select Brand</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="vehicleModel">Model <span class="required">*</span></label>
+                                <input type="text" id="vehicleModel" placeholder="e.g. Vios" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="vehicleYear">Manufacturing Year <span class="required">*</span></label>
+                                <select id="vehicleYear" required>
+                                    <option value="">Select Year</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="vehicleColor">Color <span class="required">*</span></label>
+                                <input type="text" id="vehicleColor" placeholder="e.g. White" required />
+                            </div>
+
+                            <div class="form-group" id="registrationGroup">
+                                <label for="registrationNumber">Registration Number <span class="required">*</span></label>
+                                <input type="text" id="registrationNumber" placeholder="e.g. ABC 1234" required />
+                            </div>
+
+                            <div class="form-group" id="chassisGroup" style="display:none;">
+                                <label for="chassisNumber">Chassis / Serial Number <span class="required">*</span></label>
+                                <input type="text" id="chassisNumber" placeholder="e.g. CAT320-2021-XXXX" />
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- SECTION 3: Specifications -->
+                    <div class="form-section">
+                        <h2 class="section-title">Vehicle Specifications</h2>
+                        <div class="form-grid" id="specificationsContainer">
+                            <p class="empty-specs">Please select a category to view specifications.</p>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 4: AUTO-DERIVED LICENSE REQUIREMENT -->
+                    <div class="form-section">
+                        <h2 class="section-title">License Requirement</h2>
+                        <p class="section-hint">Automatically derived from your vehicle's specifications (JPJ categories). No action needed.</p>
+                        <div class="license-info-box" id="licenseInfoBox">
+                            <i class="fas fa-id-card"></i>
+                            <div>
+                                <strong id="licenseInfoTitle">—</strong>
+                                <span id="licenseInfoDetail">Fill in vehicle specs to see requirement</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 5: Vehicle Condition -->
+                    <div class="form-section">
+                        <h2 class="section-title">Vehicle Condition</h2>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="vehicleMileage">Current Mileage / Operating Hours</label>
+                                <input type="text" id="vehicleMileage" placeholder="e.g. 35,000 km" />
+                            </div>
+                            <div class="form-group">
+                                <label for="lastMaintenance">Last Maintenance Date</label>
+                                <input type="date" id="lastMaintenance" />
+                            </div>
+                            <div class="form-group">
+                                <label for="insuranceStatus" id="insuranceLabel">Insurance Status</label>
+                                <select id="insuranceStatus">
+                                    <option value="">Select</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Expired">Expired</option>
+                                    <option value="Renewing">Renewing</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="roadTaxGroup">
+                                <label for="roadTaxStatus">Road Tax Status</label>
+                                <select id="roadTaxStatus">
+                                    <option value="">Select</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Expired">Expired</option>
+                                    <option value="Renewing">Renewing</option>
+                                </select>
+                            </div>
+                            <div class="form-group full">
+                                <label>Vehicle Condition <span class="required">*</span></label>
+                                <select id="vehicleCondition" required>
+                                    <option value="">Select Condition</option>
+                                    <option value="Excellent">Excellent – Like new</option>
+                                    <option value="Good">Good – Well maintained</option>
+                                    <option value="Fair">Fair – Some wear and tear</option>
+                                    <option value="Needs Repair">Needs Repair – Minor issues</option>
+                                </select>
+                            </div>
+                            <div class="form-group full">
+                                <label>Existing Damage / Notes</label>
+                                <textarea id="existingDamage" rows="3" placeholder="Describe any existing damage, scratches, dents, or issues renters should know about."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 6: Rental Information -->
+                    <div class="form-section">
+                        <h2 class="section-title">Rental Information</h2>
+                        <div class="form-grid">
+
+                            <div class="form-group">
+                                <label for="pricePerDay">Price Per Day (RM) <span class="required">*</span></label>
+                                <input type="number" id="pricePerDay" placeholder="250" min="1" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="pricePerWeek">Price Per Week (RM)</label>
+                                <input type="number" id="pricePerWeek" placeholder="1500" min="0" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="minRentalPeriod">Min Rental Period (Days) <span class="required">*</span></label>
+                                <input type="number" id="minRentalPeriod" placeholder="1" min="1" value="1" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="maxRentalPeriod">Max Rental Period (Days)</label>
+                                <input type="number" id="maxRentalPeriod" placeholder="30" min="1" value="30" />
+                            </div>
+
+                            <div class="form-group full">
+                                <label for="rentalLocation">Rental Location <span class="required">*</span></label>
+                                <select id="rentalLocation" required>
+                                    <option value="">Select Location</option>
+                                    <option value="Selangor">Selangor</option>
+                                    <option value="Kuala Lumpur">Kuala Lumpur</option>
+                                    <option value="Johor">Johor</option>
+                                    <option value="Penang">Penang</option>
+                                    <option value="Perak">Perak</option>
+                                    <option value="Pahang">Pahang</option>
+                                    <option value="Kedah">Kedah</option>
+                                    <option value="Kelantan">Kelantan</option>
+                                    <option value="Terengganu">Terengganu</option>
+                                    <option value="Melaka">Melaka</option>
+                                    <option value="Negeri Sembilan">Negeri Sembilan</option>
+                                    <option value="Perlis">Perlis</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group full">
+                                <label>Available Dates</label>
+                                <div class="date-range-group">
+                                    <div class="form-group" style="margin-bottom:0;flex:1;">
+                                        <label style="font-size:0.7rem;text-transform:none;opacity:0.5;">From</label>
+                                        <input type="date" id="availableFrom" />
+                                    </div>
+                                    <div class="form-group" style="margin-bottom:0;flex:1;">
+                                        <label style="font-size:0.7rem;text-transform:none;opacity:0.5;">To</label>
+                                        <input type="date" id="availableTo" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="mileageLimit">Mileage Limit (km)</label>
+                                <input type="number" id="mileageLimit" placeholder="100" min="0" />
+                            </div>
+
+                            <div class="form-group full" id="pickupMethodGroup">
+                                <label>Pickup Method <span class="required">*</span></label>
+                                <div class="radio-group" id="pickupMethod">
+                                    <label class="radio-label">
+                                        <input type="radio" name="pickupMethod" value="Pickup" checked />
+                                        Pickup
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="pickupMethod" value="Delivery" />
+                                        Delivery
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="pickupMethod" value="Both" />
+                                        Both
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group full" id="vrentDeliveryBadge" style="display:none;">
+                                <div class="delivery-badge">
+                                    <i class="fas fa-truck-moving"></i>
+                                    <div>
+                                        <strong>Delivered by V-Rent</strong>
+                                        <span>The delivery fee is calculated automatically at booking time and charged to the renter.</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="deliveryFeeGroup">
+                                <label for="deliveryFee">Delivery Fee (RM)</label>
+                                <input type="number" id="deliveryFee" placeholder="50" min="0" value="0" disabled />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="securityDeposit">Security Deposit (RM)</label>
+                                <input type="number" id="securityDeposit" placeholder="300" min="0" value="0" />
+                            </div>
+
+                            <div class="form-group full">
+                                <label>Rental Rules</label>
+                                <div class="checkbox-group" id="rentalRulesGroup">
+                                    <label class="checkbox-label"><input type="checkbox" value="Smoking Allowed" /> Smoking Allowed</label>
+                                    <label class="checkbox-label"><input type="checkbox" value="Pets Allowed" /> Pets Allowed</label>
+                                    <label class="checkbox-label"><input type="checkbox" value="Outstation Allowed" /> Outstation Allowed</label>
+                                    <label class="checkbox-label"><input type="checkbox" value="Off-Road Allowed" /> Off-Road Allowed</label>
+                                    <label class="checkbox-label"><input type="checkbox" value="Commercial Use" /> Commercial Use</label>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- SECTION 7: Description -->
+                    <div class="form-section">
+                        <h2 class="section-title">Vehicle Description</h2>
+                        <div class="form-grid">
+                            <div class="form-group full">
+                                <label for="vehicleDescription">Description <span class="required">*</span></label>
+                                <textarea id="vehicleDescription" rows="5" placeholder="Describe the vehicle's condition, features, intended use, and other information renters should know." required></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 8: Photos -->
+                    <div class="form-section">
+                        <h2 class="section-title">Vehicle Photos</h2>
+                        <p class="section-hint">Upload 5-8 clear photos of your vehicle. Required: Front, Rear, Side, Interior, Dashboard.</p>
+                        <div class="image-upload-container">
+                            <div class="upload-area" id="uploadArea">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Drag &amp; drop or click to upload</p>
+                                <span>Maximum 8 photos (JPG, PNG, WEBP)</span>
+                                <input type="file" id="imageUpload" accept="image/*" multiple style="display:none;" />
+                            </div>
+                            <div class="image-preview-grid" id="imagePreviewGrid"></div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 9: Inspection -->
+                    <div class="form-section">
+                        <h2 class="section-title">Schedule Inspection</h2>
+                        <p class="section-hint">Choose a date and time for our admin to inspect your vehicle.</p>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="inspectionDate">Inspection Date <span class="required">*</span></label>
+                                <input type="date" id="inspectionDate" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="inspectionTime">Inspection Time <span class="required">*</span></label>
+                                <input type="time" id="inspectionTime" required />
+                                <small class="field-hint">
+                                    <i class="fas fa-clock"></i> Mon–Fri, 9:00 AM – 5:00 PM only
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 10: Agreement -->
+                    <div class="form-section">
+                        <h2 class="section-title">Agreement</h2>
+                        <div class="agreement-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="agreeAuthorized" required />
+                                <span>I confirm that I am authorized to rent out this vehicle.</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="agreeAccurate" required />
+                                <span>I confirm that the information provided is accurate.</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="agreeTerms" required />
+                                <span>I agree to V-Rent's <a href="#">Terms &amp; Conditions</a> and <a href="#">Privacy Notice</a>.</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <i class="fas fa-paper-plane"></i> Submit Vehicle for Approval
+                    </button>
+
+                </form>
+
+                <div id="submissionStatus" style="display: none;">
+                    <div class="status-card">
+                        <i class="fas fa-clock status-icon"></i>
+                        <h2>Under Review</h2>
+                        <p>Your vehicle has been submitted and is waiting for admin approval.</p>
+                        <p class="status-note">You will be notified once the review is complete.</p>
+                        <a href="Home.html" class="btn-home">Back to Home</a>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 VRental. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Terms &amp; Conditions</a>
+                <a href="#">Privacy Notice</a>
+                <a href="#">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Gate Modal -->
+    <div class="auth-gate-overlay" id="authGateOverlay" role="dialog" aria-modal="true" aria-labelledby="authGateTitle">
+        <div class="auth-gate-card">
+            <button class="auth-gate-close" id="authGateClose" aria-label="Close">&times;</button>
+
+            <div class="auth-gate-icon">
+                <i class="fas fa-car-side"></i>
+                <span class="auth-gate-lock"><i class="fas fa-lock"></i></span>
+            </div>
+
+            <h2 class="auth-gate-title" id="authGateTitle">Sign In to List Your Vehicle</h2>
+            <p class="auth-gate-subtitle">Create your free account to start earning from your vehicles.</p>
+
+            <ul class="auth-gate-benefits">
+                <li><i class="fas fa-check-circle"></i> List unlimited vehicles for free</li>
+                <li><i class="fas fa-check-circle"></i> Set your own price &amp; schedule</li>
+                <li><i class="fas fa-check-circle"></i> Secure payments &amp; verified renters</li>
+                <li><i class="fas fa-check-circle"></i> Full control from your dashboard</li>
+            </ul>
+
+            <div class="auth-gate-actions">
+                <a href="MainPage.html" class="auth-gate-primary">
+                    <i class="fas fa-sign-in-alt"></i> Log In / Sign Up
+                </a>
+                <a href="Home.html" class="auth-gate-secondary">Maybe Later</a>
+            </div>
+
+            <p class="auth-gate-footnote">Takes less than 60 seconds to get started.</p>
+        </div>
+    </div>
+
+    <!-- Verify Gate Modal (NO close button — user must choose an action) -->
+    <div class="auth-gate-overlay" id="verifyGateOverlay" role="dialog" aria-modal="true" aria-labelledby="verifyGateTitle">
+        <div class="auth-gate-card">
+            <div class="auth-gate-icon">
+                <i class="fas fa-id-card"></i>
+                <span class="auth-gate-lock"><i class="fas fa-shield-alt"></i></span>
+            </div>
+
+            <h2 class="auth-gate-title" id="verifyGateTitle">Verify Before Listing</h2>
+            <p class="auth-gate-subtitle" id="verifyGateSubtitle">
+                For trust and safety, we verify every vehicle owner before their listings go live.
+            </p>
+
+            <ul class="auth-gate-benefits" id="verifyGateBenefits">
+                <li><i class="fas fa-check-circle"></i> Upload your IC (front &amp; back)</li>
+                <li><i class="fas fa-check-circle"></i> Add your driving licence details</li>
+                <li><i class="fas fa-check-circle"></i> Quick admin review (24–48 hours)</li>
+                <li><i class="fas fa-check-circle"></i> List vehicles once approved</li>
+            </ul>
+
+            <div class="auth-gate-actions">
+                <a href="Dashboard.html" class="auth-gate-primary">
+                    <i class="fas fa-shield-alt"></i> Go to Dashboard to Verify
+                </a>
+                <button type="button" class="auth-gate-secondary" id="verifyGateLaterBtn">
+                    Maybe Later
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
+    <!-- Firebase Configuration -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDvE1_9PpviXzJZJZ0Z6GnAcDJ5AFljAcE",
+            authDomain: "v-rent-9048c.firebaseapp.com",
+            projectId: "v-rent-9048c",
+            storageBucket: "v-rent-9048c.firebasestorage.app",
+            messagingSenderId: "1005234060424",
+            appId: "1:1005234060424:web:34d0207a3589a70ff7333d",
+            measurementId: "G-P827PD43LS"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        window.auth = firebase.auth();
+        window.db = firebase.firestore();
+        window.storage = firebase.storage();
+    </script>
+
+    <!-- Nav JS -->
+    <script src="Nav.js"></script>
+
+    <!-- License Rules (auto-derive from vehicle specs) -->
+    <script src="LicenseRules.js"></script>
+
+    <!-- Page JS -->
+    <script src="RentVehicle.js"></script>
+
+    <!-- Gate Controller (auth + verify) -->
+    <script>
+        (function () {
+            const authOverlay     = document.getElementById('authGateOverlay');
+            const authClose       = document.getElementById('authGateClose');
+            const verifyOverlay   = document.getElementById('verifyGateOverlay');
+            const verifyLater     = document.getElementById('verifyGateLaterBtn');
+            const verifyTitle     = document.getElementById('verifyGateTitle');
+            const verifySubtitle  = document.getElementById('verifyGateSubtitle');
+            const rentVehicleGate = document.getElementById('rentVehicleGate');
+
+            // ---- Auth gate ----
+            window.showAuthGate = function () {
+                if (!authOverlay) return;
+                authOverlay.classList.add('show');
+                document.body.classList.add('auth-gate-open');
+            };
+            window.hideAuthGate = function () {
+                if (!authOverlay) return;
+                authOverlay.classList.remove('show');
+                document.body.classList.remove('auth-gate-open');
+            };
+
+            // ---- Verify gate ----
+            window.showVerifyGate = function (mode) {
+                if (!verifyOverlay) return;
+
+                if (mode === 'pending') {
+                    verifyTitle.textContent = 'Verification in Progress';
+                    verifySubtitle.textContent = 'Your documents are being reviewed. You can list vehicles once approved (24–48 hours).';
+                } else if (mode === 'rejected') {
+                    verifyTitle.textContent = 'Verification Rejected';
+                    verifySubtitle.textContent = 'Your previous submission was not approved. Please resubmit clearer documents on your Dashboard.';
+                } else {
+                    verifyTitle.textContent = 'Verify Before Listing';
+                    verifySubtitle.textContent = 'For trust and safety, we verify every vehicle owner before their listings go live.';
+                }
+
+                verifyOverlay.classList.add('show');
+                document.body.classList.add('auth-gate-open');
+            };
+            window.hideVerifyGate = function () {
+                if (!verifyOverlay) return;
+                verifyOverlay.classList.remove('show');
+                document.body.classList.remove('auth-gate-open');
+            };
+
+            // ---- Close handlers ----
+            authClose && authClose.addEventListener('click', window.hideAuthGate);
+            authOverlay && authOverlay.addEventListener('click', function (e) {
+                if (e.target === authOverlay) window.hideAuthGate();
+            });
+
+            verifyLater && verifyLater.addEventListener('click', function () {
+                window.hideVerifyGate();
+                window.location.href = 'Home.html';
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    window.hideAuthGate();
+                }
+            });
+
+            // ---- Hide the form immediately (before auth resolves) ----
+            if (rentVehicleGate) rentVehicleGate.style.display = 'none';
+
+            // ---- Check user + verification on load ----
+            window.auth.onAuthStateChanged(async function (user) {
+                if (!user) {
+                    if (rentVehicleGate) rentVehicleGate.style.display = 'none';
+                    window.showAuthGate();
+                    return;
+                }
+
+                try {
+                    const doc = await window.db.collection('users').doc(user.uid).get();
+                    const data = doc.exists ? doc.data() : {};
+                    const status = data.verificationStatus || 'Not Submitted';
+                    const classes = Array.isArray(data.licenseClasses)
+                        ? data.licenseClasses
+                        : (data.licenseClasses ? String(data.licenseClasses).split(',').map(s => s.trim()) : []);
+
+                    if (status === 'Approved' && classes.length > 0) {
+                        if (rentVehicleGate) rentVehicleGate.style.display = 'block';
+                        window.hideVerifyGate();
+                        window.hideAuthGate();
+                    } else {
+                        if (rentVehicleGate) rentVehicleGate.style.display = 'none';
+
+                        if (status === 'Pending') {
+                            window.showVerifyGate('pending');
+                        } else if (status === 'Rejected') {
+                            window.showVerifyGate('rejected');
+                        } else {
+                            window.showVerifyGate('missing');
+                        }
+                    }
+                } catch (err) {
+                    console.error('Gate check failed:', err);
+                    if (rentVehicleGate) rentVehicleGate.style.display = 'none';
+                    window.showVerifyGate('missing');
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

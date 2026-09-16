@@ -1,0 +1,903 @@
+/* ============================================================
+   VRENTAL LUXURY GOLD - ABOUT.CSS
+   Primary (60%): #FFFFFF / #F8F9FA
+   Secondary (30%): #11141A (Obsidian Charcoal)
+   Accent (10%): #D4AF37 (Brushed Luxury Gold)
+   ============================================================ */
+
+/* ----- RESET & BASE ----- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #F8F9FA;
+    color: #11141A;
+    line-height: 1.6;
+    padding-top: 70px;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ----- UNIVERSAL MOBILE RESETS ----- */
+input,
+select,
+textarea,
+button {
+    font-size: 16px;
+    touch-action: manipulation;
+    font-family: 'Inter', sans-serif;
+}
+
+.menu-toggle,
+.btn-login,
+.btn-rent-vehicle,
+.btn-primary,
+.btn-secondary,
+.btn-category {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ----- IPHONE SAFE AREA ----- */
+@supports (padding: env(safe-area-inset-bottom)) {
+    body {
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+    .footer {
+        padding-bottom: calc(32px + env(safe-area-inset-bottom));
+    }
+}
+
+/* ============================================================
+   1. HERO
+   ============================================================ */
+.about-hero {
+    position: relative;
+    min-height: 40vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px 40px;
+    background: linear-gradient(160deg, #FFFFFF 0%, #F8F9FA 100%);
+    overflow: hidden;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1920&q=80') center/cover no-repeat;
+    opacity: 0.04;
+    mix-blend-mode: multiply;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 750px;
+    text-align: center;
+    color: #11141A;
+    margin: 0 auto;
+}
+
+.hero-subtitle {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #D4AF37;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.hero-content h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 8px;
+    color: #11141A;
+}
+
+.hero-content h1 span {
+    color: #D4AF37;
+}
+
+.hero-description {
+    font-size: 1.1rem;
+    color: #4A5568;
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+/* ============================================================
+   2. ABOUT V-RENT
+   ============================================================ */
+.about-section {
+    padding: 60px 0 40px;
+}
+
+.about-intro {
+    max-width: 850px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.about-intro h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #11141A;
+}
+
+.about-intro h2::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #D4AF37;
+    margin: 8px auto 0;
+    border-radius: 4px;
+}
+
+.about-intro p {
+    font-size: 1.05rem;
+    color: #4A5568;
+    line-height: 1.8;
+    margin-bottom: 16px;
+}
+
+/* ============================================================
+   3. OUR PURPOSE
+   ============================================================ */
+.purpose-section {
+    padding: 40px 0 60px;
+}
+
+.purpose-section h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 36px;
+    color: #11141A;
+}
+
+.purpose-section h2::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #D4AF37;
+    margin: 8px auto 0;
+    border-radius: 4px;
+}
+
+.purpose-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.purpose-card {
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 28px 24px;
+    border: 1px solid #EBEEF2;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 12px rgba(17, 20, 26, 0.04);
+}
+
+.purpose-card:hover {
+    transform: translateY(-6px);
+    border-color: #D4AF37;
+    box-shadow: 0 12px 40px rgba(212, 175, 55, 0.08);
+}
+
+.purpose-icon {
+    font-size: 2.4rem;
+    color: #D4AF37;
+    margin-bottom: 12px;
+}
+
+.purpose-card h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #11141A;
+    margin-bottom: 8px;
+}
+
+.purpose-card p {
+    font-size: 0.95rem;
+    color: #4A5568;
+    line-height: 1.6;
+}
+
+/* ============================================================
+   4. HOW V-RENT WORKS
+   ============================================================ */
+.how-it-works-section {
+    padding: 60px 0;
+    background: #FFFFFF;
+}
+
+.how-it-works-section h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 36px;
+    color: #11141A;
+}
+
+.how-it-works-section h2::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #D4AF37;
+    margin: 8px auto 0;
+    border-radius: 4px;
+}
+
+.steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.step-item {
+    text-align: center;
+    padding: 20px 16px;
+    position: relative;
+}
+
+.step-item::after {
+    content: '→';
+    position: absolute;
+    right: -16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    color: #D4AF37;
+    opacity: 0.5;
+}
+
+.step-item:last-child::after {
+    display: none;
+}
+
+.step-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: rgba(212, 175, 55, 0.12);
+    margin-bottom: 4px;
+}
+
+.step-icon {
+    font-size: 2.2rem;
+    color: #D4AF37;
+    margin-bottom: 8px;
+}
+
+.step-item h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #11141A;
+    margin-bottom: 4px;
+}
+
+.step-item p {
+    font-size: 0.85rem;
+    color: #4A5568;
+    line-height: 1.5;
+}
+
+/* ============================================================
+   5. FOR RENTERS & 6. FOR VEHICLE OWNERS
+   ============================================================ */
+.renters-section,
+.owners-section {
+    padding: 60px 0;
+}
+
+.owners-section {
+    background: #FFFFFF;
+}
+
+.section-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+}
+
+.section-content.reverse {
+    direction: rtl;
+}
+
+.section-content.reverse .section-text {
+    direction: ltr;
+}
+
+.section-content.reverse .section-image {
+    direction: ltr;
+}
+
+.section-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #D4AF37;
+    background: rgba(212, 175, 55, 0.08);
+    padding: 4px 14px;
+    border-radius: 40px;
+    margin-bottom: 10px;
+}
+
+.section-text h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #11141A;
+    margin-bottom: 12px;
+}
+
+.section-text p {
+    font-size: 1rem;
+    color: #4A5568;
+    margin-bottom: 16px;
+    line-height: 1.7;
+}
+
+.feature-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 20px;
+    margin-bottom: 20px;
+}
+
+.feature-list li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #11141A;
+}
+
+.feature-list i {
+    color: #D4AF37;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.image-placeholder {
+    width: 100%;
+    height: 320px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.06), rgba(17, 20, 26, 0.03));
+    border: 2px dashed rgba(212, 175, 55, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #88909C;
+    font-size: 1rem;
+}
+
+.image-placeholder i {
+    font-size: 4rem;
+    color: #D4AF37;
+    opacity: 0.4;
+    margin-bottom: 12px;
+}
+
+.btn-primary {
+    display: inline-block;
+    padding: 12px 28px;
+    background: #11141A;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 40px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(17, 20, 26, 0.08);
+}
+
+.btn-primary:hover {
+    background: #D4AF37;
+    color: #11141A;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.20);
+}
+
+/* ============================================================
+   7. SMART FEATURES
+   ============================================================ */
+.smart-features-section {
+    padding: 60px 0;
+    background: #F8F9FA;
+}
+
+.smart-features-section h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    text-align: center;
+    color: #11141A;
+    margin-bottom: 8px;
+}
+
+.smart-features-section h2::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #D4AF37;
+    margin: 8px auto 0;
+    border-radius: 4px;
+}
+
+.section-intro {
+    text-align: center;
+    font-size: 1.05rem;
+    color: #4A5568;
+    max-width: 680px;
+    margin: 8px auto 32px;
+    line-height: 1.7;
+}
+
+.smart-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.smart-card {
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 24px 20px;
+    border: 1px solid #EBEEF2;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(17, 20, 26, 0.04);
+}
+
+.smart-card:hover {
+    transform: translateY(-4px);
+    border-color: #D4AF37;
+    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.08);
+}
+
+.smart-card i {
+    font-size: 2.2rem;
+    color: #D4AF37;
+    margin-bottom: 10px;
+}
+
+.smart-card h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #11141A;
+    margin-bottom: 6px;
+}
+
+.smart-card p {
+    font-size: 0.88rem;
+    color: #4A5568;
+    line-height: 1.6;
+}
+
+/* ============================================================
+   8. VEHICLE CATEGORIES
+   ============================================================ */
+.categories-section {
+    padding: 60px 0;
+    background: #FFFFFF;
+}
+
+.categories-section h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 36px;
+    color: #11141A;
+}
+
+.categories-section h2::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #D4AF37;
+    margin: 8px auto 0;
+    border-radius: 4px;
+}
+
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+}
+
+.category-item {
+    background: #F8F9FA;
+    border-radius: 16px;
+    padding: 24px 16px;
+    border: 1px solid #EBEEF2;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.category-item:hover {
+    transform: translateY(-4px);
+    border-color: #D4AF37;
+    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.08);
+}
+
+.category-item i {
+    font-size: 2.2rem;
+    color: #D4AF37;
+    margin-bottom: 8px;
+}
+
+.category-item h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #11141A;
+    margin-bottom: 4px;
+}
+
+.category-item p {
+    font-size: 0.8rem;
+    color: #4A5568;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.btn-category {
+    display: inline-block;
+    padding: 6px 16px;
+    background: transparent;
+    color: #D4AF37;
+    border: 1px solid #D4AF37;
+    border-radius: 40px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-category:hover {
+    background: #D4AF37;
+    color: #11141A;
+}
+
+/* ============================================================
+   9. FUTURE DEVELOPMENT
+   ============================================================ */
+.future-section {
+    padding: 60px 0;
+    background: #F8F9FA;
+}
+
+.future-section h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    text-align: center;
+    color: #11141A;
+    margin-bottom: 8px;
+}
+
+.future-section h2::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #D4AF37;
+    margin: 8px auto 0;
+    border-radius: 4px;
+}
+
+.future-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 8px;
+}
+
+.future-card {
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 24px 20px;
+    border: 1px solid #EBEEF2;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(17, 20, 26, 0.04);
+}
+
+.future-card:hover {
+    transform: translateY(-4px);
+    border-color: #D4AF37;
+    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.08);
+}
+
+.future-card i {
+    font-size: 2.2rem;
+    color: #D4AF37;
+    margin-bottom: 10px;
+}
+
+.future-card h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #11141A;
+    margin-bottom: 6px;
+}
+
+.future-card p {
+    font-size: 0.85rem;
+    color: #4A5568;
+    line-height: 1.6;
+}
+
+/* ============================================================
+   10. OUR GOAL
+   ============================================================ */
+.goal-section {
+    padding: 60px 0;
+    background: #FFFFFF;
+}
+
+.goal-content {
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.goal-content h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #11141A;
+    margin-bottom: 12px;
+}
+
+.goal-content h2::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #D4AF37;
+    margin: 8px auto 0;
+    border-radius: 4px;
+}
+
+.goal-content p {
+    font-size: 1.1rem;
+    color: #4A5568;
+    line-height: 1.8;
+    margin-bottom: 24px;
+}
+
+.goal-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-secondary {
+    display: inline-block;
+    padding: 12px 28px;
+    background: transparent;
+    color: #11141A;
+    border: 2px solid #11141A;
+    border-radius: 40px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: rgba(212, 175, 55, 0.08);
+    border-color: #D4AF37;
+    color: #D4AF37;
+    transform: translateY(-2px);
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer {
+    background: #11141A;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 32px 0;
+    text-align: center;
+    border-top: 2px solid rgba(212, 175, 55, 0.12);
+}
+
+.footer .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.footer-links {
+    display: flex;
+    gap: 24px;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: #D4AF37;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+/* Tablet — 1024px */
+@media (max-width: 1024px) {
+    .purpose-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .purpose-grid .purpose-card:last-child {
+        grid-column: span 2;
+    }
+
+    .smart-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Tablet portrait — 992px */
+@media (max-width: 992px) {
+    .hero-content h1 {
+        font-size: 2.8rem;
+    }
+
+    .section-content,
+    .section-content.reverse {
+        grid-template-columns: 1fr;
+        direction: ltr;
+        gap: 28px;
+    }
+    .section-content.reverse .section-text,
+    .section-content.reverse .section-image {
+        direction: ltr;
+    }
+
+    .image-placeholder {
+        height: 200px;
+    }
+
+    .feature-list {
+        grid-template-columns: 1fr;
+    }
+
+    .steps-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .step-item::after {
+        display: none;
+    }
+}
+
+/* Mobile — 768px */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .about-hero {
+        padding: 48px 16px 32px;
+    }
+
+    .purpose-grid {
+        grid-template-columns: 1fr;
+    }
+    .purpose-grid .purpose-card:last-child {
+        grid-column: span 1;
+    }
+
+    .categories-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .future-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .smart-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .steps-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .footer .container {
+        flex-direction: column;
+        text-align: center;
+    }
+    .footer-links {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+/* Small mobile — 480px */
+@media (max-width: 480px) {
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+
+    .about-intro h2,
+    .purpose-section h2,
+    .how-it-works-section h2,
+    .smart-features-section h2,
+    .categories-section h2,
+    .future-section h2,
+    .goal-content h2 {
+        font-size: 1.6rem;
+    }
+
+    .categories-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .future-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .steps-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .goal-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .goal-buttons .btn-primary,
+    .goal-buttons .btn-secondary {
+        width: 100%;
+        text-align: center;
+    }
+
+    .image-placeholder {
+        height: 160px;
+    }
+}

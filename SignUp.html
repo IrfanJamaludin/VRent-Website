@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#11141A" />
+    <title>V-Rent | Sign Up</title>
+
+    <!-- External CSS -->
+    <link rel="stylesheet" href="SignUp.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+
+    <!-- Mobile-First Universal Overrides -->
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        html {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+        input,
+        select,
+        textarea,
+        button {
+            font-size: 16px;
+            touch-action: manipulation;
+        }
+        .btn-submit {
+            min-height: 48px;
+        }
+        .toggle-password {
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        @supports (padding: env(safe-area-inset-bottom)) {
+            body {
+                padding-top: calc(20px + env(safe-area-inset-top));
+                padding-left: calc(20px + env(safe-area-inset-left));
+                padding-right: calc(20px + env(safe-area-inset-right));
+                padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            }
+        }
+
+        /* Phone hint — properly visible on the light glass card */
+        .phone-hint {
+            color: rgba(17, 20, 26, 0.45);
+            font-size: 0.72rem;
+            line-height: 1.4;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Slideshow -->
+    <div class="bg-container">
+        <div class="bg-slide" style="background-image: url('bikes.png');"></div>
+        <div class="bg-slide" style="background-image: url('supercar.png');"></div>
+        <div class="bg-slide" style="background-image: url('pickup.png');"></div>
+        <div class="bg-slide" style="background-image: url('mechinery.png');"></div>
+        <div class="bg-slide" style="background-image: url('excavator.png');"></div>
+    </div>
+    <div class="bg-overlay"></div>
+
+    <!-- Sign-Up Card -->
+    <div class="signup-card">
+
+        <!-- Brand + Back Button -->
+        <div class="brand">
+            <div class="brand-left">
+                <img src="vrent-logo.jpeg" alt="V-Rent Logo" />
+                <div class="welcome-text">Welcome to V-Rent</div>
+            </div>
+            <a href="MainPage.html" class="back-btn" aria-label="Back to Main Page">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <line x1="19" y1="12" x2="5" y2="12" />
+                    <polyline points="12 19 5 12 12 5" />
+                </svg>
+                <span>Back</span>
+            </a>
+        </div>
+
+        <div class="form-title">User Detail</div>
+
+        <form id="signupForm" novalidate>
+
+            <!-- First & Last Name -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" name="firstName"
+                           placeholder="e.g. Irfan"
+                           autocomplete="given-name" required />
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" name="lastName"
+                           placeholder="e.g. Jamaludin"
+                           autocomplete="family-name" required />
+                </div>
+            </div>
+
+            <!-- Username -->
+            <div class="form-group full">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username"
+                       placeholder="e.g. irfan_jamaludin"
+                       autocomplete="username" required />
+            </div>
+
+            <!-- Birth Date -->
+            <div class="form-group full">
+                <label for="birthDate">Birth Date</label>
+                <input type="date" id="birthDate" name="birthDate"
+                       autocomplete="bday" required />
+            </div>
+
+            <!-- Email -->
+            <div class="form-group full">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email"
+                       placeholder="blank@mail.com"
+                       autocomplete="email" required />
+            </div>
+
+            <!-- Phone Number -->
+            <div class="form-group full">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone"
+                       placeholder="e.g. 0123456789"
+                       maxlength="11"
+                       pattern="[0-9]{10,11}"
+                       inputmode="numeric"
+                       autocomplete="tel"
+                       required />
+            </div>
+
+            <!-- Password -->
+            <div class="form-group full password-group">
+                <label for="password">Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password"
+                           placeholder="Enter your password"
+                           autocomplete="new-password" required />
+                    <button type="button" class="toggle-password"
+                            aria-label="Toggle password visibility"
+                            data-target="password">
+                        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="form-group full password-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="confirmPassword" name="confirmPassword"
+                           placeholder="Confirm your password"
+                           autocomplete="new-password" required />
+                    <button type="button" class="toggle-password"
+                            aria-label="Toggle password visibility"
+                            data-target="confirmPassword">
+                        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Password Requirements -->
+            <div class="password-requirements">
+                <ul>
+                    <li id="req-length" class="requirement">At least 8 characters in length</li>
+                    <li id="req-space" class="requirement">Must not contain space</li>
+                    <li id="req-complex" class="requirement">Include at least one number, one lower and upper case character and one special character</li>
+                </ul>
+            </div>
+
+            <!-- Terms -->
+            <div class="legal-group">
+                <input type="checkbox" id="agreeCheck" required />
+                <label for="agreeCheck">
+                    I agree to the <a href="#">Terms &amp; Conditions</a> and
+                    <a href="#">Privacy Notice</a>.
+                </label>
+            </div>
+
+            <button type="submit" class="btn-submit" id="signupSubmitBtn">
+                Agree &amp; Continue
+            </button>
+        </form>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase Configuration -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDvE1_9PpviXzJZJZ0Z6GnAcDJ5AFljAcE",
+            authDomain: "v-rent-9048c.firebaseapp.com",
+            projectId: "v-rent-9048c",
+            storageBucket: "v-rent-9048c.firebasestorage.app",
+            messagingSenderId: "1005234060424",
+            appId: "1:1005234060424:web:34d0207a3589a70ff7333d"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        window.auth = firebase.auth();
+        window.db = firebase.firestore();
+    </script>
+
+    <!-- External JavaScript -->
+    <script src="SignUp.js"></script>
+</body>
+</html>

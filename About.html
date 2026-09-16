@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#11141A" />
+    <title>V-Rent | About Us</title>
+
+    <!-- Nav CSS -->
+    <link rel="stylesheet" href="Nav.css" />
+
+    <!-- Page CSS -->
+    <link rel="stylesheet" href="About.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Mobile-First Universal Styles -->
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        html {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+        input,
+        select,
+        textarea,
+        button {
+            font-size: 16px;
+            touch-action: manipulation;
+        }
+        .menu-toggle,
+        .btn-login,
+        .btn-rent-vehicle,
+        .btn-primary,
+        .btn-secondary,
+        .btn-category {
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* iPhone safe area */
+        @supports (padding: env(safe-area-inset-bottom)) {
+            body {
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+            }
+            .footer {
+                padding-bottom: calc(32px + env(safe-area-inset-bottom));
+            }
+        }
+
+        /* Mobile breakpoints */
+        @media (max-width: 768px) {
+            .container {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+            .section-content {
+                flex-direction: column !important;
+            }
+            .section-content.reverse {
+                flex-direction: column-reverse !important;
+            }
+            .purpose-grid,
+            .steps-grid,
+            .smart-grid,
+            .categories-grid,
+            .future-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="logo">
+                <img src="vrent-logo.jpeg" alt="VRental Logo" />
+            </div>
+
+            <ul class="nav-links" id="navLinks">
+                <li><a href="Home.html">Home</a></li>
+                <li><a href="Vehicles.html">Vehicles</a></li>
+                <li><a href="Categories.html">Categories</a></li>
+                <li><a href="About.html" class="active">About Us</a></li>
+                <li class="rent-vehicle-nav">
+                    <a href="RentVehicle.html" class="btn-rent-vehicle">
+                        <i class="fas fa-plus-circle"></i> Rent Your Vehicle
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-actions">
+                <div id="authButton">
+                    <a href="MainPage.html" class="btn-login">Log In / Sign Up</a>
+                </div>
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="about-hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1>About <span>V-Rent</span></h1>
+            <p class="hero-description">
+                A web-based vehicle rental platform designed to make vehicle rental easier, more organized, and accessible for both renters and vehicle owners.
+            </p>
+        </div>
+    </section>
+
+    <!-- ABOUT V-RENT -->
+    <section class="about-section">
+        <div class="container">
+            <div class="about-intro">
+                <h2>What is V-Rent?</h2>
+                <p>
+                    V-Rent is a web-based vehicle rental platform that provides a centralized platform for users to search, compare, and rent different types of vehicles according to their needs. The platform is designed to simplify the vehicle rental process by bringing vehicle information, availability, booking, and rental management into one system.
+                </p>
+                <p>
+                    V-Rent supports different vehicle categories such as motorcycles, cars, 4x4 vehicles, trucks, and selected heavy machinery. In addition to renting vehicles, vehicle owners can submit their vehicles to the platform for rental after the listing has been reviewed and approved by the administrator.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- OUR PURPOSE -->
+    <section class="purpose-section">
+        <div class="container">
+            <h2>Why We Created V-Rent</h2>
+            <div class="purpose-grid">
+                <div class="purpose-card">
+                    <div class="purpose-icon"><i class="fas fa-search"></i></div>
+                    <h3>Easy Vehicle Rental</h3>
+                    <p>Make it easier for users to search for suitable vehicles, check availability, and submit rental bookings through one platform.</p>
+                </div>
+                <div class="purpose-card">
+                    <div class="purpose-icon"><i class="fas fa-tasks"></i></div>
+                    <h3>Organized Rental Management</h3>
+                    <p>Provide a centralized system for managing vehicle information, rental listings, bookings, and user information.</p>
+                </div>
+                <div class="purpose-card">
+                    <div class="purpose-icon"><i class="fas fa-users"></i></div>
+                    <h3>Vehicle Owner Platform</h3>
+                    <p>Allow vehicle owners to submit their vehicles and make them available for rental after administrator approval.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW V-RENT WORKS -->
+    <section class="how-it-works-section">
+        <div class="container">
+            <h2>How V-Rent Works</h2>
+            <div class="steps-grid">
+                <div class="step-item">
+                    <div class="step-number">01</div>
+                    <div class="step-icon"><i class="fas fa-search"></i></div>
+                    <h4>Search</h4>
+                    <p>Browse vehicles based on category, location, rental period, and other preferences.</p>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">02</div>
+                    <div class="step-icon"><i class="fas fa-eye"></i></div>
+                    <h4>Choose</h4>
+                    <p>View vehicle details, specifications, pricing, and availability.</p>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">03</div>
+                    <div class="step-icon"><i class="fas fa-calendar-check"></i></div>
+                    <h4>Book</h4>
+                    <p>Select the rental period and submit a booking request.</p>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">04</div>
+                    <div class="step-icon"><i class="fas fa-user-cog"></i></div>
+                    <h4>Manage</h4>
+                    <p>Renters can manage their bookings while vehicle owners can manage their listed vehicles.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOR RENTERS -->
+    <section class="renters-section">
+        <div class="container">
+            <div class="section-content">
+                <div class="section-text">
+                    <span class="section-tag">For Renters</span>
+                    <h2>Find Your Perfect Vehicle</h2>
+                    <p>V-Rent makes it easy for renters to discover, compare, and book vehicles that match their needs.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> Browse available vehicles</li>
+                        <li><i class="fas fa-check-circle"></i> Search by rental period and location</li>
+                        <li><i class="fas fa-check-circle"></i> Filter vehicles by category</li>
+                        <li><i class="fas fa-check-circle"></i> View vehicle specifications</li>
+                        <li><i class="fas fa-check-circle"></i> Check availability in real-time</li>
+                        <li><i class="fas fa-check-circle"></i> Compare rental options</li>
+                        <li><i class="fas fa-check-circle"></i> Receive smart vehicle recommendations</li>
+                        <li><i class="fas fa-check-circle"></i> Submit rental bookings</li>
+                        <li><i class="fas fa-check-circle"></i> View booking history</li>
+                        <li><i class="fas fa-check-circle"></i> Manage your profile</li>
+                        <li><i class="fas fa-check-circle"></i> Save favourite vehicles</li>
+                    </ul>
+                    <a href="Vehicles.html" class="btn-primary">Browse Vehicles →</a>
+                </div>
+                <div class="section-image">
+                    <div class="image-placeholder">
+                        <i class="fas fa-user-astronaut"></i>
+                        <span>Renter Experience</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOR VEHICLE OWNERS -->
+    <section class="owners-section">
+        <div class="container">
+            <div class="section-content reverse">
+                <div class="section-image">
+                    <div class="image-placeholder">
+                        <i class="fas fa-hand-holding-heart"></i>
+                        <span>Owner Experience</span>
+                    </div>
+                </div>
+                <div class="section-text">
+                    <span class="section-tag">For Vehicle Owners</span>
+                    <h2>Earn from Your Vehicle</h2>
+                    <p>V-Rent also allows vehicle owners to offer their vehicles for rental. Owners can submit vehicle information, rental pricing, availability, vehicle condition, and images through the platform.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> Add vehicle details</li>
+                        <li><i class="fas fa-check-circle"></i> Upload vehicle images</li>
+                        <li><i class="fas fa-check-circle"></i> Enter specifications</li>
+                        <li><i class="fas fa-check-circle"></i> Set rental price</li>
+                        <li><i class="fas fa-check-circle"></i> Set availability</li>
+                        <li><i class="fas fa-check-circle"></i> Add rental rules</li>
+                        <li><i class="fas fa-check-circle"></i> Submit listing for approval</li>
+                        <li><i class="fas fa-check-circle"></i> Track approval status</li>
+                        <li><i class="fas fa-check-circle"></i> Manage approved vehicles</li>
+                        <li><i class="fas fa-check-circle"></i> Manage rental bookings</li>
+                    </ul>
+                    <a href="RentVehicle.html" class="btn-primary">List Your Vehicle →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SMART FEATURES -->
+    <section class="smart-features-section">
+        <div class="container">
+            <h2>Smarter Vehicle Rental</h2>
+            <p class="section-intro">
+                V-Rent includes several smart features to help users make better rental decisions and improve the overall rental experience.
+            </p>
+            <div class="smart-grid">
+                <div class="smart-card">
+                    <i class="fas fa-robot"></i>
+                    <h4>Smart Vehicle Recommendation</h4>
+                    <p>Recommends suitable vehicles based on the user's budget, number of passengers, rental purpose, and rental duration.</p>
+                </div>
+                <div class="smart-card">
+                    <i class="fas fa-clock"></i>
+                    <h4>Smart Availability</h4>
+                    <p>Helps users identify vehicles that are available during their selected rental period.</p>
+                </div>
+                <div class="smart-card">
+                    <i class="fas fa-user-check"></i>
+                    <h4>For You</h4>
+                    <p>Displays vehicle suggestions based on the user's interaction and browsing activity.</p>
+                </div>
+                <div class="smart-card">
+                    <i class="fas fa-fire"></i>
+                    <h4>Popular Vehicles</h4>
+                    <p>Highlights vehicles that are receiving higher levels of interest and bookings from users.</p>
+                </div>
+                <div class="smart-card">
+                    <i class="fas fa-history"></i>
+                    <h4>Recently Viewed</h4>
+                    <p>Allows users to quickly return to vehicles they have previously viewed.</p>
+                </div>
+                <div class="smart-card">
+                    <i class="fas fa-gem"></i>
+                    <h4>Best Deals</h4>
+                    <p>Highlights vehicles that provide attractive rental value based on price and other vehicle information.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VEHICLE CATEGORIES -->
+    <section class="categories-section">
+        <div class="container">
+            <h2>Explore Our Vehicle Categories</h2>
+            <div class="categories-grid">
+                <div class="category-item">
+                    <i class="fas fa-motorcycle"></i>
+                    <h4>Motorcycles</h4>
+                    <p>Suitable for personal transportation and short-distance travel.</p>
+                    <a href="Vehicles.html?category=motorcycles" class="btn-category">View Vehicles</a>
+                </div>
+                <div class="category-item">
+                    <i class="fas fa-car"></i>
+                    <h4>Cars</h4>
+                    <p>Vehicles for daily travel, family trips, and general transportation.</p>
+                    <a href="Vehicles.html?category=cars" class="btn-category">View Vehicles</a>
+                </div>
+                <div class="category-item">
+                    <i class="fas fa-truck"></i>
+                    <h4>4x4</h4>
+                    <p>Suitable for outdoor activities, challenging roads, and utility purposes.</p>
+                    <a href="Vehicles.html?category=4x4" class="btn-category">View Vehicles</a>
+                </div>
+                <div class="category-item">
+                    <i class="fas fa-truck-moving"></i>
+                    <h4>Trucks</h4>
+                    <p>Vehicles suitable for cargo transportation and commercial use.</p>
+                    <a href="Vehicles.html?category=trucks" class="btn-category">View Vehicles</a>
+                </div>
+                <div class="category-item">
+                    <i class="fas fa-helmet-safety"></i>
+                    <h4>Heavy Machinery</h4>
+                    <p>Equipment intended for construction and site-related activities.</p>
+                    <a href="Vehicles.html?category=heavy-machinery" class="btn-category">View Vehicles</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FUTURE DEVELOPMENT -->
+    <section class="future-section">
+        <div class="container">
+            <h2>Future Development</h2>
+            <p class="section-intro">
+                V-Rent is designed with the possibility of future improvements as the platform develops. Future versions may introduce additional vehicle categories, improved recommendation features, enhanced owner management tools, and additional rental services.
+            </p>
+            <div class="future-grid">
+                <div class="future-card">
+                    <i class="fas fa-plus-circle"></i>
+                    <h4>More Vehicle Categories</h4>
+                    <p>Expand the platform to support additional vehicle types and specialized rental equipment.</p>
+                </div>
+                <div class="future-card">
+                    <i class="fas fa-brain"></i>
+                    <h4>Improved Recommendations</h4>
+                    <p>Improve vehicle recommendations using more user activity and rental preferences.</p>
+                </div>
+                <div class="future-card">
+                    <i class="fas fa-tools"></i>
+                    <h4>Better Owner Tools</h4>
+                    <p>Provide owners with more tools to manage pricing, availability, listings, and rental performance.</p>
+                </div>
+                <div class="future-card">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h4>Mobile Platform</h4>
+                    <p>Develop a mobile-friendly application in the future to make vehicle rental more convenient on mobile devices.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- OUR GOAL -->
+    <section class="goal-section">
+        <div class="container">
+            <div class="goal-content">
+                <h2>Our Goal</h2>
+                <p>
+                    Our goal is to provide a simple and organized vehicle rental platform where users can easily find suitable vehicles while vehicle owners can conveniently offer their vehicles for rental.
+                </p>
+                <div class="goal-buttons">
+                    <a href="Vehicles.html" class="btn-primary">Browse Vehicles</a>
+                    <a href="RentVehicle.html" class="btn-secondary">List Your Vehicle</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 VRental. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Terms &amp; Conditions</a>
+                <a href="#">Privacy Notice</a>
+                <a href="#">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDvE1_9PpviXzJZJZ0Z6GnAcDJ5AFljAcE",
+            authDomain: "v-rent-9048c.firebaseapp.com",
+            projectId: "v-rent-9048c",
+            storageBucket: "v-rent-9048c.firebasestorage.app",
+            messagingSenderId: "1005234060424",
+            appId: "1:1005234060424:web:34d0207a3589a70ff7333d",
+            measurementId: "G-P827PD43LS"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        window.auth = firebase.auth();
+        window.db = firebase.firestore();
+    </script>
+
+    <!-- Nav JS -->
+    <script src="Nav.js"></script>
+
+    <!-- Page JS -->
+    <script src="About.js"></script>
+
+</body>
+</html>

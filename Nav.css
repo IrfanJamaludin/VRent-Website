@@ -1,0 +1,447 @@
+/* ============================================================
+   VRENTAL LUXURY GOLD - NAV.CSS
+   Primary (60%): #FFFFFF / #F8F9FA
+   Secondary (30%): #11141A (Obsidian Charcoal)
+   Accent (10%): #D4AF37 (Brushed Luxury Gold)
+   ============================================================ */
+
+/* ----- HEADER HEIGHT (used by page CSS to offset content) ----- */
+:root {
+    --header-height: 70px;
+    --header-safe-top: env(safe-area-inset-top, 0px);
+}
+
+/* ----- RESET ----- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+    touch-action: manipulation;
+}
+
+/* ============================================================
+   HEADER / NAVBAR
+   ============================================================ */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+
+    min-height: calc(var(--header-height) + var(--header-safe-top));
+    padding-top: var(--header-safe-top);
+    padding-left: max(24px, env(safe-area-inset-left, 0px));
+    padding-right: max(24px, env(safe-area-inset-right, 0px));
+
+    display: flex;
+    align-items: center;
+}
+
+.navbar {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* ============================================================
+   LOGO — aspect-ratio preserved at every breakpoint
+   ============================================================ */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.logo img {
+    height: 55px;
+    width: auto;              /* ← preserves natural aspect ratio */
+    max-width: 140px;
+    object-fit: contain;      /* ← never crops or distorts */
+    display: block;
+    border-radius: 10px;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.logo-text {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #11141A;
+    letter-spacing: -0.5px;
+}
+
+.logo-text span {
+    color: #D4AF37;
+}
+
+/* ============================================================
+   NAV LINKS
+   ============================================================ */
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links li {
+    list-style: none;
+}
+
+.nav-links a {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 40px;
+    color: #4A5568;
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: #11141A;
+    background: rgba(212, 175, 55, 0.06);
+}
+
+.nav-links a.active {
+    color: #D4AF37;
+    background: rgba(212, 175, 55, 0.08);
+}
+
+/* ============================================================
+   RENT YOUR VEHICLE CTA
+   ============================================================ */
+.btn-rent-vehicle {
+    background: #D4AF37 !important;
+    color: #11141A !important;
+    padding: 8px 18px !important;
+    border-radius: 40px !important;
+    font-weight: 700 !important;
+    transition: all 0.3s ease !important;
+}
+
+.btn-rent-vehicle:hover {
+    background: #C5A028 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.25);
+}
+
+.btn-rent-vehicle.active {
+    background: #C5A028 !important;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.30);
+}
+
+.btn-rent-vehicle i {
+    font-size: 0.85rem;
+}
+
+/* ============================================================
+   NAV ACTIONS
+   ============================================================ */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* ============================================================
+   LOGIN / SIGNUP BUTTONS
+   ============================================================ */
+.btn-login {
+    padding: 8px 20px;
+    border-radius: 40px;
+    background: transparent;
+    border: 1px solid #EBEEF2;
+    color: #11141A;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    white-space: nowrap;
+}
+
+.btn-login:hover {
+    border-color: #D4AF37;
+    background: rgba(212, 175, 55, 0.06);
+}
+
+.btn-signup-nav {
+    padding: 8px 20px;
+    border-radius: 40px;
+    background: #11141A;
+    border: none;
+    color: #FFFFFF;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    white-space: nowrap;
+}
+
+.btn-signup-nav:hover {
+    background: #D4AF37;
+    color: #11141A;
+}
+
+/* ============================================================
+   USER AVATAR
+   ============================================================ */
+.user-avatar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: #11141A;
+    padding: 4px 10px 4px 4px;
+    border-radius: 40px;
+    transition: background 0.3s ease;
+}
+
+.user-avatar:hover {
+    background: rgba(212, 175, 55, 0.08);
+}
+
+.nav-avatar-img {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 2px solid #D4AF37;
+    flex-shrink: 0;
+    display: block;
+}
+
+.avatar-placeholder {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    max-width: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #D4AF37, #C5A028);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.avatar-username {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #11141A;
+    white-space: nowrap;
+}
+
+/* ============================================================
+   MENU TOGGLE
+   ============================================================ */
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: #11141A;
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+}
+
+.menu-toggle:hover {
+    background: rgba(17, 20, 26, 0.04);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+/* 992px - Tablet */
+@media (max-width: 992px) {
+    .nav-links {
+        position: fixed;
+        top: calc(var(--header-height) + var(--header-safe-top));
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        flex-direction: column;
+        padding: 16px 24px calc(16px + env(safe-area-inset-bottom, 0px));
+        gap: 4px;
+        border-bottom: 1px solid #EBEEF2;
+        display: none;
+        max-height: calc(100vh - var(--header-height) - var(--header-safe-top));
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+
+    .nav-links a {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 12px;
+    }
+
+    .nav-links li {
+        width: 100%;
+    }
+
+    .btn-rent-vehicle {
+        justify-content: center !important;
+        width: 100% !important;
+    }
+
+    .menu-toggle {
+        display: flex;
+    }
+}
+
+/* ============================================================
+   480px - Mobile  (logo scales proportionally now)
+   ============================================================ */
+@media (max-width: 480px) {
+    :root {
+        --header-height: 64px;
+    }
+
+    .header {
+        padding-left: max(16px, env(safe-area-inset-left, 0px));
+        padding-right: max(16px, env(safe-area-inset-right, 0px));
+    }
+
+    /* FIXED: was distorting at 110×36 — now 40px tall × auto width */
+    .logo img {
+        height: 40px;
+        width: auto;
+        max-width: 110px;
+    }
+
+    .logo-text {
+        font-size: 1.1rem;
+    }
+
+    .nav-links {
+        padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .nav-actions .btn-login,
+    .nav-actions .btn-signup-nav {
+        font-size: 0.75rem;
+        padding: 6px 14px;
+        min-height: 36px;
+    }
+
+    .nav-avatar-img {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        max-width: 32px !important;
+    }
+
+    .avatar-placeholder {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        max-width: 32px;
+        font-size: 0.85rem;
+    }
+
+    .avatar-username {
+        font-size: 0.75rem;
+    }
+
+    .user-avatar {
+        padding: 2px 8px 2px 2px;
+    }
+}
+
+/* ============================================================
+   375px - Very small phones  (still proportional)
+   ============================================================ */
+@media (max-width: 375px) {
+    :root {
+        --header-height: 60px;
+    }
+
+    /* FIXED: was distorting at 110×30 — now 34px tall × auto width */
+    .logo img {
+        height: 34px;
+        width: auto;
+        max-width: 90px;
+    }
+
+    .logo-text {
+        font-size: 0.95rem;
+    }
+
+    .nav-actions .btn-login,
+    .nav-actions .btn-signup-nav {
+        font-size: 0.68rem;
+        padding: 5px 10px;
+        min-height: 32px;
+    }
+
+    .nav-avatar-img {
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        max-width: 28px !important;
+    }
+
+    .avatar-placeholder {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        max-width: 28px;
+        font-size: 0.7rem;
+    }
+
+    .avatar-username {
+        display: none;
+    }
+
+    .user-avatar {
+        padding: 2px;
+    }
+}
