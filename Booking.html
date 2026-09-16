@@ -95,7 +95,7 @@
                         </div>
                     </div>
 
-                    <!-- Booking Details -->
+                    <!-- ================= BOOKING DETAILS ================= -->
                     <div class="form-section">
                         <h2 class="section-title">Booking Details</h2>
                         <div class="form-grid">
@@ -126,15 +126,51 @@
                                 </small>
                             </div>
 
+                            <!-- Delivery Address -->
+                            <div class="form-group full">
+                                <label for="deliveryAddress">Delivery Address <span class="required">*</span></label>
+                                <input type="text" id="deliveryAddress" placeholder="Full address for vehicle delivery" />
+                                <small class="field-hint">
+                                    <i class="fas fa-info-circle"></i>
+                                    Required if Delivery pickup method is selected
+                                </small>
+                            </div>
+
+                            <!-- Pickup Location -->
                             <div class="form-group full">
                                 <label for="pickupLocation">Pickup Location <span class="required">*</span></label>
                                 <input type="text" id="pickupLocation" placeholder="e.g. Kuala Lumpur" required />
                             </div>
+
+                            <!-- Return Location -->
                             <div class="form-group full">
                                 <label for="returnLocation">Return Location</label>
                                 <input type="text" id="returnLocation" placeholder="Same as pickup" />
                             </div>
 
+                            <!-- Return Address -->
+                            <div class="form-group full">
+                                <label for="returnAddress">Return Address</label>
+                                <input type="text" id="returnAddress" placeholder="Leave blank if same as pickup address" />
+                            </div>
+
+                            <!-- Outstation Declaration -->
+                            <div class="form-group full">
+                                <label>Will you travel outstation?</label>
+                                <div class="tick-group" data-field="outstation">
+                                    <button type="button" class="tick-btn active" data-value="No">
+                                        <i class="fas fa-check"></i> No — Same State
+                                    </button>
+                                    <button type="button" class="tick-btn" data-value="Yes">
+                                        <i class="fas fa-check"></i> Yes — Cross-State
+                                    </button>
+                                </div>
+                                <small class="field-hint" id="outstationHint">
+                                    Same-state travel only. Additional charges apply if detected.
+                                </small>
+                            </div>
+
+                            <!-- Notes -->
                             <div class="form-group full">
                                 <label for="bookingNotes">Special Requests / Notes</label>
                                 <textarea id="bookingNotes" rows="3" placeholder="Any special requirements, delivery instructions, etc."></textarea>
@@ -142,7 +178,7 @@
                         </div>
                     </div>
 
-                    <!-- Contractor Information (trucks & heavy machinery only) -->
+                    <!-- ================= CONTRACTOR INFO (trucks & heavy machinery only) ================= -->
                     <div class="form-section hidden" id="contractorSection">
                         <h2 class="section-title"><i class="fas fa-building"></i> Contractor / Business Information</h2>
                         <p class="section-hint">This booking is for a company or project. Please provide the following details.</p>
@@ -180,7 +216,7 @@
                         </div>
                     </div>
 
-                    <!-- Renter Information -->
+                    <!-- ================= RENTER INFO ================= -->
                     <div class="form-section">
                         <h2 class="section-title">Your Information</h2>
                         <p class="section-hint">This information is retrieved from your account.</p>
@@ -207,34 +243,126 @@
                         </div>
                     </div>
 
-                    <!-- Price Summary -->
+                    <!-- ================= INSURANCE SECTION ================= -->
+                    <div class="form-section">
+                        <h2 class="section-title">Insurance Coverage</h2>
+                        <div class="insurance-options">
+
+                            <label class="insurance-option selected">
+                                <input type="radio" name="insurance" value="Basic" data-fee="0" checked hidden />
+                                <div class="insurance-content">
+                                    <div class="insurance-header">
+                                        <strong>Basic CDW</strong>
+                                        <span class="insurance-price">Included</span>
+                                    </div>
+                                    <span class="insurance-detail">Excess: RM 3,000</span>
+                                </div>
+                            </label>
+
+                            <label class="insurance-option">
+                                <input type="radio" name="insurance" value="Medium" data-fee="30" hidden />
+                                <div class="insurance-content">
+                                    <div class="insurance-header">
+                                        <strong>Medium Cover</strong>
+                                        <span class="insurance-price">+RM 30/day</span>
+                                    </div>
+                                    <span class="insurance-detail">Excess: RM 1,000</span>
+                                </div>
+                            </label>
+
+                            <label class="insurance-option">
+                                <input type="radio" name="insurance" value="Premium" data-fee="50" hidden />
+                                <div class="insurance-content">
+                                    <div class="insurance-header">
+                                        <strong>Premium / Zero Excess</strong>
+                                        <span class="insurance-price">+RM 50/day</span>
+                                    </div>
+                                    <span class="insurance-detail">Excess: RM 0</span>
+                                </div>
+                            </label>
+
+                        </div>
+                    </div>
+
+                    <!-- ================= PAYMENT METHOD (STATIC TICK) ================= -->
+                    <div class="form-section">
+                        <h2 class="section-title">Payment Method</h2>
+                        <div class="tick-group payment-tick-group" data-field="paymentMethod">
+                            <button type="button" class="tick-btn active" data-value="FPX">
+                                <i class="fas fa-check"></i>
+                                <i class="fas fa-university"></i> Online Banking (FPX)
+                            </button>
+                            <button type="button" class="tick-btn" data-value="Card">
+                                <i class="fas fa-check"></i>
+                                <i class="fas fa-credit-card"></i> Credit / Debit Card
+                            </button>
+                            <button type="button" class="tick-btn" data-value="EWallet">
+                                <i class="fas fa-check"></i>
+                                <i class="fas fa-mobile-alt"></i> E-Wallet
+                            </button>
+                        </div>
+                        <p class="field-hint">Payment will be processed after owner approves your booking.</p>
+                    </div>
+
+                    <!-- ================= PRICE SUMMARY ================= -->
                     <div class="form-section">
                         <h2 class="section-title">Price Summary</h2>
                         <div class="price-summary" id="priceSummary">
+
                             <div class="price-row">
                                 <span>Price per day</span>
                                 <span id="summaryPricePerDay">RM 0</span>
                             </div>
+
                             <div class="price-row">
                                 <span>Number of days</span>
                                 <span id="summaryDays">0 days</span>
                             </div>
+
                             <div class="price-row hidden" id="summaryQuantityRow">
                                 <span>Units</span>
                                 <span id="summaryQuantity">1</span>
                             </div>
+
                             <div class="price-row delivery hidden" id="summaryDeliveryRow">
                                 <span>V-Rent Delivery Fee</span>
                                 <span id="summaryDeliveryFee">RM 0</span>
                             </div>
+
+                            <div class="price-row">
+                                <span>Insurance Coverage</span>
+                                <span id="summaryInsurance">RM 0</span>
+                            </div>
+
+                            <div class="price-row">
+                                <span>Booking Fee (Platform)</span>
+                                <span>RM 10</span>
+                            </div>
+
+                            <div class="price-row subtotal">
+                                <span>Subtotal</span>
+                                <span id="summarySubtotal">RM 0</span>
+                            </div>
+
+                            <div class="price-row highlight">
+                                <span>Down Payment (20%) — Due Now</span>
+                                <span id="summaryDownPayment">RM 0</span>
+                            </div>
+
+                            <div class="price-row">
+                                <span style="color:#88909C;">Balance Due on Pickup</span>
+                                <span id="summaryBalance" style="color:#88909C;">RM 0</span>
+                            </div>
+
                             <div class="price-row total">
-                                <span>Total Price</span>
+                                <span>Total Rental Cost</span>
                                 <span id="summaryTotal">RM 0</span>
                             </div>
+
                         </div>
                     </div>
 
-                    <!-- Agreement -->
+                    <!-- ================= AGREEMENT ================= -->
                     <div class="form-section">
                         <div class="agreement-group">
                             <label class="checkbox-label">
@@ -252,13 +380,27 @@
                 </div>
             </form>
 
-            <!-- Success -->
+            <!-- ================= SUCCESS CARD ================= -->
             <div class="hidden" id="bookingStatus">
                 <div class="status-card">
                     <i class="fas fa-check-circle status-icon success"></i>
                     <h2>Booking Submitted!</h2>
                     <p>Your booking request has been sent to the owner.</p>
                     <p class="status-note">You will be notified once the owner approves it.</p>
+
+                    <!-- CHECKPOINT #1: Renter receives vehicle (only after owner approves) -->
+                    <div id="pickupConfirmBox" style="display:none;">
+                        <div class="confirm-box">
+                            <i class="fas fa-key confirm-icon"></i>
+                            <h3>Received the vehicle?</h3>
+                            <p>Only tap below once you have physically inspected the vehicle, received the keys, and photographed any existing damage.</p>
+                            <button class="btn-confirm-received" id="confirmReceivedBtn">
+                                <i class="fas fa-check-double"></i>
+                                I've Received the Vehicle from Owner
+                            </button>
+                        </div>
+                    </div>
+
                     <a href="Dashboard.html" class="btn-home">Go to Dashboard</a>
                 </div>
             </div>
@@ -288,69 +430,144 @@
         </div>
     </footer>
 
-    <!-- Auth Gate Modal -->
+    <!-- ============================================================
+         AUTH GATE MODAL (Sign In) — redesigned
+    ============================================================ -->
     <div class="auth-gate-overlay" id="authGateOverlay" role="dialog" aria-modal="true" aria-labelledby="authGateTitle">
         <div class="auth-gate-card">
-            <button class="auth-gate-close" id="authGateClose" aria-label="Close">&times;</button>
+            <button class="auth-gate-close" id="authGateClose" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="auth-gate-glow"></div>
 
             <div class="auth-gate-icon">
                 <i class="fas fa-car-side"></i>
                 <span class="auth-gate-lock"><i class="fas fa-lock"></i></span>
             </div>
 
-            <h2 class="auth-gate-title" id="authGateTitle">Sign In to Book</h2>
-            <p class="auth-gate-subtitle">Create your free account to book vehicles in under 60 seconds.</p>
+            <span class="auth-gate-badge">
+                <i class="fas fa-bolt"></i> Ready in 60 seconds
+            </span>
+
+            <h2 class="auth-gate-title" id="authGateTitle">Sign in to book this vehicle</h2>
+            <p class="auth-gate-subtitle">
+                Free forever. No credit card needed to browse — you only pay when you book.
+            </p>
 
             <ul class="auth-gate-benefits">
-                <li><i class="fas fa-check-circle"></i> Book any vehicle instantly</li>
-                <li><i class="fas fa-check-circle"></i> Track your bookings in one place</li>
-                <li><i class="fas fa-check-circle"></i> Save favourites &amp; get deals</li>
-                <li><i class="fas fa-check-circle"></i> Secure payments &amp; verified owners</li>
+                <li>
+                    <span class="benefit-num">1</span>
+                    <div>
+                        <strong>Instant booking</strong>
+                        <small>Reserve in one tap, confirmed fast</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="benefit-num">2</span>
+                    <div>
+                        <strong>Track everything</strong>
+                        <small>All bookings in one clean dashboard</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="benefit-num">3</span>
+                    <div>
+                        <strong>Save favourites</strong>
+                        <small>Get price alerts &amp; personalised deals</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="benefit-num">4</span>
+                    <div>
+                        <strong>Secure &amp; verified</strong>
+                        <small>Payments protected, owners vetted</small>
+                    </div>
+                </li>
             </ul>
 
             <div class="auth-gate-actions">
                 <a href="MainPage.html" class="auth-gate-primary">
-                    <i class="fas fa-sign-in-alt"></i> Log In / Sign Up
+                    <i class="fas fa-sign-in-alt"></i>
+                    Log In / Sign Up
+                    <i class="fas fa-arrow-right auth-gate-arrow"></i>
                 </a>
                 <a href="Vehicles.html" class="auth-gate-secondary">Browse More Vehicles</a>
             </div>
 
-            <p class="auth-gate-footnote">No credit card required to browse.</p>
+            <p class="auth-gate-footnote">
+                <i class="fas fa-lock"></i>
+                Your data is encrypted and never shared.
+            </p>
         </div>
     </div>
 
-    <!-- Verification Gate Modal -->
+    <!-- ============================================================
+         VERIFY GATE MODAL — redesigned
+    ============================================================ -->
     <div class="auth-gate-overlay" id="verifyGateOverlay" role="dialog" aria-modal="true" aria-labelledby="verifyGateTitle">
         <div class="auth-gate-card">
-            <button class="auth-gate-close" id="verifyGateClose" aria-label="Close">&times;</button>
+            <button class="auth-gate-close" id="verifyGateClose" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="auth-gate-glow"></div>
 
             <div class="auth-gate-icon">
                 <i class="fas fa-id-card"></i>
                 <span class="auth-gate-lock"><i class="fas fa-shield-alt"></i></span>
             </div>
 
-            <h2 class="auth-gate-title" id="verifyGateTitle">Verify Your Identity to Book</h2>
+            <h2 class="auth-gate-title" id="verifyGateTitle">Let's get you verified</h2>
             <p class="auth-gate-subtitle">
-                For your safety and the owner's, we verify every renter before their first booking. Takes about 2 minutes.
+                One-time verification keeps every V-Rent booking safe. Once approved, you can book any vehicle instantly.
             </p>
 
             <ul class="auth-gate-benefits">
-                <li><i class="fas fa-check-circle"></i> Upload your IC (front &amp; back)</li>
-                <li><i class="fas fa-check-circle"></i> Add your driving licence details</li>
-                <li><i class="fas fa-check-circle"></i> Quick admin review (24–48 hours)</li>
-                <li><i class="fas fa-check-circle"></i> Book any vehicle once approved</li>
+                <li>
+                    <span class="benefit-num">1</span>
+                    <div>
+                        <strong>Upload your IC</strong>
+                        <small>Front &amp; back — clear photos only</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="benefit-num">2</span>
+                    <div>
+                        <strong>Add your driving licence</strong>
+                        <small>We check validity against JPJ standards</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="benefit-num">3</span>
+                    <div>
+                        <strong>Wait for admin review</strong>
+                        <small>Usually 24–48 hours, sometimes faster</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="benefit-num">4</span>
+                    <div>
+                        <strong>Book any vehicle</strong>
+                        <small>Instant approval on all future bookings</small>
+                    </div>
+                </li>
             </ul>
 
             <div class="auth-gate-actions">
                 <a href="Dashboard.html" class="auth-gate-primary">
-                    <i class="fas fa-shield-alt"></i> Go to Dashboard to Verify
+                    <i class="fas fa-shield-alt"></i>
+                    Verify on Dashboard
                 </a>
                 <button type="button" class="auth-gate-secondary" id="verifyGateLaterBtn">
-                    Maybe Later
+                    Maybe later
                 </button>
             </div>
 
-            <p class="auth-gate-footnote">Already submitted? Your status is on the Dashboard.</p>
+            <p class="auth-gate-footnote">
+                <i class="fas fa-lock"></i>
+                Already submitted? Check your status on the Dashboard.
+            </p>
         </div>
     </div>
 
@@ -386,8 +603,8 @@
     <!-- Gate Controller (auth + verification) -->
     <script>
         (function () {
-            const authOverlay = document.getElementById('authGateOverlay');
-            const authClose   = document.getElementById('authGateClose');
+            const authOverlay   = document.getElementById('authGateOverlay');
+            const authClose     = document.getElementById('authGateClose');
             const verifyOverlay = document.getElementById('verifyGateOverlay');
             const verifyClose   = document.getElementById('verifyGateClose');
             const verifyLater   = document.getElementById('verifyGateLaterBtn');
@@ -436,7 +653,6 @@
             });
 
             // ---- Auto-gate on load (auth only) ----
-            // Verification gate is triggered by Booking.js after user doc loads.
             window.auth.onAuthStateChanged(function (user) {
                 if (!user) {
                     window.showAuthGate();

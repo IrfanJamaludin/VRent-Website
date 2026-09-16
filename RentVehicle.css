@@ -117,6 +117,14 @@ button {
     font-weight: 600;
     color: #11141A;
     margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-title i {
+    color: #D4AF37;
+    font-size: 1rem;
 }
 
 .section-hint {
@@ -182,7 +190,8 @@ button {
     color: #A0AEC0;
 }
 
-.form-group input:disabled {
+.form-group input:disabled,
+.form-group select:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
@@ -193,6 +202,7 @@ button {
     background-position: right 14px center;
     appearance: none;
     cursor: pointer;
+    padding-right: 36px;
 }
 
 .form-group select option {
@@ -211,7 +221,21 @@ button {
     gap: 16px;
 }
 
-/* Radio Group */
+/* ----- FIELD HINT ----- */
+.field-hint {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.72rem;
+    color: #88909C;
+    line-height: 1.4;
+}
+
+.field-hint i {
+    color: #D4AF37;
+    margin-right: 4px;
+}
+
+/* ----- RADIO GROUP ----- */
 .radio-group {
     display: flex;
     gap: 20px;
@@ -258,7 +282,7 @@ button {
     background: #FFFFFF;
 }
 
-/* Checkbox Group */
+/* ----- CHECKBOX GROUP ----- */
 .checkbox-group {
     display: flex;
     flex-wrap: wrap;
@@ -281,6 +305,57 @@ button {
     accent-color: #D4AF37;
     cursor: pointer;
     flex-shrink: 0;
+}
+
+/* ============================================================
+   TICK BUTTON GROUP (Mileage Policy + Outstation)
+   ============================================================ */
+.tick-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-top: 4px;
+}
+
+.tick-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 16px;
+    background: #FFFFFF;
+    border: 2px solid #EBEEF2;
+    border-radius: 12px;
+    color: #11141A;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 44px;
+}
+
+.tick-btn > .fa-check:first-child {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    color: #D4AF37;
+    font-size: 0.85rem;
+}
+
+.tick-btn.active {
+    background: rgba(212, 175, 55, 0.08);
+    border-color: #D4AF37;
+    box-shadow: 0 4px 14px -6px rgba(212, 175, 55, 0.4);
+}
+
+.tick-btn.active > .fa-check:first-child {
+    opacity: 1;
+    width: auto;
+}
+
+.tick-btn:hover {
+    border-color: #D4AF37;
 }
 
 /* ============================================================
@@ -361,6 +436,45 @@ button {
 .weekly-price-hint strong {
     color: #11141A;
     font-weight: 600;
+}
+
+/* ============================================================
+   DELIVERY BADGE (V-Rent delivery info)
+   ============================================================ */
+.delivery-badge {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 18px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.08) 0%, rgba(212, 175, 55, 0.03) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 14px;
+}
+
+.delivery-badge > i {
+    color: #D4AF37;
+    font-size: 1.6rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.delivery-badge > div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.delivery-badge strong {
+    font-size: 0.95rem;
+    color: #11141A;
+    font-weight: 700;
+}
+
+.delivery-badge span {
+    font-size: 0.82rem;
+    color: #2D333B;
+    opacity: 0.75;
+    line-height: 1.45;
 }
 
 /* ----- IMAGE UPLOAD ----- */
@@ -647,7 +761,7 @@ button {
 }
 
 /* ============================================================
-   AUTH GATE MODAL
+   AUTH GATE MODAL (redesigned — light card, gold accents)
    ============================================================ */
 .auth-gate-overlay {
     position: fixed;
@@ -657,12 +771,13 @@ button {
     align-items: center;
     justify-content: center;
     padding: 20px;
-    background: rgba(17, 20, 26, 0.75);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    background: rgba(17, 20, 26, 0.65);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.35s ease, visibility 0.35s ease;
+    overflow-y: auto;
 }
 .auth-gate-overlay.show {
     opacity: 1;
@@ -672,30 +787,45 @@ button {
 .auth-gate-card {
     position: relative;
     width: 100%;
-    max-width: 440px;
+    max-width: 460px;
     max-height: calc(100vh - 40px);
     overflow-y: auto;
-    background: linear-gradient(160deg, #1a1e26 0%, #11141A 100%);
-    border: 1px solid rgba(212, 175, 55, 0.35);
+    overflow-x: hidden;
+    background: #FFFFFF;
+    border: 1px solid #EBEEF2;
     border-radius: 20px;
-    padding: 36px 28px 28px;
+    padding: 36px 32px 28px;
     text-align: center;
-    color: #F8F9FA;
+    color: #11141A;
     box-shadow:
-        0 0 0 1px rgba(212, 175, 55, 0.08),
-        0 30px 80px rgba(0, 0, 0, 0.6),
-        0 0 60px rgba(212, 175, 55, 0.12);
-    transform: scale(0.92) translateY(12px);
+        0 1px 2px rgba(17, 20, 26, 0.04),
+        0 30px 80px -20px rgba(17, 20, 26, 0.35);
+    transform: scale(0.94) translateY(10px);
     opacity: 0;
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
                 opacity 0.35s ease;
     -webkit-overflow-scrolling: touch;
+    margin: auto;
 }
 .auth-gate-overlay.show .auth-gate-card {
     transform: scale(1) translateY(0);
     opacity: 1;
 }
 
+/* Soft gold glow behind the icon */
+.auth-gate-glow {
+    position: absolute;
+    top: -80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    height: 220px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.20) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Close button */
 .auth-gate-close {
     position: absolute;
     top: 14px;
@@ -703,143 +833,267 @@ button {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    border: none;
-    background: rgba(255, 255, 255, 0.06);
-    color: #F8F9FA;
-    font-size: 20px;
-    line-height: 1;
+    border: 1px solid #EBEEF2;
+    background: #F8F9FA;
+    color: #88909C;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    transition: background 0.2s ease, transform 0.2s ease;
+    transition: all 0.2s ease;
+    z-index: 2;
 }
 .auth-gate-close:hover {
-    background: rgba(212, 175, 55, 0.2);
+    background: #11141A;
     color: #D4AF37;
+    border-color: #11141A;
     transform: rotate(90deg);
 }
 
+/* Icon */
 .auth-gate-icon {
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 88px;
-    height: 88px;
-    margin: 0 auto 22px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, rgba(212, 175, 55, 0.28), rgba(212, 175, 55, 0.06));
-    border: 1px solid rgba(212, 175, 55, 0.4);
-    color: #D4AF37;
-    font-size: 34px;
-    animation: authFloat 3.5s ease-in-out infinite;
+    width: 76px;
+    height: 76px;
+    margin: 4px auto 14px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #D4AF37 0%, #B8932B 100%);
+    color: #11141A;
+    font-size: 1.9rem;
+    box-shadow:
+        0 10px 24px -8px rgba(212, 175, 55, 0.55),
+        0 0 0 0 rgba(212, 175, 55, 0.6);
+    animation: iconPulse 2.6s ease-in-out infinite;
+    z-index: 1;
 }
-@keyframes authFloat {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-6px); }
+
+@keyframes iconPulse {
+    0%, 100% {
+        box-shadow:
+            0 10px 24px -8px rgba(212, 175, 55, 0.55),
+            0 0 0 0 rgba(212, 175, 55, 0.5);
+    }
+    50% {
+        box-shadow:
+            0 10px 30px -6px rgba(212, 175, 55, 0.75),
+            0 0 0 8px rgba(212, 175, 55, 0.08);
+    }
 }
+
 .auth-gate-lock {
     position: absolute;
-    bottom: -2px;
-    right: -2px;
-    width: 30px;
-    height: 30px;
+    bottom: -6px;
+    right: -6px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    background: #D4AF37;
-    color: #11141A;
+    background: #11141A;
+    color: #D4AF37;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
-    border: 3px solid #11141A;
+    font-size: 0.7rem;
+    border: 3px solid #FFFFFF;
 }
 
+/* ============================================================
+   BADGE — REMOVED (no longer rendered)
+============================================================ */
+.auth-gate-badge {
+    display: none !important;
+}
+
+/* Title */
 .auth-gate-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin: 0 0 10px;
-    background: linear-gradient(135deg, #F8F9FA 0%, #D4AF37 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    line-height: 1.25;
-}
-.auth-gate-subtitle {
-    font-size: 0.95rem;
-    color: rgba(248, 249, 250, 0.7);
-    margin: 0 0 22px;
-    line-height: 1.5;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #11141A;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    position: relative;
+    z-index: 1;
 }
 
+/* Subtitle */
+.auth-gate-subtitle {
+    font-size: 0.9rem;
+    color: #5A6472;
+    line-height: 1.55;
+    margin: 0 0 24px;
+    max-width: 360px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    z-index: 1;
+}
+
+/* Benefits list */
 .auth-gate-benefits {
     list-style: none;
     padding: 0;
     margin: 0 0 26px;
-    text-align: left;
     display: flex;
     flex-direction: column;
     gap: 10px;
+    text-align: left;
+    position: relative;
+    z-index: 1;
 }
+
 .auth-gate-benefits li {
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 0.9rem;
-    color: rgba(248, 249, 250, 0.88);
-    padding: 8px 12px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-.auth-gate-benefits li i {
-    color: #D4AF37;
-    font-size: 1rem;
-    flex-shrink: 0;
+    padding: 12px 14px;
+    background: #F8F9FA;
+    border: 1px solid #EBEEF2;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    animation: benefitIn 0.4s both;
 }
 
+.auth-gate-benefits li:nth-child(1) { animation-delay: 0.05s; }
+.auth-gate-benefits li:nth-child(2) { animation-delay: 0.10s; }
+.auth-gate-benefits li:nth-child(3) { animation-delay: 0.15s; }
+.auth-gate-benefits li:nth-child(4) { animation-delay: 0.20s; }
+
+@keyframes benefitIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.auth-gate-benefits li:hover {
+    background: #FFFFFF;
+    border-color: rgba(212, 175, 55, 0.35);
+    transform: translateX(2px);
+}
+
+.benefit-num {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(212, 175, 55, 0.14);
+    color: #8B6F1E;
+    font-weight: 800;
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-gate-benefits li > div {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.auth-gate-benefits li strong {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #11141A;
+    line-height: 1.3;
+}
+
+.auth-gate-benefits li small {
+    font-size: 0.75rem;
+    color: #88909C;
+    line-height: 1.4;
+}
+
+/* ============================================================
+   ACTIONS (centered, no arrow)
+   ============================================================ */
 .auth-gate-actions {
     display: flex;
     flex-direction: column;
+    align-items: stretch;
     gap: 10px;
+    position: relative;
+    z-index: 1;
     margin-bottom: 14px;
+    width: 100%;
 }
+
 .auth-gate-primary,
 .auth-gate-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.auth-gate-primary {
+    background: linear-gradient(135deg, #D4AF37 0%, #B8932B 100%);
+    color: #11141A;
+    border: none;
+    box-shadow: 0 8px 20px -8px rgba(212, 175, 55, 0.6);
+}
+
+.auth-gate-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -8px rgba(212, 175, 55, 0.75);
+}
+
+/* Arrow — REMOVED (no longer rendered) */
+.auth-gate-arrow {
+    display: none !important;
+    margin-left: 0 !important;
+}
+
+/* Neutralize any leftover arrow-slide rule */
+.auth-gate-primary:hover .auth-gate-arrow {
+    transform: none;
+}
+
+.auth-gate-secondary {
+    background: transparent;
+    color: #5A6472;
+    border: 1px solid #EBEEF2;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.auth-gate-secondary:hover {
+    background: #F8F9FA;
+    color: #11141A;
+    border-color: #D4AF37;
+}
+
+/* Footnote */
+.auth-gate-footnote {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    min-height: 50px;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 0.98rem;
-    text-decoration: none;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-}
-.auth-gate-primary {
-    background: linear-gradient(135deg, #D4AF37 0%, #b8942a 100%);
-    color: #11141A;
-    box-shadow: 0 10px 24px rgba(212, 175, 55, 0.3);
-}
-.auth-gate-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 14px 32px rgba(212, 175, 55, 0.45);
-}
-.auth-gate-primary:active {
-    transform: translateY(0);
-}
-.auth-gate-secondary {
-    background: transparent;
-    color: rgba(248, 249, 250, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-}
-.auth-gate-secondary:hover {
-    background: rgba(255, 255, 255, 0.06);
-    color: #F8F9FA;
+    gap: 6px;
+    margin: 6px 0 0;
+    font-size: 0.75rem;
+    color: #88909C;
+    position: relative;
+    z-index: 1;
 }
 
-.auth-gate-footnote {
-    font-size: 0.78rem;
-    color: rgba(248, 249, 250, 0.4);
-    margin: 0;
+.auth-gate-footnote i {
+    color: #D4AF37;
+    font-size: 0.7rem;
 }
 
 body.auth-gate-open {
@@ -915,6 +1169,23 @@ body.auth-gate-open {
     .license-info-box > i {
         font-size: 1.4rem;
     }
+
+    .tick-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .tick-btn {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .delivery-badge {
+        padding: 14px 16px;
+        gap: 12px;
+    }
+    .delivery-badge > i { font-size: 1.4rem; }
+    .delivery-badge strong { font-size: 0.9rem; }
+    .delivery-badge span { font-size: 0.78rem; }
 }
 
 @media (max-width: 480px) {
@@ -943,23 +1214,45 @@ body.auth-gate-open {
     }
 
     .auth-gate-card {
-        padding: 30px 20px 22px;
-        border-radius: 16px;
+        padding: 30px 22px 22px;
+        border-radius: 18px;
     }
     .auth-gate-title {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
+    }
+    .auth-gate-subtitle {
+        font-size: 0.85rem;
+        margin-bottom: 20px;
     }
     .auth-gate-icon {
-        width: 74px;
-        height: 74px;
-        font-size: 28px;
+        width: 66px;
+        height: 66px;
+        font-size: 1.6rem;
+    }
+    .auth-gate-benefits li {
+        padding: 10px 12px;
+    }
+    .auth-gate-benefits li strong {
+        font-size: 0.82rem;
+    }
+    .auth-gate-benefits li small {
+        font-size: 0.72rem;
+    }
+    .benefit-num {
+        width: 26px;
+        height: 26px;
+        font-size: 0.72rem;
+    }
+    .auth-gate-primary,
+    .auth-gate-secondary {
+        font-size: 0.85rem;
+        min-height: 46px;
     }
 
     .weekly-price-hint {
         font-size: 0.7rem;
     }
 
-    /* License box — compact on mobile */
     .license-info-box {
         padding: 12px 14px;
         gap: 10px;
@@ -973,4 +1266,14 @@ body.auth-gate-open {
     .license-info-box span {
         font-size: 0.76rem;
     }
+}
+
+@media (max-width: 380px) {
+    .auth-gate-card {
+        padding: 26px 18px 20px;
+        border-radius: 16px;
+    }
+    .auth-gate-title { font-size: 1.1rem; }
+    .auth-gate-icon { width: 60px; height: 60px; font-size: 1.5rem; }
+    .auth-gate-lock { width: 24px; height: 24px; font-size: 0.62rem; }
 }

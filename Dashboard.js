@@ -1,4 +1,5 @@
 // Dashboard.js — includes rental requests tab + verified licence card (owner view)
+// + quick categories counts + owner return-handover confirmation
 
 // ============================================================
 // 1. STATE & DOM ELEMENTS
@@ -11,15 +12,8 @@ let userFavourites = [];
 let recentActivities = [];
 
 const userNameDisplay = document.getElementById('userNameDisplay');
-const totalVehiclesEl = document.getElementById('totalVehicles');
-const totalBookingsEl = document.getElementById('totalBookings');
-const totalRentalRequestsEl = document.getElementById('totalRentalRequests');
-const pendingBookingsEl = document.getElementById('pendingBookings');
-const activeBookingsEl = document.getElementById('activeBookings');
-const reviewCountEl = document.getElementById('reviewCount');
 
-const favouriteCountEl = document.getElementById('favouriteCount');
-const favouriteCountBadge = document.getElementById('favouriteCountBadge');
+// (Stat card elements removed — Quick Categories now handle counts)
 
 const vehiclesList = document.getElementById('vehiclesList');
 const bookingsList = document.getElementById('bookingsList');
@@ -103,7 +97,6 @@ function escapeHtml(str) {
         .replace(/'/g, '&#39;');
 }
 
-// Normalize license classes — handles array OR comma-string
 function normalizeLicenseArray(value) {
     if (Array.isArray(value)) return value;
     if (typeof value === 'string' && value.trim()) {
@@ -113,9 +106,17 @@ function normalizeLicenseArray(value) {
 }
 
 const CONTACT_VISIBLE_STATUSES = ['approved', 'confirmed', 'active', 'completed'];
-
 function canSeeRenterContact(status) {
     return CONTACT_VISIBLE_STATUSES.includes((status || '').toLowerCase());
+}
+
+// Update Quick Categories counts (helper lives in Dashboard.html)
+function updateQuickCategoryBadges() {
+    if (typeof window.updateQuickBadge !== 'function') return;
+    window.updateQuickBadge('quickVehiclesCount', userVehicles.length);
+    window.updateQuickBadge('quickBookingsCount', userBookings.length);
+    window.updateQuickBadge('quickRentalCount',   rentalRequests.length);
+    window.updateQuickBadge('quickFavCount',      userFavourites.length);
 }
 
 // ============================================================
@@ -159,7 +160,6 @@ async function loadDashboard(user) {
             loadRecentActivity(user.uid),
             fetchFavourites(user.uid)
         ]);
-        updateStats();
     } catch (err) {
         console.error('Error loading dashboard:', err);
     }
@@ -225,11 +225,9 @@ async function loadUserProfile(user) {
                 }
             }
 
-            // Store normalized license info
             currentUser.licenseClasses = normalizeLicenseArray(data.licenseClasses);
             currentUser.verificationStatus = data.verificationStatus || 'Not Submitted';
 
-            // Render the rich licence card
             renderVerificationCard(data);
         }
     } catch (err) {
@@ -303,33 +301,24 @@ function renderVerificationCard(userData) {
 }
 
 // ============================================================
-// 6c. ENHANCED SCROLL-TO-FORM (with gold pulse + auto-focus)
-//     • Smooth scrolls to the form
-//     • Pulses the form in gold for 2s
-//     • Focuses the first file input (opens picker on mobile)
+// 6c. ENHANCED SCROLL-TO-FORM
 // ============================================================
 function scrollToVerificationForm() {
     const form = document.getElementById('verificationForm');
     if (!form) return;
 
-    // Ensure form is visible (in case Pending/Approved state hid it)
     form.style.display = 'block';
     const submitted = document.getElementById('verificationSubmitted');
     if (submitted) submitted.style.display = 'none';
 
-    // Smooth scroll into view
     form.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-    // Gold pulse highlight for 2 seconds
     form.classList.add('highlight-pulse');
     setTimeout(() => form.classList.remove('highlight-pulse'), 2200);
 
-    // Focus the first file input so mobile users get the picker immediately
     setTimeout(() => {
         const firstInput = document.getElementById('icFront');
-        if (firstInput) {
-            firstInput.focus({ preventScroll: true });
-        }
+        if (firstInput) firstInput.focus({ preventScroll: true });
     }, 700);
 }
 window.scrollToVerificationForm = scrollToVerificationForm;
@@ -389,6 +378,7 @@ async function fetchUserVehicles(uid) {
         if (userVehicles.length > 20) userVehicles = userVehicles.slice(0, 20);
         renderVehicles(userVehicles);
         if (vehicleCountBadge) vehicleCountBadge.textContent = userVehicles.length;
+        updateQuickCategoryBadges();
     } catch (err) {
         console.error('Error fetching vehicles:', err);
     }
@@ -569,6 +559,7 @@ async function fetchUserBookings(uid) {
         if (userBookings.length > 20) userBookings = userBookings.slice(0, 20);
         renderBookings(userBookings);
         if (bookingCountBadge) bookingCountBadge.textContent = userBookings.length;
+        updateQuickCategoryBadges();
     } catch (err) {
         console.error('Error fetching bookings:', err);
     }
@@ -609,6 +600,7 @@ async function fetchRentalRequests(uid) {
         renderRentalRequests(rentalRequests);
         if (rentalRequestsCountBadge) rentalRequestsCountBadge.textContent = rentalRequests.length;
         if (rentalRequestsTabBadge) rentalRequestsTabBadge.textContent = rentalRequests.length;
+        updateQuickCategoryBadges();
     } catch (err) {
         console.error('Error fetching rental requests:', err);
         if (rentalRequestsList) {
@@ -667,6 +659,14 @@ function renderRentalRequests(requests) {
             ? `<span><i class="fas fa-cubes"></i> ${r.quantity} units</span>`
             : '';
 
+        // OWNER RETURN-HANDOVER BUTTON — only show when booking is Active
+        const returnButton = statusLower === 'active' ? `
+            <button class="btn-owner-received" data-booking-id="${r.id}">
+                <i class="fas fa-undo-alt"></i>
+                I've Received the Vehicle Back
+            </button>
+        ` : '';
+
         return `<div class="dashboard-item rental-request-item">
             <div class="item-info">
                 <span class="item-title">${escapeHtml(r.vehicleName || 'Vehicle')}</span>
@@ -678,9 +678,57 @@ function renderRentalRequests(requests) {
             </div>
             <span class="item-status status-${statusLower}">${escapeHtml(status)}</span>
             ${contactBlock}
+            ${returnButton}
         </div>`;
     }).join('');
 }
+
+// ============================================================
+// 11b. OWNER RETURN HANDOVER — "I've Received the Vehicle Back"
+// ============================================================
+document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.btn-owner-received');
+    if (!btn) return;
+
+    const bookingId = btn.dataset.bookingId;
+    if (!bookingId) return;
+
+    const confirmed = confirm(
+        'Confirm you have received the vehicle back from the renter?\n\n' +
+        'Only proceed if you have:\n' +
+        '• Inspected the vehicle for damage\n' +
+        '• Checked fuel / charge level\n' +
+        '• Received the keys back'
+    );
+    if (!confirmed) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Confirming...';
+
+    try {
+        await window.db.collection('bookings').doc(bookingId).update({
+            ownerReceivedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            ownerReceivedBy: currentUser ? currentUser.uid : null,
+            status: 'Completed'
+        });
+
+        btn.innerHTML = '<i class="fas fa-check"></i> Completed';
+        btn.classList.add('done');
+
+        setTimeout(() => {
+            if (confirm('Booking completed! Would you like to leave a review for the renter?')) {
+                window.location.href = `Reviews.html?booking=${bookingId}`;
+            } else {
+                refreshDashboardData();
+            }
+        }, 600);
+    } catch (err) {
+        console.error('Return handover error:', err);
+        alert('Failed to confirm. Please try again.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-undo-alt"></i> I\'ve Received the Vehicle Back';
+    }
+});
 
 // ============================================================
 // 12. FETCH USER REVIEWS
@@ -688,9 +736,9 @@ function renderRentalRequests(requests) {
 async function fetchUserReviews(uid) {
     try {
         const snapshot = await window.db.collection('reviews').where('renterId', '==', uid).get();
-        if (reviewCountEl) reviewCountEl.textContent = snapshot.size;
+        console.log('User reviews:', snapshot.size);
     } catch (err) {
-        if (reviewCountEl) reviewCountEl.textContent = '0';
+        console.warn('Could not fetch reviews:', err);
     }
 }
 
@@ -702,22 +750,21 @@ async function fetchFavourites(uid) {
         const userDoc = await window.db.collection('users').doc(uid).get();
         if (!userDoc.exists) {
             if (favouritesList) favouritesList.innerHTML = `<div class="empty-state"><i class="fas fa-heart"></i><p>No favourites yet.</p></div>`;
-            if (favouriteCountEl) favouriteCountEl.textContent = '0';
-            if (favouriteCountBadge) favouriteCountBadge.textContent = '0';
+            userFavourites = [];
+            updateQuickCategoryBadges();
             return;
         }
         const favouriteIds = userDoc.data().favourites || [];
         if (favouriteIds.length === 0) {
             if (favouritesList) favouritesList.innerHTML = `<div class="empty-state"><i class="fas fa-heart"></i><p>No favourites yet.</p></div>`;
-            if (favouriteCountEl) favouriteCountEl.textContent = '0';
-            if (favouriteCountBadge) favouriteCountBadge.textContent = '0';
+            userFavourites = [];
+            updateQuickCategoryBadges();
             return;
         }
         const snaps = await Promise.all(favouriteIds.map(id => window.db.collection('vehicles').doc(id).get()));
         userFavourites = snaps.filter(s => s.exists).map(s => ({ id: s.id, ...s.data() }));
         renderFavourites(userFavourites);
-        if (favouriteCountEl) favouriteCountEl.textContent = userFavourites.length;
-        if (favouriteCountBadge) favouriteCountBadge.textContent = userFavourites.length;
+        updateQuickCategoryBadges();
     } catch (err) {
         console.error('Error fetching favourites:', err);
     }
@@ -762,18 +809,10 @@ async function removeFavourite(vehicleId) {
 window.removeFavourite = removeFavourite;
 
 // ============================================================
-// 14. UPDATE STATS
+// 14. UPDATE STATS (now just updates quick-category counts)
 // ============================================================
 function updateStats() {
-    if (totalVehiclesEl) totalVehiclesEl.textContent = userVehicles.length;
-    if (totalBookingsEl) totalBookingsEl.textContent = userBookings.length;
-    if (totalRentalRequestsEl) totalRentalRequestsEl.textContent = rentalRequests.length;
-    if (favouriteCountEl) favouriteCountEl.textContent = userFavourites.length;
-
-    const pending = userBookings.filter(b => (b.status || 'Pending').toLowerCase() === 'pending').length;
-    const active = userBookings.filter(b => ['approved', 'confirmed', 'active'].includes((b.status || '').toLowerCase())).length;
-    if (pendingBookingsEl) pendingBookingsEl.textContent = pending;
-    if (activeBookingsEl) activeBookingsEl.textContent = active;
+    updateQuickCategoryBadges();
 }
 
 // ============================================================
@@ -891,7 +930,6 @@ document.getElementById('verificationForm').addEventListener('submit', async fun
         alert('Verification documents submitted successfully.');
         loadVerificationStatus(uid);
 
-        // Refresh the rich card too
         const doc = await window.db.collection('users').doc(uid).get();
         if (doc.exists) renderVerificationCard(doc.data());
 
@@ -1012,7 +1050,6 @@ async function refreshDashboardData() {
             fetchFavourites(currentUser.uid),
             loadRecentActivity(currentUser.uid)
         ]);
-        updateStats();
     }
 }
 
@@ -1118,22 +1155,3 @@ document.addEventListener('DOMContentLoaded', function () {
         alert('Firebase is not initialized. Please check your configuration.');
     }
 });
-
-// ============================================================
-// 23. QUICK ACTION BUTTONS
-// ============================================================
-const myBookingsBtn = document.getElementById('myBookingsBtn');
-if (myBookingsBtn) {
-    myBookingsBtn.addEventListener('click', function (e) {
-        e.preventDefault();
-        document.querySelector('.tab-btn[data-tab="bookings"]').click();
-    });
-}
-
-const editProfileBtn = document.getElementById('editProfileBtn');
-if (editProfileBtn) {
-    editProfileBtn.addEventListener('click', function (e) {
-        e.preventDefault();
-        document.querySelector('.tab-btn[data-tab="profile"]').click();
-    });
-}

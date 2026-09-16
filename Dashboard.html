@@ -8,13 +8,8 @@
     <meta name="theme-color" content="#11141A" />
     <title>V-Rent | Dashboard</title>
 
-    <!-- Nav CSS -->
     <link rel="stylesheet" href="Nav.css" />
-
-    <!-- Page CSS -->
     <link rel="stylesheet" href="Dashboard.css" />
-
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
@@ -26,7 +21,6 @@
             <div class="logo">
                 <img src="vrent-logo.jpeg" alt="VRental Logo" />
             </div>
-
             <ul class="nav-links" id="navLinks">
                 <li><a href="Home.html">Home</a></li>
                 <li><a href="Vehicles.html">Vehicles</a></li>
@@ -38,7 +32,6 @@
                     </a>
                 </li>
             </ul>
-
             <div class="nav-actions">
                 <div id="authButton">
                     <a href="MainPage.html" class="btn-login">Log In / Sign Up</a>
@@ -54,7 +47,7 @@
     <main class="dashboard-page">
         <div class="container">
 
-            <!-- Welcome Hero -->
+            <!-- 1. WELCOME HERO -->
             <section class="welcome-hero">
                 <div class="welcome-avatar" id="avatarContainer">
                     <img id="profileAvatarImg" src="" alt="Profile" style="display:none; width:100%; height:100%; object-fit:cover; border-radius:50%;" />
@@ -81,56 +74,10 @@
                 </div>
             </section>
 
-            <!-- Stats Cards -->
-            <section class="stats-grid" id="statsGrid">
-                <div class="stat-card" style="--accent:#D4AF37;">
-                    <div class="stat-icon"><i class="fas fa-car"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-number" id="totalVehicles">0</span>
-                        <span class="stat-label">Vehicles Listed</span>
-                    </div>
-                </div>
-                <div class="stat-card" style="--accent:#3B82F6;">
-                    <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-number" id="totalBookings">0</span>
-                        <span class="stat-label">My Bookings</span>
-                    </div>
-                </div>
-                <div class="stat-card" style="--accent:#EC4899;">
-                    <div class="stat-icon"><i class="fas fa-inbox"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-number" id="totalRentalRequests">0</span>
-                        <span class="stat-label">Rental Requests</span>
-                    </div>
-                </div>
-                <div class="stat-card" style="--accent:#F59E0B;">
-                    <div class="stat-icon"><i class="fas fa-clock"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-number" id="pendingBookings">0</span>
-                        <span class="stat-label">Pending</span>
-                    </div>
-                </div>
-                <div class="stat-card" style="--accent:#10B981;">
-                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-number" id="activeBookings">0</span>
-                        <span class="stat-label">Active</span>
-                    </div>
-                </div>
-                <div class="stat-card" style="--accent:#8B5CF6;">
-                    <div class="stat-icon"><i class="fas fa-star"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-number" id="reviewCount">0</span>
-                        <span class="stat-label">Reviews</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Recent Activity -->
+            <!-- 2. RECENT ACTIVITY -->
             <section class="recent-activity">
                 <div class="section-header">
-                    <h3><i class="fas fa-bolt"></i> Recent Activity</h3>
+                    <h3><i class="fas fa-bolt" style="color:#D4AF37;"></i> Recent Activity</h3>
                     <span class="badge" id="activityCount">0</span>
                 </div>
                 <div class="activity-scroll-wrapper" id="recentActivityList">
@@ -141,7 +88,62 @@
                 </div>
             </section>
 
-            <!-- Tabs -->
+            <!-- 3. QUICK CATEGORIES — now using stat-card style -->
+            <section class="quick-categories" id="quickCategories">
+                <div class="section-header">
+                    <h3><i class="fas fa-th-large" style="color:#D4AF37;"></i> Quick Actions</h3>
+                </div>
+
+                <div class="quick-grid">
+                    <a href="RentVehicle.html" class="quick-card" style="--accent:#D4AF37;">
+                        <div class="quick-icon"><i class="fas fa-plus-circle"></i></div>
+                        <div class="quick-info">
+                            <span class="quick-label">List Vehicle</span>
+                        </div>
+                    </a>
+
+                    <a href="Vehicles.html" class="quick-card" style="--accent:#3B82F6;">
+                        <div class="quick-icon"><i class="fas fa-search"></i></div>
+                        <div class="quick-info">
+                            <span class="quick-label">Browse</span>
+                        </div>
+                    </a>
+
+                    <a href="#" class="quick-card" data-goto-tab="vehicles" style="--accent:#D4AF37;">
+                        <div class="quick-icon"><i class="fas fa-car"></i></div>
+                        <div class="quick-info">
+                            <span class="quick-number" id="quickVehiclesCount">0</span>
+                            <span class="quick-label">My Vehicles</span>
+                        </div>
+                    </a>
+
+                    <a href="#" class="quick-card" data-goto-tab="bookings" style="--accent:#3B82F6;">
+                        <div class="quick-icon"><i class="fas fa-calendar-check"></i></div>
+                        <div class="quick-info">
+                            <span class="quick-number" id="quickBookingsCount">0</span>
+                            <span class="quick-label">My Bookings</span>
+                        </div>
+                    </a>
+
+                    <a href="#" class="quick-card" data-goto-tab="rental-requests" style="--accent:#EC4899;">
+                        <div class="quick-icon"><i class="fas fa-inbox"></i></div>
+                        <div class="quick-info">
+                            <span class="quick-number" id="quickRentalCount">0</span>
+                            <span class="quick-label">Requests</span>
+                        </div>
+                    </a>
+
+                    <a href="#" class="quick-card" data-goto-tab="favourites" style="--accent:#8B5CF6;">
+                        <div class="quick-icon"><i class="fas fa-heart"></i></div>
+                        <div class="quick-info">
+                            <span class="quick-number" id="quickFavCount">0</span>
+                            <span class="quick-label">Favourites</span>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- 4. TABS -->
             <section class="dashboard-tabs-wrapper">
                 <div class="dashboard-tabs">
                     <button class="tab-btn active" data-tab="vehicles">
@@ -176,7 +178,7 @@
                     </div>
                 </div>
 
-                <!-- TAB: My Bookings (as renter) -->
+                <!-- TAB: My Bookings -->
                 <div class="tab-content" id="tab-bookings">
                     <div class="section-header">
                         <h3>Your Bookings</h3>
@@ -190,7 +192,7 @@
                     </div>
                 </div>
 
-                <!-- TAB: Rental Requests (as owner) -->
+                <!-- TAB: Rental Requests -->
                 <div class="tab-content" id="tab-rental-requests">
                     <div class="section-header">
                         <h3><i class="fas fa-inbox"></i> Bookings on Your Vehicles</h3>
@@ -442,7 +444,6 @@
             appId: "1:1005234060424:web:34d0207a3589a70ff7333d",
             measurementId: "G-P827PD43LS"
         };
-
         firebase.initializeApp(firebaseConfig);
         window.auth = firebase.auth();
         window.db = firebase.firestore();
@@ -451,6 +452,30 @@
 
     <script src="Nav.js"></script>
     <script src="Dashboard.js"></script>
+
+    <!-- Quick Categories tab wiring + count update helper -->
+    <script>
+        (function () {
+            document.querySelectorAll('[data-goto-tab]').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const tab = card.dataset.gotoTab;
+                    const tabBtn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+                    if (tabBtn) {
+                        tabBtn.click();
+                        tabBtn.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+
+            // Expose helper for Dashboard.js to update quick-category counts
+            window.updateQuickBadge = function (id, count) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.textContent = count;
+            };
+        })();
+    </script>
 
 </body>
 </html>

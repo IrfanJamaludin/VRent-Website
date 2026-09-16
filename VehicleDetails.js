@@ -28,11 +28,9 @@ function getVehicleImages(vehicle) {
 // LICENSE HELPER — delegates to LicenseRules.js
 // ============================================================
 function getLicenseInfo(vehicle) {
-    // Falls back gracefully if LicenseRules.js isn't loaded
     if (typeof window.getRequiredLicense === 'function') {
         return window.getRequiredLicense(vehicle);
     }
-    // Legacy fallback (old array-on-doc approach)
     const req = vehicle.requiredLicense || [];
     const required = Array.isArray(req)
         ? req
@@ -193,7 +191,6 @@ function renderVehicle(vehicle) {
         licenseRequirementEl.style.display = 'flex';
         licenseClassesEl.textContent = licenseInfo.required.join(' or ');
 
-        // Show the reason if available (from LicenseRules.js)
         const labelEl = licenseRequirementEl.querySelector('.license-label');
         if (labelEl && licenseInfo.reason) {
             labelEl.textContent = 'License Required · ' + licenseInfo.reason;
@@ -693,9 +690,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     userData = doc.data();
                     currentUser.licenseClasses = userData.licenseClasses || [];
                     currentUser.verificationStatus = userData.verificationStatus || 'Pending';
+                } else {
+                    currentUser.licenseClasses = [];
+                    currentUser.verificationStatus = 'Not Submitted';
                 }
             } catch (err) {
                 console.error('Error loading user data:', err);
+                currentUser.licenseClasses = [];
+                currentUser.verificationStatus = 'Not Submitted';
             }
             if (currentVehicle) {
                 checkFavouriteStatus(currentVehicle.id);

@@ -249,72 +249,145 @@
     </footer>
 
     <!-- ============================================================
-         AUTH GATE MODAL — "Sign In to Book"
+         AUTH GATE MODAL — "Sign In to Book" (redesigned)
          ============================================================ -->
     <div class="auth-gate-overlay" id="authGateOverlay" role="dialog" aria-modal="true" aria-labelledby="authGateTitle">
         <div class="auth-gate-card">
-            <button class="auth-gate-close" id="authGateClose" aria-label="Close">&times;</button>
+            <button class="auth-gate-close" id="authGateClose" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="auth-gate-glow"></div>
 
             <div class="auth-gate-icon">
                 <i class="fas fa-car-side"></i>
                 <span class="auth-gate-lock"><i class="fas fa-lock"></i></span>
             </div>
 
-            <h2 class="auth-gate-title" id="authGateTitle">Sign In to Book</h2>
-            <p class="auth-gate-subtitle">Create your free account to book vehicles in under 60 seconds.</p>
+            <span class="auth-gate-badge">
+                <i class="fas fa-bolt"></i> Ready in 60 seconds
+            </span>
+
+            <h2 class="auth-gate-title" id="authGateTitle">Sign in to book this vehicle</h2>
+            <p class="auth-gate-subtitle">
+                Free forever. No credit card needed to browse — you only pay when you book.
+            </p>
 
             <ul class="auth-gate-benefits">
-                <li><i class="fas fa-check-circle"></i> Book any vehicle instantly</li>
-                <li><i class="fas fa-check-circle"></i> Track your bookings in one place</li>
-                <li><i class="fas fa-check-circle"></i> Save favourites &amp; get deals</li>
-                <li><i class="fas fa-check-circle"></i> Secure payments &amp; verified owners</li>
+                <li>
+                    <span class="benefit-num">1</span>
+                    <div>
+                        <strong>Instant booking</strong>
+                        <small>Reserve in one tap, confirmed fast</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="benefit-num">2</span>
+                    <div>
+                        <strong>Track everything</strong>
+                        <small>All bookings in one clean dashboard</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="benefit-num">3</span>
+                    <div>
+                        <strong>Save favourites</strong>
+                        <small>Get price alerts &amp; personalised deals</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="benefit-num">4</span>
+                    <div>
+                        <strong>Secure &amp; verified</strong>
+                        <small>Payments protected, owners vetted</small>
+                    </div>
+                </li>
             </ul>
 
             <div class="auth-gate-actions">
                 <a href="MainPage.html" class="auth-gate-primary">
-                    <i class="fas fa-sign-in-alt"></i> Log In / Sign Up
+                    <i class="fas fa-sign-in-alt"></i>
+                    Log In / Sign Up
+                    <i class="fas fa-arrow-right auth-gate-arrow"></i>
                 </a>
                 <button type="button" class="auth-gate-secondary" id="authGateLaterBtn">
                     Continue Browsing
                 </button>
             </div>
 
-            <p class="auth-gate-footnote">No credit card required to browse.</p>
+            <p class="auth-gate-footnote">
+                <i class="fas fa-lock"></i>
+                Your data is encrypted and never shared.
+            </p>
         </div>
     </div>
 
     <!-- ============================================================
-         VERIFICATION GATE MODAL — "Verify Your Identity"
+         VERIFICATION GATE MODAL — "Verify Your Identity" (redesigned)
          ============================================================ -->
     <div class="auth-gate-overlay" id="verifyGateOverlay" role="dialog" aria-modal="true" aria-labelledby="verifyGateTitle">
         <div class="auth-gate-card">
-            <button class="auth-gate-close" id="verifyGateClose" aria-label="Close">&times;</button>
+            <button class="auth-gate-close" id="verifyGateClose" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="auth-gate-glow"></div>
 
             <div class="auth-gate-icon">
                 <i class="fas fa-id-card"></i>
                 <span class="auth-gate-lock"><i class="fas fa-shield-alt"></i></span>
             </div>
 
-            <h2 class="auth-gate-title" id="verifyGateTitle">Verify Your Identity to Book</h2>
-            <p class="auth-gate-subtitle">For your safety and the owner's, we verify every renter before their first booking. Takes 2 minutes.</p>
+            <h2 class="auth-gate-title" id="verifyGateTitle">Let's get you verified</h2>
+            <p class="auth-gate-subtitle">
+                One-time verification keeps every V-Rent booking safe. Once approved, you can book any vehicle instantly.
+            </p>
 
             <ul class="auth-gate-benefits">
-                <li><i class="fas fa-check-circle"></i> Upload your IC (front &amp; back)</li>
-                <li><i class="fas fa-check-circle"></i> Add your driving licence details</li>
-                <li><i class="fas fa-check-circle"></i> Quick admin review (24–48 hours)</li>
-                <li><i class="fas fa-check-circle"></i> Book any vehicle once approved</li>
+                <li>
+                    <span class="benefit-num">1</span>
+                    <div>
+                        <strong>Upload your IC</strong>
+                        <small>Front &amp; back — clear photos only</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="benefit-num">2</span>
+                    <div>
+                        <strong>Add your driving licence</strong>
+                        <small>We check validity against JPJ standards</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="benefit-num">3</span>
+                    <div>
+                        <strong>Wait for admin review</strong>
+                        <small>Usually 24–48 hours, sometimes faster</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="benefit-num">4</span>
+                    <div>
+                        <strong>Book any vehicle</strong>
+                        <small>Instant approval on all future bookings</small>
+                    </div>
+                </li>
             </ul>
 
             <div class="auth-gate-actions">
                 <a href="Dashboard.html" class="auth-gate-primary">
-                    <i class="fas fa-shield-alt"></i> Go to Dashboard to Verify
+                    <i class="fas fa-shield-alt"></i>
+                    Verify on Dashboard
                 </a>
                 <button type="button" class="auth-gate-secondary" id="verifyGateLaterBtn">
-                    Maybe Later
+                    Maybe later
                 </button>
             </div>
 
-            <p class="auth-gate-footnote">Already submitted? Check your status on the Dashboard.</p>
+            <p class="auth-gate-footnote">
+                <i class="fas fa-lock"></i>
+                Already submitted? Check your status on the Dashboard.
+            </p>
         </div>
     </div>
 

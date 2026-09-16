@@ -1,4 +1,5 @@
 // Booking.js - Vehicle booking with verified licence check + V-Rent machinery delivery
+// + Insurance tiers + Booking fee + Down payment + Handover confirmation
 
 // ============================================================
 // 1. MACHINERY DELIVERY TIERS (auto-calculated from operating weight)
@@ -26,7 +27,18 @@ function shouldChargeDelivery(vehicle) {
 }
 
 // ============================================================
-// 2. LICENCE HELPERS
+// 2. PRICING CONSTANTS
+// ============================================================
+const BOOKING_FEE = 10;                    // RM 10 flat platform fee
+const DOWN_PAYMENT_PERCENT = 0.20;         // 20% due now
+const INSURANCE_FEES = {                   // RM per day
+    Basic:   0,
+    Medium:  30,
+    Premium: 50
+};
+
+// ============================================================
+// 3. LICENCE HELPERS
 // ============================================================
 function normalizeLicenseArray(value) {
     if (Array.isArray(value)) return value;
@@ -41,20 +53,26 @@ function getVehicleRequirements(vehicle) {
     if (typeof window.getRequiredLicense === 'function') {
         return window.getRequiredLicense(vehicle);
     }
-    // Minimal fallback — should never trigger if LicenseRules.js is loaded
     return { required: normalizeLicenseArray(vehicle && vehicle.requiredLicense), reason: '' };
 }
 
 // ============================================================
-// 3. STATE
+// 4. STATE
 // ============================================================
 let vehicleData = null;
 let currentUser = null;
 let pricePerDay = 0;
 let listenersBound = false;
+let tickListenersBound = false;
+let insuranceListenersBound = false;
+let lastSubtotal = 0;
+let lastDownPayment = 0;
+let lastBalance = 0;
+let lastInsuranceFee = 0;
+let lastInsuranceTier = 'Basic';
 
 // ============================================================
-// 4. DOM ELEMENTS
+// 5. DOM ELEMENTS
 // ============================================================
 const form = document.getElementById('bookingForm');
 const loadingState = document.getElementById('loadingState');
@@ -75,6 +93,8 @@ const quantity = document.getElementById('quantity');
 const quantityGroup = document.getElementById('quantityGroup');
 const pickupLocation = document.getElementById('pickupLocation');
 const returnLocation = document.getElementById('returnLocation');
+const deliveryAddress = document.getElementById('deliveryAddress');
+const returnAddress = document.getElementById('returnAddress');
 const bookingNotes = document.getElementById('bookingNotes');
 
 const contractorSection = document.getElementById('contractorSection');
@@ -94,10 +114,16 @@ const summaryPricePerDay = document.getElementById('summaryPricePerDay');
 const summaryDays = document.getElementById('summaryDays');
 const summaryQuantity = document.getElementById('summaryQuantity');
 const summaryQuantityRow = document.getElementById('summaryQuantityRow');
+const summaryInsurance = document.getElementById('summaryInsurance');
+const summarySubtotal = document.getElementById('summarySubtotal');
+const summaryDownPayment = document.getElementById('summaryDownPayment');
+const summaryBalance = document.getElementById('summaryBalance');
 const summaryTotal = document.getElementById('summaryTotal');
 
+const outstationHint = document.getElementById('outstationHint');
+
 // ============================================================
-// 5. SHOW/HIDE HELPERS
+// 6. SHOW/HIDE HELPERS
 // ============================================================
 function showEl(el, display = 'block') {
     if (el) el.style.display = display;
@@ -107,7 +133,7 @@ function hideEl(el) {
 }
 
 // ============================================================
-// 6. URL / FETCH
+// 7. URL / FETCH
 // ============================================================
 function getVehicleId() {
     const params = new URLSearchParams(window.location.search);
@@ -128,7 +154,73 @@ async function fetchVehicle(id) {
 const PLACEHOLDER_IMG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='150' viewBox='0 0 200 150'><rect fill='%2311141A' width='200' height='150'/><text x='50%' y='50%' fill='%23D4AF37' font-family='Inter,sans-serif' font-size='14' text-anchor='middle' dominant-baseline='middle'>No Image</text></svg>";
 
 // ============================================================
-// 7. RENDER VEHICLE
+// 8. TICK GROUP HANDLERS (outstation + payment method)
+// ============================================================
+function initTickGroups() {
+    if (tickListenersBound) return;
+    tickListenersBound = true;
+
+    document.querySelectorAll('.tick-group').forEach(group => {
+        const field = group.dataset.field;
+        // Initial selected value = active button
+        const initial = group.querySelector('.tick-btn.active');
+        if (initial) group.dataset.selected = initial.dataset.value;
+        else group.dataset.selected = group.querySelector('.tick-btn')?.dataset.value || '';
+
+        group.addEventListener('click', (e) => {
+            const btn = e.target.closest('.tick-btn');
+            if (!btn) return;
+            group.querySelectorAll('.tick-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            group.dataset.selected = btn.dataset.value;
+
+            if (field === 'outstation' && outstationHint) {
+                if (btn.dataset.value === 'Yes') {
+                    outstationHint.innerHTML =
+                        '<i class="fas fa-exclamation-circle" style="color:#D4AF37;"></i> Cross-state travel requires owner approval and may incur additional charges.';
+                } else {
+                    outstationHint.innerHTML =
+                        'Same-state travel only. Additional charges apply if detected.';
+                }
+            }
+        });
+    });
+}
+
+// ============================================================
+// 9. INSURANCE SELECTION
+// ============================================================
+function initInsuranceOptions() {
+    if (insuranceListenersBound) return;
+    insuranceListenersBound = true;
+
+    const options = document.querySelectorAll('.insurance-option');
+    options.forEach(opt => {
+        const radio = opt.querySelector('input[name="insurance"]');
+        if (!radio) return;
+
+        // Set initial selected class based on which radio is checked
+        if (radio.checked) opt.classList.add('selected');
+
+        radio.addEventListener('change', () => {
+            options.forEach(o => o.classList.remove('selected'));
+            opt.classList.add('selected');
+            lastInsuranceTier = radio.value;
+            updateSummary();
+        });
+    });
+}
+
+function getSelectedInsurance() {
+    const radio = document.querySelector('input[name="insurance"]:checked');
+    if (!radio) return { tier: 'Basic', fee: 0 };
+    const tier = radio.value;
+    const feePerDay = Number(radio.dataset.fee) || INSURANCE_FEES[tier] || 0;
+    return { tier, feePerDay };
+}
+
+// ============================================================
+// 10. RENDER VEHICLE
 // ============================================================
 function renderVehicle(vehicle) {
     vehicleData = vehicle;
@@ -174,13 +266,17 @@ function renderVehicle(vehicle) {
         listenersBound = true;
     }
 
+    // Initialise tick groups + insurance (bind once)
+    initTickGroups();
+    initInsuranceOptions();
+
     hideEl(loadingState);
     showEl(form, 'block');
     updateSummary();
 }
 
 // ============================================================
-// 8. PRICE SUMMARY
+// 11. PRICE SUMMARY (with insurance, fee, down payment)
 // ============================================================
 function updateSummary() {
     const start = new Date(pickupDate.value + 'T' + (pickupTime.value || '09:00'));
@@ -196,20 +292,37 @@ function updateSummary() {
     if (shouldChargeDelivery(vehicleData)) {
         deliveryFee = getMachineryDeliveryFee(vehicleData.operatingWeight);
     }
-    const grandTotal = rentalTotal + deliveryFee;
 
+    // Insurance fee (per day × days × qty)
+    const { tier, feePerDay } = getSelectedInsurance();
+    const insuranceFee = feePerDay * days * qty;
+    lastInsuranceFee = insuranceFee;
+    lastInsuranceTier = tier;
+
+    // Subtotal
+    const subtotal = rentalTotal + deliveryFee + insuranceFee + BOOKING_FEE;
+
+    // Down payment 20%, balance due on pickup
+    const downPayment = Math.round(subtotal * DOWN_PAYMENT_PERCENT);
+    const balance = subtotal - downPayment;
+
+    lastSubtotal = subtotal;
+    lastDownPayment = downPayment;
+    lastBalance = balance;
+
+    // ---- Write base rows ----
     summaryPricePerDay.textContent = `RM ${pricePerDay}`;
     summaryDays.textContent = `${days} day${days > 1 ? 's' : ''}`;
     summaryQuantity.textContent = qty;
 
-    // Show/hide quantity row alongside quantityGroup
+    // Quantity row visibility
     if (quantityGroup.style.display === 'block') {
         showEl(summaryQuantityRow, 'flex');
     } else {
         hideEl(summaryQuantityRow);
     }
 
-    // Delivery fee row
+    // Delivery row
     const deliveryRow = document.getElementById('summaryDeliveryRow');
     const deliveryValue = document.getElementById('summaryDeliveryFee');
     if (deliveryRow && deliveryValue) {
@@ -221,11 +334,26 @@ function updateSummary() {
         }
     }
 
-    summaryTotal.textContent = `RM ${grandTotal}`;
+    // Insurance row
+    if (summaryInsurance) {
+        if (insuranceFee > 0) {
+            summaryInsurance.textContent = `RM ${insuranceFee} (${tier})`;
+            summaryInsurance.style.color = '#D4AF37';
+        } else {
+            summaryInsurance.textContent = `Included (Basic)`;
+            summaryInsurance.style.color = '#16A34A';
+        }
+    }
+
+    // Subtotal / down payment / balance / total
+    if (summarySubtotal) summarySubtotal.textContent = `RM ${subtotal}`;
+    if (summaryDownPayment) summaryDownPayment.textContent = `RM ${downPayment}`;
+    if (summaryBalance) summaryBalance.textContent = `RM ${balance}`;
+    if (summaryTotal) summaryTotal.textContent = `RM ${subtotal}`;
 }
 
 // ============================================================
-// 9. LOAD USER DATA + LICENCE DISPLAY
+// 12. LOAD USER DATA + LICENCE DISPLAY
 // ============================================================
 async function loadUserData(user) {
     currentUser = user;
@@ -257,7 +385,6 @@ async function loadUserData(user) {
 
 /**
  * Renders the verified licence chip inside the Booking form.
- * Also shows whether the user's classes match the vehicle's requirement.
  */
 function renderLicenceDisplay() {
     if (!licenceDisplay) return;
@@ -266,7 +393,6 @@ function renderLicenceDisplay() {
     const status = currentUser.verificationStatus;
 
     if (classes.length > 0 && status === 'Approved') {
-        // If vehicle is loaded, check whether it matches
         let matchNote = '';
         if (vehicleData) {
             const { required, reason } = getVehicleRequirements(vehicleData);
@@ -303,7 +429,7 @@ function renderLicenceDisplay() {
 }
 
 // ============================================================
-// 10. FORM SUBMISSION
+// 13. FORM SUBMISSION
 // ============================================================
 form.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -386,39 +512,77 @@ form.addEventListener('submit', async function (e) {
     const vrentDeliveryFee = shouldChargeDelivery(vehicleData)
         ? getMachineryDeliveryFee(vehicleData.operatingWeight)
         : 0;
-    const grandTotal = rentalTotal + vrentDeliveryFee;
+
+    const { tier: insuranceTier, feePerDay: insurancePerDay } = getSelectedInsurance();
+    const insuranceFee = insurancePerDay * days * qty;
+
+    const subtotal = rentalTotal + vrentDeliveryFee + insuranceFee + BOOKING_FEE;
+    const downPayment = Math.round(subtotal * DOWN_PAYMENT_PERCENT);
+    const balanceDue = subtotal - downPayment;
+
+    // ---- Outstation + payment method from tick groups ----
+    const outstationGroup = document.querySelector('[data-field="outstation"]');
+    const paymentGroup = document.querySelector('[data-field="paymentMethod"]');
+    const outstationValue = outstationGroup ? (outstationGroup.dataset.selected || 'No') : 'No';
+    const paymentMethod = paymentGroup ? (paymentGroup.dataset.selected || 'FPX') : 'FPX';
 
     const ownerId = vehicleData.ownerId || vehicleData.ownerUID || null;
 
     const bookingData = {
+        // ---- Vehicle ----
         vehicleId: vehicleData.id,
         vehicleName: `${vehicleData.brand || ''} ${vehicleData.model || ''}`.trim(),
         vehicleCategory: vehicleData.category,
         vehicleImage: (vehicleData.images && vehicleData.images[0]) || null,
         ownerId: ownerId,
+
+        // ---- Renter ----
         renterId: currentUser.uid,
         renterName: renterName.value,
         renterEmail: renterEmail.value,
         renterPhone: renterPhone.value || 'Not provided',
         licenceType: verifiedClasses.join(', '),
         verifiedLicenseClasses: verifiedClasses,
-        requiredLicenseAtBooking: required,        // snapshot for auditing
+        requiredLicenseAtBooking: required,
         licenseRequirementReason: reason,
+
+        // ---- Booking details ----
         pickupDate: pickupDate.value,
         returnDate: returnDate.value,
         pickupTime: pickupTime.value,
         returnTime: returnTime.value,
         pickupLocation: pickupLocation.value.trim(),
         returnLocation: returnLocation.value.trim() || pickupLocation.value.trim(),
+        deliveryAddress: deliveryAddress ? deliveryAddress.value.trim() : '',
+        returnAddress: returnAddress ? returnAddress.value.trim() : '',
+        outstation: outstationValue,
         quantity: qty,
         days: days,
         pricePerDay: pricePerDay,
+
+        // ---- Pricing breakdown ----
         rentalSubtotal: rentalTotal,
         deliveryFee: vrentDeliveryFee,
-        totalPrice: grandTotal,
+        insuranceTier: insuranceTier,
+        insuranceFee: insuranceFee,
+        bookingFee: BOOKING_FEE,
+        subtotal: subtotal,
+        downPayment: downPayment,
+        balanceDue: balanceDue,
+        totalPrice: subtotal,
+        paymentMethod: paymentMethod,
+
+        // ---- Notes ----
         notes: bookingNotes.value.trim() || '',
+
+        // ---- Status & timestamps ----
         status: 'Pending',
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        // Handover states
+        renterReceivedAt: null,      // set when renter taps "I've Received the Vehicle"
+        ownerReceivedAt: null,       // set when owner taps "I've Received the Vehicle Back" (Dashboard)
+
+        // ---- Contractor (trucks & heavy machinery only) ----
         isContractor: isTruckOrHeavy,
         companyName: isTruckOrHeavy ? companyName.value.trim() : null,
         contactPerson: isTruckOrHeavy ? contactPerson.value.trim() : null,
@@ -434,9 +598,17 @@ form.addEventListener('submit', async function (e) {
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
 
     try {
-        await window.db.collection('bookings').add(bookingData);
+        const docRef = await window.db.collection('bookings').add(bookingData);
+
+        // Store booking ID for handover confirmation
+        sessionStorage.setItem('lastBookingId', docRef.id);
+
         hideEl(form);
         showEl(bookingStatus, 'block');
+
+        // Show pickup confirm box only if owner already approved (edge case: instant approve)
+        // Normally shown later when owner approves — for now we keep it hidden.
+        // (The confirmReceivedBtn is always in DOM; safe to leave hidden initially.)
     } catch (err) {
         console.error('Booking error:', err);
         alert('Failed to submit booking: ' + err.message);
@@ -446,13 +618,65 @@ form.addEventListener('submit', async function (e) {
 });
 
 // ============================================================
-// 11. AUTH STATE LISTENER (with verification gate)
+// 14. RECEIVED VEHICLE (renter handover confirmation)
+// ============================================================
+function initReceivedButton() {
+    const btn = document.getElementById('confirmReceivedBtn');
+    if (!btn) return;
+
+    btn.addEventListener('click', async function () {
+        const bookingId = sessionStorage.getItem('lastBookingId');
+        if (!bookingId) {
+            alert('No active booking found in this session.');
+            return;
+        }
+
+        const confirmed = confirm(
+            'Confirm you have received the vehicle from the owner?\n\n' +
+            'Only proceed if you have:\n' +
+            '• Inspected the vehicle\n' +
+            '• Received the keys\n' +
+            '• Photographed any existing damage'
+        );
+        if (!confirmed) return;
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Confirming...';
+
+        try {
+            await window.db.collection('bookings').doc(bookingId).update({
+                renterReceivedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                renterReceivedBy: currentUser ? currentUser.uid : null,
+                status: 'Active'
+            });
+
+            btn.innerHTML = '<i class="fas fa-check"></i> Confirmed!';
+            btn.style.background = 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)';
+            btn.style.color = '#FFFFFF';
+
+            setTimeout(() => {
+                window.location.href = 'Dashboard.html';
+            }, 1200);
+        } catch (err) {
+            console.error('Handover confirm error:', err);
+            alert('Failed to confirm. Please try again.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check-double"></i> I\'ve Received the Vehicle from Owner';
+        }
+    });
+}
+
+// ============================================================
+// 15. AUTH STATE LISTENER (with verification gate)
 // ============================================================
 document.addEventListener('DOMContentLoaded', function () {
     if (!window.auth) {
         console.error('Firebase auth not available');
         return;
     }
+
+    // Bind "Received Vehicle" button once (it exists in DOM even if hidden)
+    initReceivedButton();
 
     window.auth.onAuthStateChanged(async function (user) {
         // ---- Gate 1: not logged in ----
@@ -495,7 +719,6 @@ document.addEventListener('DOMContentLoaded', function () {
         renderVehicle(vehicle);
 
         // Re-render licence pill now that vehicle data is loaded
-        // (shows "matches this vehicle" / "does not match")
         renderLicenceDisplay();
     });
 });

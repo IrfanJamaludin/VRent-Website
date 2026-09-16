@@ -20,6 +20,13 @@ const brands = {
     'heavy-machinery': ['Caterpillar', 'Komatsu', 'Hitachi', 'SANY', 'Kobelco', 'Genie', 'JLG']
 };
 
+// Peninsular-only constraint (enforced at submission)
+const PENINSULAR_LOCATIONS = [
+    'Johor', 'Kedah', 'Kelantan', 'Melaka', 'Negeri Sembilan',
+    'Pahang', 'Penang', 'Perak', 'Perlis', 'Selangor', 'Terengganu',
+    'Kuala Lumpur', 'Putrajaya', 'Labuan'
+];
+
 // ============================================================
 // 2. SPEC TEMPLATES (license checkboxes removed — auto-derived)
 // ============================================================
@@ -417,6 +424,13 @@ const pickupMethodGroup = document.getElementById('pickupMethodGroup');
 const vrentDeliveryBadge = document.getElementById('vrentDeliveryBadge');
 const deliveryFeeGroup = document.getElementById('deliveryFeeGroup');
 
+// NEW — tick group references
+const mileagePolicyGroup = document.querySelector('[data-field="mileagePolicy"]');
+const outstationGroup = document.querySelector('[data-field="outstation"]');
+const mileageLimitGroup = document.getElementById('mileageLimitGroup');
+const mileageExcessGroup = document.getElementById('mileageExcessGroup');
+const outstationFeeGroup = document.getElementById('outstationFeeGroup');
+
 let uploadedImageUrls = [];
 let currentUser = null;
 let isUploading = false;
@@ -437,7 +451,53 @@ function populateYears() {
 populateYears();
 
 // ============================================================
-// 7. CATEGORY CHANGE HANDLER
+// 7. TICK GROUPS — MILEAGE POLICY + OUTSTATION
+// ============================================================
+function initTickGroups() {
+    [mileagePolicyGroup, outstationGroup].forEach(group => {
+        if (!group) return;
+
+        // Sync initial dataset
+        const initial = group.querySelector('.tick-btn.active');
+        if (initial) group.dataset.selected = initial.dataset.value;
+
+        group.addEventListener('click', (e) => {
+            const btn = e.target.closest('.tick-btn');
+            if (!btn) return;
+
+            group.querySelectorAll('.tick-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            group.dataset.selected = btn.dataset.value;
+
+            // Mileage → toggle conditional fields
+            if (group === mileagePolicyGroup) {
+                const isLimited = btn.dataset.value === 'Limited';
+                if (mileageLimitGroup) mileageLimitGroup.style.display = isLimited ? 'flex' : 'none';
+                if (mileageExcessGroup) mileageExcessGroup.style.display = isLimited ? 'flex' : 'none';
+                if (isLimited) {
+                    const ml = document.getElementById('mileageLimit');
+                    if (ml && !ml.value) ml.value = '300';
+                    const me = document.getElementById('mileageExcess');
+                    if (me && !me.value) me.value = '0.50';
+                }
+            }
+
+            // Outstation → toggle surcharge field
+            if (group === outstationGroup) {
+                const isPeninsular = btn.dataset.value === 'Peninsular';
+                if (outstationFeeGroup) outstationFeeGroup.style.display = isPeninsular ? 'flex' : 'none';
+                if (isPeninsular) {
+                    const fee = document.getElementById('outstationFee');
+                    if (fee && !fee.value) fee.value = '50';
+                }
+            }
+        });
+    });
+}
+initTickGroups();
+
+// ============================================================
+// 8. CATEGORY CHANGE HANDLER
 // ============================================================
 categorySelect.addEventListener('change', function () {
     const category = this.value;
@@ -520,7 +580,7 @@ function applyCategoryVisibility(category) {
 }
 
 // ============================================================
-// 8. AUTO-DERIVED LICENSE DISPLAY
+// 9. AUTO-DERIVED LICENSE DISPLAY
 // ============================================================
 function updateLicenseDisplay() {
     const box = document.getElementById('licenseInfoBox');
@@ -545,7 +605,6 @@ function updateLicenseDisplay() {
         return;
     }
 
-    // Requires window.getRequiredLicense from LicenseRules.js
     if (typeof window.getRequiredLicense !== 'function') {
         titleEl.textContent = '—';
         detailEl.textContent = 'License rules not loaded.';
@@ -563,12 +622,10 @@ function updateLicenseDisplay() {
     }
 }
 
-// Attach listeners to whichever spec fields exist after template render
 function attachLicenseFieldListeners() {
     ['transmission', 'engineCapacity', 'gvw', 'operatingWeight', 'equipmentType'].forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
-        // Avoid double-binding
         if (el.dataset.licenseBound === '1') return;
         el.addEventListener('input', updateLicenseDisplay);
         el.addEventListener('change', updateLicenseDisplay);
@@ -577,7 +634,7 @@ function attachLicenseFieldListeners() {
 }
 
 // ============================================================
-// 9. WEEKLY PRICE (cap = pricePerDay × 7, suggestion = 10% off)
+// 10. WEEKLY PRICE (cap = pricePerDay × 7, suggestion = 10% off)
 // ============================================================
 function getStandardWeeklyPrice() {
     const perDay = parseFloat(pricePerDayInput.value) || 0;
@@ -670,7 +727,7 @@ pricePerWeekInput.addEventListener('input', function () {
 });
 
 // ============================================================
-// 10. AVAILABILITY GUARDS
+// 11. AVAILABILITY GUARDS
 // ============================================================
 function todayISO() {
     const d = new Date();
@@ -692,7 +749,7 @@ function setupAvailabilityGuards() {
 setupAvailabilityGuards();
 
 // ============================================================
-// 11. INSPECTION GUARDS (weekdays + office hours)
+// 12. INSPECTION GUARDS (weekdays + office hours)
 // ============================================================
 function setupInspectionGuards() {
     const today = new Date();
@@ -734,7 +791,7 @@ function setupInspectionGuards() {
 setupInspectionGuards();
 
 // ============================================================
-// 12. IMAGE UPLOAD (Cloudinary)
+// 13. IMAGE UPLOAD (Cloudinary)
 // ============================================================
 uploadArea.addEventListener('click', () => fileInput.click());
 
@@ -849,7 +906,7 @@ async function handleFiles(files) {
 }
 
 // ============================================================
-// 13. DELIVERY FEE TOGGLE (non-machinery)
+// 14. DELIVERY FEE TOGGLE (non-machinery)
 // ============================================================
 document.addEventListener('DOMContentLoaded', function () {
     const pickupRadios = document.querySelectorAll('input[name="pickupMethod"]');
@@ -871,7 +928,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // ============================================================
-// 14. CHECKBOX HELPER
+// 15. CHECKBOX HELPER
 // ============================================================
 function getCheckboxValues(containerId) {
     const container = document.getElementById(containerId);
@@ -884,7 +941,7 @@ function getCheckboxValues(containerId) {
 }
 
 // ============================================================
-// 15. FORM SUBMISSION (with auth + verification gate + auto-license)
+// 16. FORM SUBMISSION (with auth + verification gate + auto-license)
 // ============================================================
 form.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -956,7 +1013,22 @@ form.addEventListener('submit', async function (e) {
     const rentalLocation = document.getElementById('rentalLocation').value;
     const availableFrom = availableFromInput.value;
     const availableTo = availableToInput.value;
-    const mileageLimit = parseInt(document.getElementById('mileageLimit').value) || 0;
+
+    // ---- Mileage policy (from tick group) ----
+    const mileagePolicy = mileagePolicyGroup?.dataset.selected || 'Unlimited';
+    const mileageLimit = mileagePolicy === 'Limited'
+        ? (parseInt(document.getElementById('mileageLimit').value) || 0)
+        : 0;
+    const mileageExcessRate = mileagePolicy === 'Limited'
+        ? (parseFloat(document.getElementById('mileageExcess').value) || 0)
+        : 0;
+
+    // ---- Outstation (from tick group) ----
+    const outstationScope = outstationGroup?.dataset.selected || 'SameState';
+    const outstationFee = outstationScope === 'Peninsular'
+        ? (parseFloat(document.getElementById('outstationFee').value) || 0)
+        : 0;
+
     const pickupMethod = isMachinery
         ? 'Delivery'
         : (document.querySelector('input[name="pickupMethod"]:checked')?.value || 'Pickup');
@@ -978,6 +1050,12 @@ form.addEventListener('submit', async function (e) {
         return;
     }
 
+    // ---- PENINSULAR-ONLY SAFETY CHECK ----
+    if (!PENINSULAR_LOCATIONS.includes(rentalLocation)) {
+        alert('V-Rent currently operates in Peninsular Malaysia only. Please pick a valid state.');
+        return;
+    }
+
     // ---- Weekly price cap ----
     const standardWeekly = getStandardWeeklyPrice();
     if (pricePerWeek > standardWeekly) {
@@ -989,6 +1067,18 @@ form.addEventListener('submit', async function (e) {
     if (availableFrom && availableTo && availableTo < availableFrom) {
         alert('Available "To" date must be after the "From" date.');
         return;
+    }
+
+    // ---- Mileage policy validation ----
+    if (mileagePolicy === 'Limited') {
+        if (!mileageLimit || mileageLimit < 50) {
+            alert('Please enter a valid daily mileage cap (minimum 50 km).');
+            return;
+        }
+        if (!mileageExcessRate || mileageExcessRate <= 0) {
+            alert('Please enter a valid excess charge per km.');
+            return;
+        }
     }
 
     // ---- Inspection weekday + hours ----
@@ -1033,11 +1123,21 @@ form.addEventListener('submit', async function (e) {
         rentalLocation,
         availableFrom: availableFrom || null,
         availableTo: availableTo || null,
-        mileageLimit,
+
+        // ---- NEW mileage policy fields ----
+        mileagePolicy,       // 'Unlimited' | 'Limited'
+        mileageLimit,        // 0 if unlimited
+        mileageExcessRate,   // 0 if unlimited
+
+        // ---- NEW outstation fields ----
+        outstationScope,     // 'SameState' | 'Peninsular'
+        outstationAllowed: outstationScope === 'Peninsular',
+        outstationFee,
+
         pickupMethod,
         deliveryFee,
         securityDeposit,
-        rentalRules,
+        rentalRules,         // commercial use removed
         description,
         images: uploadedImageUrls,
         inspectionDate,
@@ -1107,8 +1207,6 @@ form.addEventListener('submit', async function (e) {
         vehicleData.requiredLicense = licenseInfo.required || [];
         vehicleData.licenseReason = licenseInfo.reason || '';
     } else {
-        // Fallback: if LicenseRules.js failed to load, keep an empty array
-        // so booking doesn't silently break.
         vehicleData.requiredLicense = [];
         vehicleData.licenseReason = '';
         console.warn('LicenseRules.js not loaded — requiredLicense not derived');
@@ -1142,7 +1240,7 @@ form.addEventListener('submit', async function (e) {
 });
 
 // ============================================================
-// 16. LOAD USER DATA
+// 17. LOAD USER DATA
 // ============================================================
 function loadUserData(user) {
     currentUser = user;
@@ -1170,7 +1268,7 @@ function loadUserData(user) {
 }
 
 // ============================================================
-// 17. INIT
+// 18. INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', function () {
     if (!window.auth) {

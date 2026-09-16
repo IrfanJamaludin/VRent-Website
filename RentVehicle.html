@@ -246,19 +246,27 @@
                                 <label for="rentalLocation">Rental Location <span class="required">*</span></label>
                                 <select id="rentalLocation" required>
                                     <option value="">Select Location</option>
-                                    <option value="Selangor">Selangor</option>
-                                    <option value="Kuala Lumpur">Kuala Lumpur</option>
-                                    <option value="Johor">Johor</option>
-                                    <option value="Penang">Penang</option>
-                                    <option value="Perak">Perak</option>
-                                    <option value="Pahang">Pahang</option>
-                                    <option value="Kedah">Kedah</option>
-                                    <option value="Kelantan">Kelantan</option>
-                                    <option value="Terengganu">Terengganu</option>
-                                    <option value="Melaka">Melaka</option>
-                                    <option value="Negeri Sembilan">Negeri Sembilan</option>
-                                    <option value="Perlis">Perlis</option>
+                                    <optgroup label="Peninsular Malaysia">
+                                        <option value="Johor">Johor</option>
+                                        <option value="Kedah">Kedah</option>
+                                        <option value="Kelantan">Kelantan</option>
+                                        <option value="Melaka">Melaka</option>
+                                        <option value="Negeri Sembilan">Negeri Sembilan</option>
+                                        <option value="Pahang">Pahang</option>
+                                        <option value="Penang">Penang</option>
+                                        <option value="Perak">Perak</option>
+                                        <option value="Perlis">Perlis</option>
+                                        <option value="Selangor">Selangor</option>
+                                        <option value="Terengganu">Terengganu</option>
+                                        <option value="Kuala Lumpur">Kuala Lumpur</option>
+                                        <option value="Putrajaya">Putrajaya</option>
+                                        <option value="Labuan">Labuan</option>
+                                    </optgroup>
                                 </select>
+                                <small class="field-hint">
+                                    <i class="fas fa-info-circle"></i>
+                                    V-Rent currently operates in Peninsular Malaysia only.
+                                </small>
                             </div>
 
                             <div class="form-group full">
@@ -275,9 +283,53 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label for="mileageLimit">Mileage Limit (km)</label>
-                                <input type="number" id="mileageLimit" placeholder="100" min="0" />
+                            <!-- MILEAGE POLICY (replaces "Mileage Limit") -->
+                            <div class="form-group full">
+                                <label>Mileage Policy</label>
+                                <div class="tick-group" data-field="mileagePolicy">
+                                    <button type="button" class="tick-btn active" data-value="Unlimited">
+                                        <i class="fas fa-check"></i> Unlimited Mileage
+                                    </button>
+                                    <button type="button" class="tick-btn" data-value="Limited">
+                                        <i class="fas fa-check"></i> Daily Cap
+                                    </button>
+                                </div>
+                                <small class="field-hint">
+                                    <i class="fas fa-info-circle"></i>
+                                    Unlimited is recommended for premium rentals. Daily cap is common for budget rentals.
+                                </small>
+                            </div>
+
+                            <div class="form-group" id="mileageLimitGroup" style="display:none;">
+                                <label for="mileageLimit">Daily Cap (km)</label>
+                                <input type="number" id="mileageLimit" placeholder="300" min="50" />
+                            </div>
+
+                            <div class="form-group" id="mileageExcessGroup" style="display:none;">
+                                <label for="mileageExcess">Excess Charge (RM / km)</label>
+                                <input type="number" id="mileageExcess" placeholder="0.50" min="0" step="0.10" />
+                            </div>
+
+                            <!-- OUTSTATION POLICY -->
+                            <div class="form-group full">
+                                <label>Outstation Travel</label>
+                                <div class="tick-group" data-field="outstation">
+                                    <button type="button" class="tick-btn active" data-value="SameState">
+                                        <i class="fas fa-check"></i> Same State Only
+                                    </button>
+                                    <button type="button" class="tick-btn" data-value="Peninsular">
+                                        <i class="fas fa-check"></i> Peninsular Malaysia
+                                    </button>
+                                </div>
+                                <small class="field-hint">
+                                    <i class="fas fa-info-circle"></i>
+                                    Cross-border travel (Thailand, Singapore, Brunei) is not allowed on V-Rent.
+                                </small>
+                            </div>
+
+                            <div class="form-group" id="outstationFeeGroup" style="display:none;">
+                                <label for="outstationFee">Outstation Surcharge (RM)</label>
+                                <input type="number" id="outstationFee" placeholder="50" min="0" value="0" />
                             </div>
 
                             <div class="form-group full" id="pickupMethodGroup">
@@ -323,9 +375,7 @@
                                 <div class="checkbox-group" id="rentalRulesGroup">
                                     <label class="checkbox-label"><input type="checkbox" value="Smoking Allowed" /> Smoking Allowed</label>
                                     <label class="checkbox-label"><input type="checkbox" value="Pets Allowed" /> Pets Allowed</label>
-                                    <label class="checkbox-label"><input type="checkbox" value="Outstation Allowed" /> Outstation Allowed</label>
                                     <label class="checkbox-label"><input type="checkbox" value="Off-Road Allowed" /> Off-Road Allowed</label>
-                                    <label class="checkbox-label"><input type="checkbox" value="Commercial Use" /> Commercial Use</label>
                                 </div>
                             </div>
 
@@ -428,65 +478,140 @@
         </div>
     </footer>
 
-    <!-- Auth Gate Modal -->
+    <!-- ============================================================
+         AUTH GATE MODAL — redesigned (light card, gold accents)
+    ============================================================ -->
     <div class="auth-gate-overlay" id="authGateOverlay" role="dialog" aria-modal="true" aria-labelledby="authGateTitle">
         <div class="auth-gate-card">
-            <button class="auth-gate-close" id="authGateClose" aria-label="Close">&times;</button>
+            <button class="auth-gate-close" id="authGateClose" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="auth-gate-glow"></div>
 
             <div class="auth-gate-icon">
                 <i class="fas fa-car-side"></i>
                 <span class="auth-gate-lock"><i class="fas fa-lock"></i></span>
             </div>
 
-            <h2 class="auth-gate-title" id="authGateTitle">Sign In to List Your Vehicle</h2>
-            <p class="auth-gate-subtitle">Create your free account to start earning from your vehicles.</p>
+            <h2 class="auth-gate-title" id="authGateTitle">Sign in to list your vehicle</h2>
+            <p class="auth-gate-subtitle">
+                Free forever. List unlimited vehicles and set your own prices — you only earn when someone books.
+            </p>
 
             <ul class="auth-gate-benefits">
-                <li><i class="fas fa-check-circle"></i> List unlimited vehicles for free</li>
-                <li><i class="fas fa-check-circle"></i> Set your own price &amp; schedule</li>
-                <li><i class="fas fa-check-circle"></i> Secure payments &amp; verified renters</li>
-                <li><i class="fas fa-check-circle"></i> Full control from your dashboard</li>
+                <li>
+                    <span class="benefit-num">1</span>
+                    <div>
+                        <strong>List unlimited vehicles</strong>
+                        <small>No listing fees, ever</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="benefit-num">2</span>
+                    <div>
+                        <strong>Set your own price</strong>
+                        <small>Daily, weekly &amp; custom rules</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="benefit-num">3</span>
+                    <div>
+                        <strong>Verified renters only</strong>
+                        <small>Every renter is IC-checked</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="benefit-num">4</span>
+                    <div>
+                        <strong>Full dashboard control</strong>
+                        <small>Bookings, earnings, availability</small>
+                    </div>
+                </li>
             </ul>
 
             <div class="auth-gate-actions">
                 <a href="MainPage.html" class="auth-gate-primary">
-                    <i class="fas fa-sign-in-alt"></i> Log In / Sign Up
+                    <i class="fas fa-sign-in-alt"></i>
+                    Log In / Sign Up
                 </a>
-                <a href="Home.html" class="auth-gate-secondary">Maybe Later</a>
+                <a href="Home.html" class="auth-gate-secondary">Maybe later</a>
             </div>
 
-            <p class="auth-gate-footnote">Takes less than 60 seconds to get started.</p>
+            <p class="auth-gate-footnote">
+                <i class="fas fa-lock"></i>
+                Your data is encrypted and never shared.
+            </p>
         </div>
     </div>
 
-    <!-- Verify Gate Modal (NO close button — user must choose an action) -->
+    <!-- ============================================================
+         VERIFY GATE MODAL — redesigned (mode-aware)
+    ============================================================ -->
     <div class="auth-gate-overlay" id="verifyGateOverlay" role="dialog" aria-modal="true" aria-labelledby="verifyGateTitle">
         <div class="auth-gate-card">
+            <div class="auth-gate-glow"></div>
+
             <div class="auth-gate-icon">
                 <i class="fas fa-id-card"></i>
                 <span class="auth-gate-lock"><i class="fas fa-shield-alt"></i></span>
             </div>
 
-            <h2 class="auth-gate-title" id="verifyGateTitle">Verify Before Listing</h2>
+            <span class="auth-gate-badge">
+                <i class="fas fa-clock"></i> 2-minute setup
+            </span>
+
+            <h2 class="auth-gate-title" id="verifyGateTitle">Let's get you verified</h2>
             <p class="auth-gate-subtitle" id="verifyGateSubtitle">
-                For trust and safety, we verify every vehicle owner before their listings go live.
+                One-time verification keeps every V-Rent listing safe and trusted. Once approved, you can start listing immediately.
             </p>
 
             <ul class="auth-gate-benefits" id="verifyGateBenefits">
-                <li><i class="fas fa-check-circle"></i> Upload your IC (front &amp; back)</li>
-                <li><i class="fas fa-check-circle"></i> Add your driving licence details</li>
-                <li><i class="fas fa-check-circle"></i> Quick admin review (24–48 hours)</li>
-                <li><i class="fas fa-check-circle"></i> List vehicles once approved</li>
+                <li>
+                    <span class="benefit-num">1</span>
+                    <div>
+                        <strong>Upload your IC</strong>
+                        <small>Front &amp; back — clear photos only</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="benefit-num">2</span>
+                    <div>
+                        <strong>Add your driving licence</strong>
+                        <small>We check validity against JPJ standards</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="benefit-num">3</span>
+                    <div>
+                        <strong>Wait for admin review</strong>
+                        <small>Usually 24–48 hours, sometimes faster</small>
+                    </div>
+                </li>
+                <li>
+                    <span class="benefit-num">4</span>
+                    <div>
+                        <strong>Start listing vehicles</strong>
+                        <small>Publish once you're approved</small>
+                    </div>
+                </li>
             </ul>
 
             <div class="auth-gate-actions">
                 <a href="Dashboard.html" class="auth-gate-primary">
-                    <i class="fas fa-shield-alt"></i> Go to Dashboard to Verify
+                    <i class="fas fa-shield-alt"></i>
+                    Verify on Dashboard
+                    <i class="fas fa-arrow-right auth-gate-arrow"></i>
                 </a>
                 <button type="button" class="auth-gate-secondary" id="verifyGateLaterBtn">
-                    Maybe Later
+                    Maybe later
                 </button>
             </div>
+
+            <p class="auth-gate-footnote">
+                <i class="fas fa-lock"></i>
+                Already submitted? Check your status on the Dashboard.
+            </p>
         </div>
     </div>
 
@@ -524,7 +649,7 @@
     <!-- Page JS -->
     <script src="RentVehicle.js"></script>
 
-    <!-- Gate Controller (auth + verify) -->
+    <!-- Gate Controller + Tick Groups (auth + verify) -->
     <script>
         (function () {
             const authOverlay     = document.getElementById('authGateOverlay');
@@ -552,14 +677,14 @@
                 if (!verifyOverlay) return;
 
                 if (mode === 'pending') {
-                    verifyTitle.textContent = 'Verification in Progress';
-                    verifySubtitle.textContent = 'Your documents are being reviewed. You can list vehicles once approved (24–48 hours).';
+                    verifyTitle.textContent = 'Verification in progress';
+                    verifySubtitle.textContent = 'Your documents are being reviewed. You can list vehicles once approved (usually 24–48 hours).';
                 } else if (mode === 'rejected') {
-                    verifyTitle.textContent = 'Verification Rejected';
-                    verifySubtitle.textContent = 'Your previous submission was not approved. Please resubmit clearer documents on your Dashboard.';
+                    verifyTitle.textContent = 'Verification needs attention';
+                    verifySubtitle.textContent = 'Your previous submission wasn\'t approved. Please resubmit clearer documents on your Dashboard.';
                 } else {
-                    verifyTitle.textContent = 'Verify Before Listing';
-                    verifySubtitle.textContent = 'For trust and safety, we verify every vehicle owner before their listings go live.';
+                    verifyTitle.textContent = 'Let\'s get you verified';
+                    verifySubtitle.textContent = 'One-time verification keeps every V-Rent listing safe and trusted. Once approved, you can start listing immediately.';
                 }
 
                 verifyOverlay.classList.add('show');
@@ -627,6 +752,42 @@
                     if (rentVehicleGate) rentVehicleGate.style.display = 'none';
                     window.showVerifyGate('missing');
                 }
+            });
+
+            // ============================================================
+            // TICK GROUPS: Mileage Policy + Outstation
+            // ============================================================
+            document.querySelectorAll('.tick-group').forEach(group => {
+                const field = group.dataset.field;
+
+                // Init default selected
+                const initial = group.querySelector('.tick-btn.active');
+                if (initial) group.dataset.selected = initial.dataset.value;
+
+                group.addEventListener('click', (e) => {
+                    const btn = e.target.closest('.tick-btn');
+                    if (!btn) return;
+
+                    group.querySelectorAll('.tick-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    group.dataset.selected = btn.dataset.value;
+
+                    // Mileage policy → toggle conditional fields
+                    if (field === 'mileagePolicy') {
+                        const showLimited = btn.dataset.value === 'Limited';
+                        const mlGroup = document.getElementById('mileageLimitGroup');
+                        const meGroup = document.getElementById('mileageExcessGroup');
+                        if (mlGroup) mlGroup.style.display = showLimited ? '' : 'none';
+                        if (meGroup) meGroup.style.display = showLimited ? '' : 'none';
+                    }
+
+                    // Outstation → toggle surcharge field
+                    if (field === 'outstation') {
+                        const showFee = btn.dataset.value === 'Peninsular';
+                        const feeGroup = document.getElementById('outstationFeeGroup');
+                        if (feeGroup) feeGroup.style.display = showFee ? '' : 'none';
+                    }
+                });
             });
         })();
     </script>
