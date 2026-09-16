@@ -3,7 +3,6 @@
    Primary (60%): #FFFFFF / #F8F9FA
    Secondary (30%): #11141A (Obsidian Charcoal)
    Accent (10%): #D4AF37 (Brushed Luxury Gold)
-
    Mobile-first. Optimized for iPhone & Android viewports.
    ============================================================ */
 
@@ -29,7 +28,7 @@ body {
     color: #11141A;
     line-height: 1.6;
     padding-top: 70px;
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 input,
@@ -103,6 +102,8 @@ button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .filter-btn:hover {
@@ -110,6 +111,10 @@ button {
     color: #11141A;
     border-color: #D4AF37;
     transform: translateY(-2px);
+}
+
+.filter-btn:active {
+    transform: translateY(0);
 }
 
 .filter-btn.active {
@@ -374,7 +379,7 @@ button {
     z-index: 2;
 }
 
-/* ---------- License Badge ---------- */
+/* ---------- License Badge (bottom-right to avoid year badge overlap) ---------- */
 .vehicle-license-required {
     position: absolute;
     bottom: 12px;
@@ -382,17 +387,16 @@ button {
     padding: 4px 12px;
     border-radius: 40px;
     font-size: 0.65rem;
-    font-weight: 600;
+    font-weight: 700;
     background: #D4AF37;
     color: #11141A;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     gap: 4px;
     z-index: 2;
     border: 1px solid rgba(212, 175, 55, 0.3);
-    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.15);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.25);
+    letter-spacing: 0.3px;
 }
 
 .vehicle-info {
@@ -522,9 +526,9 @@ button {
     color: #D4AF37;
 }
 
-/* ============================================================ */
-/* RESPONSIVE — TABLET / MOBILE (≤ 768px)                       */
-/* ============================================================ */
+/* ============================================================
+   RESPONSIVE — TABLET / MOBILE (≤ 768px)
+   ============================================================ */
 @media (max-width: 768px) {
 
     /* ---------- Prevent iOS auto-zoom on focus ---------- */
@@ -543,12 +547,14 @@ button {
         flex-wrap: nowrap;
         justify-content: flex-start;
         overflow-x: auto;
+        overflow-y: hidden;
         gap: 8px;
         padding: 4px 20px 12px;
         margin: 0 -20px 20px;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
         scroll-snap-type: x proximity;
+        scroll-padding-left: 20px;
     }
 
     .category-filter::-webkit-scrollbar {
@@ -597,6 +603,18 @@ button {
 
     .additional-filters.mobile-open {
         display: flex;
+        animation: filterSlideIn 0.25s ease-out;
+    }
+
+    @keyframes filterSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-6px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .additional-filters select {
@@ -626,9 +644,9 @@ button {
     }
 }
 
-/* ============================================================ */
-/* RESPONSIVE — SMALL PHONES (≤ 480px)                          */
-/* ============================================================ */
+/* ============================================================
+   RESPONSIVE — SMALL PHONES (≤ 480px)
+   ============================================================ */
 @media (max-width: 480px) {
 
     .vehicles-page {
@@ -691,6 +709,12 @@ button {
         font-size: 1rem;
     }
 
+    /* Slightly bigger license badge text on small phones */
+    .vehicle-license-required {
+        font-size: 0.7rem;
+        padding: 5px 10px;
+    }
+
     .footer {
         padding: 24px 0;
     }
@@ -718,6 +742,7 @@ button {
         .category-filter {
             padding-left: calc(20px + env(safe-area-inset-left));
             padding-right: calc(20px + env(safe-area-inset-right));
+            scroll-padding-left: calc(20px + env(safe-area-inset-left));
         }
     }
 }

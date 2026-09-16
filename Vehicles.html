@@ -14,7 +14,6 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
 </head>
 <body>
 
@@ -167,13 +166,12 @@
         </div>
     </footer>
 
-    <script src="LicenseRules.js"></script>
-
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
+    <!-- Firebase Configuration -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDvE1_9PpviXzJZJZ0Z6GnAcDJ5AFljAcE",
@@ -189,7 +187,29 @@
         window.db = firebase.firestore();
     </script>
 
+    <!-- Nav JS -->
     <script src="Nav.js"></script>
+
+    <!-- 🔽 License derivation rules (before Vehicles.js) -->
+    <script src="LicenseRules.js"></script>
+
+    <!-- 🔽 Page JS -->
     <script src="Vehicles.js"></script>
+
+    <!-- Mobile filter toggle controller -->
+    <script>
+        (function () {
+            const toggle = document.getElementById('mobileFilterToggle');
+            const filters = document.getElementById('additionalFilters');
+            if (!toggle || !filters) return;
+
+            toggle.addEventListener('click', function () {
+                const isOpen = filters.classList.toggle('mobile-open');
+                toggle.classList.toggle('active', isOpen);
+                toggle.setAttribute('aria-expanded', String(isOpen));
+            });
+        })();
+    </script>
+
 </body>
 </html>

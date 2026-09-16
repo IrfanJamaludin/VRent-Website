@@ -534,21 +534,38 @@ function applyURLFilters() {
 }
 
 // ============================================================
-// EVENT LISTENERS
+// EVENT LISTENERS — CATEGORY CHIPS (mobile-safe)
 // ============================================================
 const categoryFilterEl = document.querySelector('.category-filter');
-let lastCategoryScroll = 0;
+
+let touchStartX = 0;
+let touchStartY = 0;
+let touchMoved = false;
 
 if (categoryFilterEl) {
-    categoryFilterEl.addEventListener('scroll', () => {
-        lastCategoryScroll = Date.now();
+    // Record where the finger landed
+    categoryFilterEl.addEventListener('touchstart', (e) => {
+        if (!e.touches[0]) return;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchMoved = false;
+    }, { passive: true });
+
+    // If finger moves > 10px, treat as scroll, not tap
+    categoryFilterEl.addEventListener('touchmove', (e) => {
+        if (!e.touches[0]) return;
+        const dx = Math.abs(e.touches[0].clientX - touchStartX);
+        const dy = Math.abs(e.touches[0].clientY - touchStartY);
+        if (dx > 10 || dy > 10) touchMoved = true;
     }, { passive: true });
 }
 
 categoryButtons.forEach(btn => {
     btn.addEventListener('click', function (e) {
-        if (Date.now() - lastCategoryScroll < 150) {
+        // On touch devices: skip if the finger actually moved (was a scroll)
+        if (touchMoved) {
             e.preventDefault();
+            touchMoved = false;
             return;
         }
         toggleCategory(this.dataset.category);
