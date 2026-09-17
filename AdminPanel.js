@@ -1,4 +1,5 @@
-// AdminPanel.js - COMPLETE (with reviews moderation, drag-drop images, and all sections)
+// AdminPanel.js - COMPLETE (with reviews moderation, notifications, drag-drop images)
+// Notifications perf fix: deduped listener + parallel auth
 
 // ============================================================
 // CLOUDINARY CONFIG
@@ -17,11 +18,16 @@ const AdminPanel = {
     allUsers: [],
     allVerifications: [],
     allReviews: [],
+    allNotifications: [],
     currentDeleteTarget: null,
     currentRejectTarget: null,
     currentPreviewVehicleId: null,
     currentEditVehicleId: null,
     currentFilter: 'flagged',
+    currentNotifFilter: 'all',
+    _notifListenerBound: false,
+    _notifTabsBound: false,
+    _sidebarBadgesBound: false,
 
     // ============================================================
     // AUTH
@@ -110,6 +116,70 @@ const AdminPanel = {
             return this.allReviews;
         } catch (err) { console.error('❌ Reviews:', err); this.allReviews = []; return []; }
     },
+    async fetchNotifications() {
+        try {
+            const snap = await window.db.collection('notifications')
+                .orderBy('confirmedAt', 'desc')
+                .limit(50)
+                .get();
+            this.allNotifications = [];
+            snap.forEach(doc => this.allNotifications.push({ id: doc.id, ...doc.data() }));
+            return this.allNotifications;
+        } catch (err) {
+            console.error('❌ Notifications:', err);
+            this.allNotifications = [];
+            return [];
+        }
+    },
+
+    // ============================================================
+    // SIDEBAR BADGES (live counts — runs on every admin page)
+    // ============================================================
+    initSidebarBadges() {
+        if (this._sidebarBadgesBound) return;
+        if (!window.db) return;
+        this._sidebarBadgesBound = true;
+
+        const setBadge = (id, count) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (count > 0) {
+                el.textContent = count > 99 ? '99+' : count;
+                el.style.display = 'inline-flex';
+            } else {
+                el.style.display = 'none';
+            }
+        };
+
+        // ── Notifications badge ─────────────────────────────────
+        // Skip this listener on the notifications page itself —
+        // the main listener already runs there and updates the badge.
+        const isNotifPage = !!document.getElementById('notificationList');
+        if (!isNotifPage) {
+            window.db.collection('notifications')
+                .where('read', '==', false)
+                .onSnapshot(
+                    snap => setBadge('navNotifBadge', snap.size),
+                    err => console.warn('Notif badge:', err)
+                );
+        }
+
+        // ── Verifications badge ─────────────────────────────────
+        window.db.collection('verification')
+            .where('status', '==', 'Pending')
+            .onSnapshot(
+                snap => setBadge('navVerifBadge', snap.size),
+                err => console.warn('Verif badge:', err)
+            );
+
+        // ── Vehicles badge ──────────────────────────────────────
+        window.db.collection('vehicles')
+            .where('approvalStatus', '==', 'Pending')
+            .onSnapshot(
+                snap => setBadge('navVehicleBadge', snap.size),
+                err => console.warn('Vehicle badge:', err)
+            );
+    },
 
     // ============================================================
     // DASHBOARD
@@ -158,7 +228,6 @@ const AdminPanel = {
 
         const activities = [];
 
-        // Pending verifications
         this.allVerifications.filter(v => v.status === 'Pending').forEach(v => {
             activities.push({
                 type: 'verification',
@@ -170,7 +239,6 @@ const AdminPanel = {
             });
         });
 
-        // Pending vehicles
         this.allVehicles.filter(v => v.approvalStatus === 'Pending').forEach(v => {
             activities.push({
                 type: 'vehicle',
@@ -182,7 +250,6 @@ const AdminPanel = {
             });
         });
 
-        // Flagged reviews
         this.allReviews.filter(r => r.flagged || r.status === 'Flagged').forEach(r => {
             activities.push({
                 type: 'review',
@@ -194,7 +261,6 @@ const AdminPanel = {
             });
         });
 
-        // Recent bookings
         this.allBookings.slice(0, 5).forEach(b => {
             activities.push({
                 type: 'booking',
@@ -239,9 +305,7 @@ const AdminPanel = {
         else if (type === 'vehicle') this.customerPreview(id);
         else if (type === 'booking') this.viewBooking(id);
         else if (type === 'review') {
-            if (typeof window.scrollTo === 'function') {
-                window.location.href = 'admin-reviews.html';
-            }
+            window.location.href = 'admin-reviews.html';
         }
     },
 
@@ -477,7 +541,6 @@ const AdminPanel = {
         } else if (this.currentFilter === 'rejected') {
             filtered = filtered.filter(r => r.status === 'Rejected');
         }
-        // 'all' → no filter
 
         if (filtered.length === 0) {
             const label = this.currentFilter === 'flagged' ? 'flagged'
@@ -553,6 +616,235 @@ const AdminPanel = {
     },
 
     // ============================================================
+    // NOTIFICATIONS (handover alerts — pickup + return)
+    // ============================================================
+    async initNotifications() {
+        // Perf: bind tabs + start listener IMMEDIATELY (in parallel with auth).
+        // Firestore rules protect the data; if a non-admin lands here, the
+        // auth check redirects them before they can see anything meaningful.
+        this.bindNotificationTabs();
+        this.listenNotifications();
+
+        // Run auth check in background
+        this.initAuth().catch(err => console.warn('Auth check:', err));
+    },
+
+    listenNotifications() {
+        if (this._notifListenerBound) return;
+        this._notifListenerBound = true;
+
+        window.db.collection('notifications')
+            .orderBy('confirmedAt', 'desc')
+            .limit(50)                        // ← reduced from 100
+            .onSnapshot(snap => {
+                this.allNotifications = [];
+                snap.forEach(doc => this.allNotifications.push({ id: doc.id, ...doc.data() }));
+                this.renderNotificationStats();
+                this.renderNotifications();
+
+                // Update sidebar badge inline (avoids a second listener)
+                const unread = this.allNotifications.filter(n => !n.read).length;
+                const el = document.getElementById('navNotifBadge');
+                if (el) {
+                    if (unread > 0) {
+                        el.textContent = unread > 99 ? '99+' : unread;
+                        el.style.display = 'inline-flex';
+                    } else {
+                        el.style.display = 'none';
+                    }
+                }
+            }, err => {
+                console.error('Notification listener error:', err);
+                const c = document.getElementById('notificationList');
+                if (c) c.innerHTML = `<div class="empty-state">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>Could not load notifications.</p>
+                </div>`;
+            });
+    },
+
+    bindNotificationTabs() {
+        if (this._notifTabsBound) return;
+        this._notifTabsBound = true;
+
+        document.querySelectorAll('.tab-btn[data-filter]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn[data-filter]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                AdminPanel.currentNotifFilter = this.dataset.filter;
+                AdminPanel.renderNotifications();
+            });
+        });
+    },
+
+    renderNotificationStats() {
+        const pickups = this.allNotifications.filter(n => n.type === 'pickup').length;
+        const returns = this.allNotifications.filter(n => n.type === 'return').length;
+        const unread = this.allNotifications.filter(n => !n.read).length;
+
+        const setEl = (id, v) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = v;
+        };
+
+        setEl('pickupCount', pickups);
+        setEl('returnCount', returns);
+        setEl('unreadCount', unread);
+        setEl('totalCount', this.allNotifications.length);
+    },
+
+    renderNotifications() {
+        const container = document.getElementById('notificationList');
+        if (!container) return;
+
+        let filtered = [...this.allNotifications];
+        const filter = this.currentNotifFilter || 'all';
+
+        if (filter === 'pickup') filtered = filtered.filter(n => n.type === 'pickup');
+        else if (filter === 'return') filtered = filtered.filter(n => n.type === 'return');
+        else if (filter === 'unread') filtered = filtered.filter(n => !n.read);
+
+        const countEl = document.getElementById('notifTableCount');
+        if (countEl) countEl.textContent = `${filtered.length} item${filtered.length !== 1 ? 's' : ''}`;
+
+        const titleMap = {
+            all:    '<i class="fas fa-bell" style="color:#D4AF37;"></i> All Notifications',
+            pickup: '<i class="fas fa-key" style="color:#D4AF37;"></i> Pickup Confirmations',
+            return: '<i class="fas fa-undo-alt" style="color:#10B981;"></i> Return Confirmations',
+            unread: '<i class="fas fa-envelope" style="color:#F59E0B;"></i> Unread Notifications'
+        };
+        const titleEl = document.getElementById('notifTableTitle');
+        if (titleEl) titleEl.innerHTML = titleMap[filter] || titleMap.all;
+
+        if (filtered.length === 0) {
+            container.innerHTML = `<div class="empty-state" style="padding:60px 20px;">
+                <i class="fas fa-inbox"></i>
+                <p>No notifications${filter !== 'all' ? ' in this filter' : ''}.</p>
+            </div>`;
+            return;
+        }
+
+        container.innerHTML = filtered.map(n => this._renderNotificationCard(n)).join('');
+
+        // Bind mark-read buttons
+        container.querySelectorAll('.btn-mark-read').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.markNotificationRead(btn.dataset.id, btn);
+            });
+        });
+    },
+
+    _renderNotificationCard(n) {
+        const isPickup = n.type === 'pickup';
+        const iconClass = isPickup ? 'fa-key' : 'fa-undo-alt';
+        const typeLabel = isPickup ? 'Pickup Confirmed' : 'Return Confirmed';
+        const typeColor = isPickup ? '#B8932B' : '#059669';
+        const timeStr = n.confirmedAt?.seconds
+            ? this._timeAgo(new Date(n.confirmedAt.seconds * 1000))
+            : 'Just now';
+        const unreadStyle = !n.read
+            ? 'border-left:4px solid #D4AF37;background:linear-gradient(to right, rgba(212,175,55,0.04), #FFFFFF 40%);'
+            : '';
+
+        const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g,
+            c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        const rm = (v) => `RM ${(Number(v) || 0).toLocaleString('en-MY')}`;
+
+        return `
+        <div class="dashboard-item" style="flex-direction:column;align-items:stretch;gap:0;padding:0;overflow:hidden;${unreadStyle}margin-bottom:12px;">
+            <div style="display:flex;gap:16px;padding:18px 20px;">
+                <div style="width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;background:${isPickup ? 'rgba(212,175,55,0.14)' : 'rgba(16,185,129,0.14)'};color:${typeColor};">
+                    <i class="fas ${iconClass}"></i>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px;flex-wrap:wrap;">
+                        <span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:${typeColor};">${typeLabel}</span>
+                        <span style="font-size:0.72rem;color:#A0AEC0;">${timeStr}</span>
+                    </div>
+                    <div style="font-size:1rem;font-weight:700;color:#11141A;margin-bottom:8px;">${esc(n.vehicleName || 'Vehicle')}</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:14px;font-size:0.82rem;color:#5A6472;margin-bottom:10px;">
+                        <span><i class="fas fa-user" style="color:#D4AF37;margin-right:4px;"></i> Renter: ${esc(n.renterName || '—')}</span>
+                        <span><i class="fas fa-user-tie" style="color:#D4AF37;margin-right:4px;"></i> Owner: ${esc(n.ownerName || '—')}</span>
+                    </div>
+                    <div style="display:flex;flex-wrap:wrap;gap:14px;padding-top:10px;border-top:1px dashed #EBEEF2;font-size:0.78rem;color:#88909C;">
+                        <span>Rental: <strong style="color:#11141A;">${rm(n.rentalSubtotal)}</strong></span>
+                        <span>Service Fee: <strong style="color:#11141A;">${rm(n.serviceFee)}</strong></span>
+                        <span>Total: <strong style="color:#11141A;">${rm(n.totalPrice)}</strong></span>
+                        <span>Deposit: <strong style="color:#11141A;">${rm(n.securityDeposit)}</strong></span>
+                    </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;align-items:flex-end;">
+                    ${!n.read ? `
+                        <button class="btn-mark-read" data-id="${n.id}" title="Mark as read" style="width:36px;height:36px;border-radius:50%;background:rgba(212,175,55,0.12);color:#B8932B;border:none;cursor:pointer;font-size:0.85rem;transition:all 0.2s ease;">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    ` : `
+                        <span title="Read" style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(16,185,129,0.10);color:#059669;font-size:0.85rem;">
+                            <i class="fas fa-check-double"></i>
+                        </span>
+                    `}
+                    <a href="admin-bookings.html" title="Open Bookings" style="width:36px;height:36px;border-radius:50%;background:rgba(17,20,26,0.06);color:#5A6472;display:flex;align-items:center;justify-content:center;font-size:0.85rem;text-decoration:none;transition:all 0.2s ease;">
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </div>`;
+    },
+
+    _timeAgo(date) {
+        const seconds = Math.floor((new Date() - date) / 1000);
+        if (seconds < 60) return 'Just now';
+        const mins = Math.floor(seconds / 60);
+        if (mins < 60) return `${mins} min ago`;
+        const hrs = Math.floor(mins / 60);
+        if (hrs < 24) return `${hrs} hr ago`;
+        const days = Math.floor(hrs / 24);
+        if (days < 7) return `${days} day${days > 1 ? 's' : ''} ago`;
+        return date.toLocaleDateString('en-MY', { day: '2-digit', month: 'short', year: 'numeric' });
+    },
+
+    async markNotificationRead(id, btnEl) {
+        if (btnEl) {
+            btnEl.disabled = true;
+            btnEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        }
+        try {
+            await window.db.collection('notifications').doc(id).update({
+                read: true,
+                adminReadAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } catch (err) {
+            console.error('Mark read failed:', err);
+            if (btnEl) {
+                btnEl.disabled = false;
+                btnEl.innerHTML = '<i class="fas fa-check"></i>';
+            }
+        }
+    },
+
+    async markAllNotificationsRead() {
+        const unread = this.allNotifications.filter(n => !n.read);
+        if (unread.length === 0) {
+            alert('No unread notifications.');
+            return;
+        }
+        if (!confirm(`Mark all ${unread.length} notifications as read?`)) return;
+        try {
+            const batch = window.db.batch();
+            unread.forEach(n => {
+                batch.update(window.db.collection('notifications').doc(n.id), {
+                    read: true,
+                    adminReadAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            });
+            await batch.commit();
+        } catch (err) {
+            alert('Failed: ' + err.message);
+        }
+    },
+
+    // ============================================================
     // VEHICLE CRUD
     // ============================================================
     openVehicleModal(vehicle = null) {
@@ -580,12 +872,10 @@ const AdminPanel = {
             document.getElementById('vEngine').value = vehicle.engineCapacity || '';
             document.getElementById('vDescription').value = vehicle.description || '';
 
-            // License could be string or array
             let lic = vehicle.requiredLicense;
             if (Array.isArray(lic)) lic = lic.join(', ');
             document.getElementById('vLicense').value = lic || '';
 
-            // Images
             let imgs = vehicle.images;
             if (Array.isArray(imgs)) imgs = imgs.join(', ');
             document.getElementById('vImages').value = imgs || '';
@@ -617,11 +907,9 @@ const AdminPanel = {
     async saveVehicle() {
         const id = document.getElementById('editVehicleId').value;
 
-        // Parse images (comma string → array)
         const imagesStr = document.getElementById('vImages').value.trim();
         const images = imagesStr ? imagesStr.split(',').map(s => s.trim()).filter(Boolean) : [];
 
-        // Parse license (comma string → array)
         const licenseStr = document.getElementById('vLicense').value.trim();
         const licenseArr = licenseStr ? licenseStr.split(',').map(s => s.trim()).filter(Boolean) : [];
 
@@ -682,7 +970,6 @@ const AdminPanel = {
 
         if (!dropZone || !fileInput || !imagesField) return;
 
-        // Click to open file picker
         dropZone.addEventListener('click', (e) => {
             if (e.target.tagName !== 'LABEL' && e.target.tagName !== 'INPUT') {
                 fileInput.click();
@@ -696,7 +983,6 @@ const AdminPanel = {
             }
         });
 
-        // Prevent default drags on page
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
             document.body.addEventListener(evt, (e) => {
                 if (e.target.closest('#imageDropZone')) return;
@@ -704,7 +990,6 @@ const AdminPanel = {
             });
         });
 
-        // Highlight
         ['dragenter', 'dragover'].forEach(evt => {
             dropZone.addEventListener(evt, (e) => {
                 e.preventDefault();
@@ -720,7 +1005,6 @@ const AdminPanel = {
             });
         });
 
-        // Handle drop
         dropZone.addEventListener('drop', (e) => {
             const files = e.dataTransfer.files;
             if (files && files.length > 0) {
@@ -728,7 +1012,6 @@ const AdminPanel = {
             }
         });
 
-        // Live preview when typing URLs
         imagesField.addEventListener('input', () => this.updateImagePreview());
     },
 
@@ -796,7 +1079,6 @@ const AdminPanel = {
             return;
         }
 
-        // Show temporary uploading previews
         const tempNodes = [];
         validFiles.forEach(file => {
             const item = document.createElement('div');
@@ -806,7 +1088,6 @@ const AdminPanel = {
             tempNodes.push({ file, node: item });
         });
 
-        // Upload in parallel
         const results = await Promise.allSettled(
             tempNodes.map(async ({ file, node }) => {
                 try {
@@ -842,7 +1123,6 @@ const AdminPanel = {
         if (!container || !imagesField) return;
 
         const urls = imagesField.value.split(',').map(s => s.trim()).filter(Boolean);
-        const vehicleId = document.getElementById('editVehicleId')?.value || '';
 
         container.innerHTML = '';
         urls.forEach((url, index) => {
@@ -946,8 +1226,12 @@ const AdminPanel = {
             { label: 'Phone', value: b.renterPhone || 'N/A' },
             { label: 'Pickup', value: `${b.pickupDate || 'N/A'} ${b.pickupTime || ''}` },
             { label: 'Return', value: `${b.returnDate || 'N/A'} ${b.returnTime || ''}` },
-            { label: 'Location', value: b.pickupLocation || 'N/A' },
+            { label: 'Pickup Location', value: b.pickupLocation || 'N/A' },
+            { label: 'Return Address', value: b.returnAddress || 'N/A' },
+            { label: 'Rental Subtotal', value: `RM ${b.rentalSubtotal || 0}` },
+            { label: 'Service Fee (15%)', value: `RM ${b.serviceFee || 0}` },
             { label: 'Total', value: `RM ${b.totalPrice || 0}` },
+            { label: 'Deposit', value: `RM ${b.securityDeposit || 0}` },
             { label: 'Status', value: b.status || 'Pending', isStatus: true },
         ];
         fields.forEach(f => {
@@ -1117,6 +1401,10 @@ const AdminPanel = {
                 await this.fetchReviews();
                 this.renderReviewBadges();
                 this.renderReviews();
+            } else if (collection === 'notifications') {
+                await this.fetchNotifications();
+                this.renderNotificationStats();
+                this.renderNotifications();
             }
         } catch (err) { alert('Delete failed: ' + err.message); }
     },
@@ -1167,15 +1455,12 @@ const AdminPanel = {
     // GLOBAL BINDINGS
     // ============================================================
     bindGlobalEvents() {
-        // Logout
         const logoutBtn = document.getElementById('adminLogoutBtn');
         if (logoutBtn) logoutBtn.addEventListener('click', () => this.logout());
 
-        // Sidebar toggle
         const toggleBtn = document.getElementById('sidebarToggle');
         if (toggleBtn) toggleBtn.addEventListener('click', () => this.toggleSidebar());
 
-        // Vehicle form submit
         const vehicleForm = document.getElementById('vehicleForm');
         if (vehicleForm) {
             vehicleForm.addEventListener('submit', (e) => {
@@ -1184,30 +1469,28 @@ const AdminPanel = {
             });
         }
 
-        // Confirm delete
         const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
         if (confirmDeleteBtn) confirmDeleteBtn.addEventListener('click', () => this.confirmDelete());
 
-        // Confirm reject
         const confirmRejectBtn = document.getElementById('confirmRejectBtn');
         if (confirmRejectBtn) confirmRejectBtn.addEventListener('click', () => this.confirmReject());
 
-        // Close modals on overlay click
         document.querySelectorAll('.modal-overlay').forEach(overlay => {
             overlay.addEventListener('click', function(e) {
                 if (e.target === this) this.classList.remove('open');
             });
         });
 
-        // ESC to close all modals
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
             }
         });
 
-        // Bind review tabs (if any on this page)
         this.bindReviewTabs();
+
+        // Live sidebar badges (idempotent — safe to call on every page)
+        this.initSidebarBadges();
     }
 };
 
@@ -1228,6 +1511,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (path.includes('admin-dashboard') || path === 'AdminPanel.html' || path === 'admin-panel.html' || path === '') {
         console.log('🔄 Loading Dashboard...');
         AdminPanel.initDashboard();
+    } else if (path.includes('admin-notifications')) {
+        console.log('🔄 Loading Notifications...');
+        AdminPanel.initNotifications();
     } else if (path.includes('admin-vehicles')) {
         console.log('🔄 Loading Vehicles...');
         AdminPanel.initVehicles();
@@ -1245,7 +1531,8 @@ document.addEventListener('DOMContentLoaded', function() {
         AdminPanel.initReviews();
     } else {
         // Fallback detection by DOM
-        if (document.getElementById('vehiclesList')) AdminPanel.initVehicles();
+        if (document.getElementById('notificationList')) AdminPanel.initNotifications();
+        else if (document.getElementById('vehiclesList')) AdminPanel.initVehicles();
         else if (document.getElementById('bookingsList')) AdminPanel.initBookings();
         else if (document.getElementById('usersList')) AdminPanel.initUsers();
         else if (document.getElementById('verificationList')) AdminPanel.initVerifications();

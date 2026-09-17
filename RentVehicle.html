@@ -277,33 +277,7 @@
                                 </div>
                             </div>
 
-                            <!-- MILEAGE POLICY -->
-                            <div class="form-group full">
-                                <label>Mileage Policy</label>
-                                <div class="tick-group" data-field="mileagePolicy">
-                                    <button type="button" class="tick-btn active" data-value="Unlimited">
-                                        <i class="fas fa-check"></i> Unlimited Mileage
-                                    </button>
-                                    <button type="button" class="tick-btn" data-value="Limited">
-                                        <i class="fas fa-check"></i> Daily Cap
-                                    </button>
-                                </div>
-                                <small class="field-hint">
-                                    <i class="fas fa-info-circle"></i>
-                                    Unlimited is recommended for premium rentals. Daily cap is common for budget rentals.
-                                </small>
-                            </div>
-
-                            <div class="form-group" id="mileageLimitGroup" style="display:none;">
-                                <label for="mileageLimit">Daily Cap (km)</label>
-                                <input type="number" id="mileageLimit" placeholder="300" min="50" />
-                            </div>
-
-                            <div class="form-group" id="mileageExcessGroup" style="display:none;">
-                                <label for="mileageExcess">Excess Charge (RM / km)</label>
-                                <input type="number" id="mileageExcess" placeholder="0.50" min="0" step="0.10" />
-                            </div>
-
+                            <!-- Pickup Method -->
                             <div class="form-group full" id="pickupMethodGroup">
                                 <label>Pickup Method <span class="required">*</span></label>
                                 <div class="radio-group" id="pickupMethod">
@@ -320,27 +294,32 @@
                                         Both
                                     </label>
                                 </div>
+                                <small class="field-hint">
+                                    <i class="fas fa-info-circle"></i>
+                                    Delivery fees are calculated automatically by V-Rent based on state-to-state distance and vehicle type. You receive your full listed price.
+                                </small>
                             </div>
 
+                            <!-- Low Loader badge (heavy machinery only) -->
                             <div class="form-group full" id="vrentDeliveryBadge" style="display:none;">
                                 <div class="delivery-badge">
                                     <i class="fas fa-truck-moving"></i>
                                     <div>
-                                        <strong>Delivered by V-Rent</strong>
-                                        <span>The delivery fee is calculated automatically at booking time and charged to the renter.</span>
+                                        <strong>Delivered by V-Rent (Low Loader)</strong>
+                                        <span>The delivery fee is calculated automatically from the equipment's operating weight and charged to the renter at booking.</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="form-group" id="deliveryFeeGroup">
-                                <label for="deliveryFee">Delivery Fee (RM)</label>
-                                <input type="number" id="deliveryFee" placeholder="50" min="0" value="0" disabled />
-                            </div>
-
-                            <div class="form-group">
-                                <label for="securityDeposit">Security Deposit (RM)</label>
-                                <input type="number" id="securityDeposit" placeholder="300" min="0" value="0" />
-                            </div>
+                            <div class="form-group full">
+    <div class="delivery-badge" style="background:rgba(212,175,55,0.06);border-color:rgba(212,175,55,0.35);">
+        <i class="fas fa-shield-alt"></i>
+        <div>
+            <strong>Security Deposit: 20% of rental</strong>
+            <span>V-Rent automatically holds 20% of the rental subtotal as a refundable security deposit. Fully returned after the vehicle is returned without damage.</span>
+        </div>
+    </div>
+</div>
 
                             <div class="form-group full">
                                 <label>Rental Rules</label>
@@ -451,7 +430,7 @@
     </footer>
 
     <!-- ============================================================
-         AUTH GATE MODAL — redesigned (light card, gold accents)
+         AUTH GATE MODAL
     ============================================================ -->
     <div class="auth-gate-overlay" id="authGateOverlay" role="dialog" aria-modal="true" aria-labelledby="authGateTitle">
         <div class="auth-gate-card">
@@ -518,7 +497,7 @@
     </div>
 
     <!-- ============================================================
-         VERIFY GATE MODAL — redesigned (mode-aware)
+         VERIFY GATE MODAL (mode-aware)
     ============================================================ -->
     <div class="auth-gate-overlay" id="verifyGateOverlay" role="dialog" aria-modal="true" aria-labelledby="verifyGateTitle">
         <div class="auth-gate-card">
@@ -616,7 +595,7 @@
     <!-- Page JS -->
     <script src="RentVehicle.js"></script>
 
-    <!-- Gate Controller + Tick Groups (auth + verify) -->
+    <!-- Gate Controller (auth + verify) -->
     <script>
         (function () {
             const authOverlay     = document.getElementById('authGateOverlay');
@@ -719,42 +698,6 @@
                     if (rentVehicleGate) rentVehicleGate.style.display = 'none';
                     window.showVerifyGate('missing');
                 }
-            });
-
-            // ============================================================
-            // TICK GROUPS: Mileage Policy + Outstation
-            // ============================================================
-            document.querySelectorAll('.tick-group').forEach(group => {
-                const field = group.dataset.field;
-
-                // Init default selected
-                const initial = group.querySelector('.tick-btn.active');
-                if (initial) group.dataset.selected = initial.dataset.value;
-
-                group.addEventListener('click', (e) => {
-                    const btn = e.target.closest('.tick-btn');
-                    if (!btn) return;
-
-                    group.querySelectorAll('.tick-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    group.dataset.selected = btn.dataset.value;
-
-                    // Mileage policy → toggle conditional fields
-                    if (field === 'mileagePolicy') {
-                        const showLimited = btn.dataset.value === 'Limited';
-                        const mlGroup = document.getElementById('mileageLimitGroup');
-                        const meGroup = document.getElementById('mileageExcessGroup');
-                        if (mlGroup) mlGroup.style.display = showLimited ? '' : 'none';
-                        if (meGroup) meGroup.style.display = showLimited ? '' : 'none';
-                    }
-
-                    // Outstation → toggle surcharge field
-                    if (field === 'outstation') {
-                        const showFee = btn.dataset.value === 'Peninsular';
-                        const feeGroup = document.getElementById('outstationFeeGroup');
-                        if (feeGroup) feeGroup.style.display = showFee ? '' : 'none';
-                    }
-                });
             });
         })();
     </script>

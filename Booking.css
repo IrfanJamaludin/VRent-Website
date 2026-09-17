@@ -142,6 +142,39 @@ button {
 }
 
 /* ============================================================
+   AVAILABILITY WARNING (populated by JS)
+   ============================================================ */
+#availabilityWarning {
+    margin-bottom: 16px;
+    padding: 14px 18px;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 12px;
+    color: #991B1B;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    animation: warnIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#availabilityWarning strong {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    color: #7F1D1D;
+}
+
+#availabilityWarning strong i {
+    color: #DC2626;
+    font-size: 1rem;
+}
+
+@keyframes warnIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
    VEHICLE SUMMARY
    ============================================================ */
 .vehicle-summary {
@@ -387,6 +420,15 @@ button {
     line-height: 1.5;
 }
 
+/* Delivery destination select — slight gold accent when active */
+#deliveryDestinationGroup select {
+    border-color: rgba(212, 175, 55, 0.28);
+}
+
+#deliveryDestinationGroup select:focus {
+    border-color: #D4AF37;
+}
+
 /* ============================================================
    RADIO & CHECKBOX GROUPS
    ============================================================ */
@@ -420,7 +462,7 @@ button {
 }
 
 /* ============================================================
-   TICK BUTTON GROUP (Payment Method + Outstation)
+   TICK BUTTON GROUP (Payment Method)
    ============================================================ */
 .tick-group {
     display: flex;
@@ -618,6 +660,7 @@ button {
     color: #11141A;
 }
 
+/* Delivery row — with truck icon */
 .price-row.delivery {
     color: #B8942A;
 }
@@ -648,7 +691,7 @@ button {
     font-weight: 600;
 }
 
-/* Highlight — Down Payment */
+/* Highlight — Security Deposit (refundable, due now) */
 .price-row.highlight {
     background: rgba(212, 175, 55, 0.10);
     border: 1px solid rgba(212, 175, 55, 0.28);
@@ -664,6 +707,18 @@ button {
     color: #B8932B;
     font-size: 1.1rem;
     font-weight: 800;
+}
+
+/* "Pay at pickup" row — muted, secondary emphasis */
+.price-row.at-pickup {
+    color: #88909C !important;
+    font-size: 0.88rem;
+    padding: 4px 0;
+}
+
+.price-row.at-pickup span {
+    color: #88909C !important;
+    font-weight: 600;
 }
 
 /* Total */
@@ -953,7 +1008,7 @@ button {
 }
 
 /* ============================================================
-   AUTH GATE MODAL (redesigned — light card, gold accents)
+   AUTH GATE MODAL (light card, gold accents)
    ============================================================ */
 .auth-gate-overlay {
     position: fixed;
@@ -1092,27 +1147,6 @@ button {
     justify-content: center;
     font-size: 0.7rem;
     border: 3px solid #FFFFFF;
-}
-
-/* Badge */
-.auth-gate-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 12px;
-    background: rgba(212, 175, 55, 0.10);
-    color: #8B6F1E;
-    border-radius: 999px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    margin-bottom: 14px;
-    position: relative;
-    z-index: 1;
-}
-
-.auth-gate-badge i {
-    font-size: 0.68rem;
 }
 
 /* Title */
@@ -1254,15 +1288,6 @@ button {
     box-shadow: 0 12px 24px -8px rgba(212, 175, 55, 0.75);
 }
 
-.auth-gate-arrow {
-    transition: transform 0.25s ease;
-    margin-left: auto;
-}
-
-.auth-gate-primary:hover .auth-gate-arrow {
-    transform: translateX(4px);
-}
-
 .auth-gate-secondary {
     background: transparent;
     color: #5A6472;
@@ -1370,7 +1395,6 @@ body.auth-gate-open {
         text-align: center;
     }
 
-    /* Tick group stacks on tablet/mobile */
     .tick-group {
         flex-direction: column;
         gap: 8px;
@@ -1381,7 +1405,6 @@ body.auth-gate-open {
         justify-content: flex-start;
     }
 
-    /* Confirm box tighter */
     .confirm-box {
         padding: 20px 16px;
         margin-top: 20px;
@@ -1434,7 +1457,6 @@ body.auth-gate-open {
         font-size: 3rem;
     }
 
-    /* Auth gate card adjustments */
     .auth-gate-card {
         padding: 30px 22px 22px;
         border-radius: 18px;
@@ -1477,6 +1499,11 @@ body.auth-gate-open {
     .auth-gate-secondary {
         font-size: 0.85rem;
         min-height: 46px;
+    }
+
+    #availabilityWarning {
+        padding: 12px 14px;
+        font-size: 0.82rem;
     }
 }
 

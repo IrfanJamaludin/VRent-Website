@@ -1,9 +1,12 @@
-// Booking.js - Vehicle booking with verified licence check + V-Rent machinery delivery
-// + Insurance tiers + Booking fee + Down payment + Handover confirmation
-// Peninsular Malaysia only — no outstation field
+// Booking.js - Vehicle booking with verified licence check
+// + Availability conflict check
+// + State-to-state delivery rates (with vehicle type multipliers)
+// + Machinery weight-based delivery (special case)
+// + 15% Service Fee + 20% Refundable Deposit (fixed rate) + Handover confirmation
+// Peninsular Malaysia only
 
 // ============================================================
-// 1. MACHINERY DELIVERY TIERS (auto-calculated from operating weight)
+// 1. MACHINERY DELIVERY TIERS (heavy machinery only)
 // ============================================================
 const MACHINERY_DELIVERY_TIERS = [
     { maxKg: 5000,     fee: 300 },
@@ -30,16 +33,132 @@ function shouldChargeDelivery(vehicle) {
 // ============================================================
 // 2. PRICING CONSTANTS
 // ============================================================
-const BOOKING_FEE = 10;                    // RM 10 flat platform fee
-const DOWN_PAYMENT_PERCENT = 0.20;         // 20% due now
-const INSURANCE_FEES = {                   // RM per day
+const SERVICE_FEE_RATE = 0.15;         // 15% charged to customer (V-Rent revenue)
+const SECURITY_DEPOSIT_RATE = 0.20;    // 20% of rental subtotal (refundable, held at booking)
+const INSURANCE_FEES = {               // RM per day
     Basic:   0,
     Medium:  30,
     Premium: 50
 };
 
+// Vehicle type multipliers applied to base state-to-state rate
+const VEHICLE_TYPE_MULTIPLIERS = {
+    'motorcycles':     0.6,
+    'cars':            1.0,
+    '4x4':             1.2,
+    'trucks':          1.8,
+    'heavy-machinery': 3.0
+};
+
 // ============================================================
-// 3. LICENCE HELPERS
+// 3. AVAILABILITY — statuses that block a date range
+// ============================================================
+const BLOCKING_STATUSES = ['Pending', 'Approved', 'Paid', 'Active'];
+
+async function findConflicts(vehicleId, startDate, endDate) {
+    if (!vehicleId || !startDate || !endDate) return [];
+    try {
+        const snap = await window.db.collection('bookings')
+            .where('vehicleId', '==', vehicleId)
+            .get();
+
+        const conflicts = [];
+        snap.forEach(doc => {
+            const b = doc.data();
+            if (!BLOCKING_STATUSES.includes(b.status)) return;
+            // Overlap test: existing.start <= reqEnd AND existing.end >= reqStart
+            if (b.pickupDate <= endDate && b.returnDate >= startDate) {
+                conflicts.push({ id: doc.id, ...b });
+            }
+        });
+        return conflicts;
+    } catch (err) {
+        console.error('Availability check failed:', err);
+        return [];
+    }
+}
+
+// ============================================================
+// 4. DELIVERY RATES (state-to-state, admin-controlled)
+// ============================================================
+let cachedDeliveryRates = null;
+
+async function loadDeliveryRates() {
+    if (cachedDeliveryRates) return cachedDeliveryRates;
+    try {
+        const snap = await window.db.collection('deliveryRates')
+            .where('active', '==', true)
+            .get();
+        cachedDeliveryRates = [];
+        snap.forEach(doc => cachedDeliveryRates.push({ id: doc.id, ...doc.data() }));
+        return cachedDeliveryRates;
+    } catch (err) {
+        console.error('Failed to load delivery rates:', err);
+        return [];
+    }
+}
+
+async function getDeliveryRate(originState, destinationState, vehicleCategory) {
+    if (!originState || !destinationState) return null;
+    const rates = await loadDeliveryRates();
+    const route = rates.find(r =>
+        r.originState === originState &&
+        r.destinationState === destinationState
+    );
+    if (!route) return null;
+
+    const multiplier = VEHICLE_TYPE_MULTIPLIERS[vehicleCategory] || 1.0;
+    return Math.round(route.baseRate * multiplier);
+}
+
+/**
+ * Resolves the full delivery fee for the booking.
+ * - Heavy machinery delivered by V-Rent → weight-based low-loader fee
+ * - Others with destination state → state-to-state × vehicle type multiplier
+ * - Same-state → looks up a {State}__{State} rate row (if configured)
+ */
+async function resolveDeliveryFee(vehicle, destinationState) {
+    if (!vehicle) return { fee: 0, source: 'none', breakdown: null };
+
+    // Heavy machinery special case
+    if (shouldChargeDelivery(vehicle)) {
+        const fee = getMachineryDeliveryFee(vehicle.operatingWeight);
+        return {
+            fee,
+            source: 'machinery',
+            breakdown: `Low Loader · ${vehicle.operatingWeight || 0} kg`
+        };
+    }
+
+    if (!destinationState) {
+        return { fee: 0, source: 'no-destination', breakdown: null };
+    }
+
+    const originState = vehicle.rentalLocation || vehicle.location || '';
+    if (!originState) {
+        return { fee: 0, source: 'no-origin', breakdown: null };
+    }
+
+    const multiplier = VEHICLE_TYPE_MULTIPLIERS[vehicle.category] || 1.0;
+    const rate = await getDeliveryRate(originState, destinationState, vehicle.category);
+
+    if (rate === null) {
+        return {
+            fee: 0,
+            source: 'no-route',
+            breakdown: `${originState} → ${destinationState} (no rate)`
+        };
+    }
+
+    return {
+        fee: rate,
+        source: originState === destinationState ? 'same-state' : 'state-to-state',
+        breakdown: `${originState} → ${destinationState} · ×${multiplier}`
+    };
+}
+
+// ============================================================
+// 5. LICENCE HELPERS
 // ============================================================
 function normalizeLicenseArray(value) {
     if (Array.isArray(value)) return value;
@@ -57,7 +176,7 @@ function getVehicleRequirements(vehicle) {
 }
 
 // ============================================================
-// 4. STATE
+// 6. STATE
 // ============================================================
 let vehicleData = null;
 let currentUser = null;
@@ -65,14 +184,11 @@ let pricePerDay = 0;
 let listenersBound = false;
 let tickListenersBound = false;
 let insuranceListenersBound = false;
-let lastSubtotal = 0;
-let lastDownPayment = 0;
-let lastBalance = 0;
-let lastInsuranceFee = 0;
-let lastInsuranceTier = 'Basic';
+let lastConflictCheckId = 0;
+let lastDeliveryBreakdown = null;
 
 // ============================================================
-// 5. DOM ELEMENTS
+// 7. DOM ELEMENTS
 // ============================================================
 const form = document.getElementById('bookingForm');
 const loadingState = document.getElementById('loadingState');
@@ -93,6 +209,9 @@ const quantity = document.getElementById('quantity');
 const quantityGroup = document.getElementById('quantityGroup');
 const pickupLocation = document.getElementById('pickupLocation');
 const deliveryAddress = document.getElementById('deliveryAddress');
+const deliveryAddressGroup = document.getElementById('deliveryAddressGroup');
+const deliveryDestination = document.getElementById('deliveryDestination');
+const deliveryDestinationGroup = document.getElementById('deliveryDestinationGroup');
 const returnAddress = document.getElementById('returnAddress');
 const bookingNotes = document.getElementById('bookingNotes');
 
@@ -115,12 +234,13 @@ const summaryQuantity = document.getElementById('summaryQuantity');
 const summaryQuantityRow = document.getElementById('summaryQuantityRow');
 const summaryInsurance = document.getElementById('summaryInsurance');
 const summarySubtotal = document.getElementById('summarySubtotal');
-const summaryDownPayment = document.getElementById('summaryDownPayment');
-const summaryBalance = document.getElementById('summaryBalance');
+const summaryServiceFee = document.getElementById('summaryServiceFee');
+const summaryDeposit = document.getElementById('summaryDeposit');
+const summaryAtPickup = document.getElementById('summaryAtPickup');
 const summaryTotal = document.getElementById('summaryTotal');
 
 // ============================================================
-// 6. SHOW/HIDE HELPERS
+// 8. SHOW/HIDE HELPERS
 // ============================================================
 function showEl(el, display = 'block') {
     if (el) el.style.display = display;
@@ -130,7 +250,7 @@ function hideEl(el) {
 }
 
 // ============================================================
-// 7. URL / FETCH
+// 9. URL / FETCH
 // ============================================================
 function getVehicleId() {
     const params = new URLSearchParams(window.location.search);
@@ -151,14 +271,64 @@ async function fetchVehicle(id) {
 const PLACEHOLDER_IMG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='150' viewBox='0 0 200 150'><rect fill='%2311141A' width='200' height='150'/><text x='50%' y='50%' fill='%23D4AF37' font-family='Inter,sans-serif' font-size='14' text-anchor='middle' dominant-baseline='middle'>No Image</text></svg>";
 
 // ============================================================
-// 8. TICK GROUP HANDLERS (payment method only — outstation removed)
+// 10. AVAILABILITY WARNING + LIVE CHECK
+// ============================================================
+function showAvailabilityWarning(conflicts) {
+    let banner = document.getElementById('availabilityWarning');
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'availabilityWarning';
+        banner.style.cssText = `
+            display:none;margin-bottom:16px;padding:14px 18px;
+            background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);
+            border-radius:12px;color:#991B1B;font-size:0.88rem;line-height:1.5;
+        `;
+        const card = document.querySelector('.booking-card');
+        if (card) card.insertBefore(banner, card.firstChild);
+    }
+
+    if (conflicts.length === 0) {
+        banner.style.display = 'none';
+        banner.innerHTML = '';
+        return;
+    }
+
+    const dates = conflicts
+        .map(c => `${c.pickupDate || '?'} → ${c.returnDate || '?'}`)
+        .join(', ');
+
+    banner.style.display = 'block';
+    banner.innerHTML = `
+        <strong><i class="fas fa-exclamation-triangle"></i> Vehicle not available</strong><br>
+        This vehicle is already booked on: <strong>${dates}</strong>.<br>
+        Please choose different dates.
+    `;
+}
+
+async function checkAvailabilityLive() {
+    if (!vehicleData || !pickupDate.value || !returnDate.value) return;
+    if (returnDate.value < pickupDate.value) return;
+
+    const myId = ++lastConflictCheckId;
+    const conflicts = await findConflicts(vehicleData.id, pickupDate.value, returnDate.value);
+
+    // Ignore stale responses if user changed dates again
+    if (myId !== lastConflictCheckId) return;
+
+    showAvailabilityWarning(conflicts);
+
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) submitBtn.disabled = conflicts.length > 0;
+}
+
+// ============================================================
+// 11. TICK GROUP HANDLERS (payment method only)
 // ============================================================
 function initTickGroups() {
     if (tickListenersBound) return;
     tickListenersBound = true;
 
     document.querySelectorAll('.tick-group').forEach(group => {
-        // Initial selected value = active button
         const initial = group.querySelector('.tick-btn.active');
         if (initial) group.dataset.selected = initial.dataset.value;
         else group.dataset.selected = group.querySelector('.tick-btn')?.dataset.value || '';
@@ -174,7 +344,7 @@ function initTickGroups() {
 }
 
 // ============================================================
-// 9. INSURANCE SELECTION
+// 12. INSURANCE SELECTION
 // ============================================================
 function initInsuranceOptions() {
     if (insuranceListenersBound) return;
@@ -190,7 +360,6 @@ function initInsuranceOptions() {
         radio.addEventListener('change', () => {
             options.forEach(o => o.classList.remove('selected'));
             opt.classList.add('selected');
-            lastInsuranceTier = radio.value;
             updateSummary();
         });
     });
@@ -205,7 +374,7 @@ function getSelectedInsurance() {
 }
 
 // ============================================================
-// 10. RENDER VEHICLE
+// 13. RENDER VEHICLE
 // ============================================================
 function renderVehicle(vehicle) {
     vehicleData = vehicle;
@@ -220,12 +389,17 @@ function renderVehicle(vehicle) {
 
     pickupLocation.value = vehicle.rentalLocation || vehicle.location || '';
 
-    // Truck / machinery → show quantity + contractor sections
     const isTruckOrHeavy = vehicle.category === 'trucks' || vehicle.category === 'heavy-machinery';
     showEl(quantityGroup, isTruckOrHeavy ? 'block' : 'none');
     showEl(contractorSection, isTruckOrHeavy ? 'block' : 'none');
 
-    // V-Rent delivery notice (machinery only)
+    // Delivery UI: show destination picker only if owner offers delivery
+    const pm = vehicle.pickupMethod || 'Pickup';
+    const offersDelivery = pm === 'Delivery' || pm === 'Both';
+    showEl(deliveryDestinationGroup, offersDelivery ? 'block' : 'none');
+    showEl(deliveryAddressGroup, offersDelivery ? 'block' : 'none');
+
+    // Machinery delivery badge (weight-based info)
     const deliveryNotice = document.getElementById('vrentDeliveryNotice');
     if (deliveryNotice) {
         const show = vehicle.category === 'heavy-machinery' && vehicle.deliveredByVRent === true;
@@ -241,29 +415,32 @@ function renderVehicle(vehicle) {
     tomorrow.setDate(tomorrow.getDate() + 1);
     returnDate.value = tomorrow.toISOString().split('T')[0];
 
-    // Live listeners (bind once)
     if (!listenersBound) {
-        pickupDate.addEventListener('change', updateSummary);
-        returnDate.addEventListener('change', updateSummary);
+        pickupDate.addEventListener('change', () => { updateSummary(); checkAvailabilityLive(); });
+        returnDate.addEventListener('change', () => { updateSummary(); checkAvailabilityLive(); });
         pickupTime.addEventListener('change', updateSummary);
         returnTime.addEventListener('change', updateSummary);
         quantity.addEventListener('input', updateSummary);
+
+        if (deliveryDestination) {
+            deliveryDestination.addEventListener('change', updateSummary);
+        }
         listenersBound = true;
     }
 
-    // Initialise tick groups + insurance (bind once)
     initTickGroups();
     initInsuranceOptions();
 
     hideEl(loadingState);
     showEl(form, 'block');
     updateSummary();
+    checkAvailabilityLive();
 }
 
 // ============================================================
-// 11. PRICE SUMMARY
+// 14. PRICE SUMMARY (async — awaits delivery rate lookup)
 // ============================================================
-function updateSummary() {
+async function updateSummary() {
     const start = new Date(pickupDate.value + 'T' + (pickupTime.value || '09:00'));
     const end = new Date(returnDate.value + 'T' + (returnTime.value || '18:00'));
     let days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
@@ -272,24 +449,26 @@ function updateSummary() {
     const qty = parseInt(quantity.value) || 1;
     const rentalTotal = pricePerDay * days * qty;
 
-    let deliveryFee = 0;
-    if (shouldChargeDelivery(vehicleData)) {
-        deliveryFee = getMachineryDeliveryFee(vehicleData.operatingWeight);
-    }
+    // Delivery: resolve from destination state (async)
+    const destination = deliveryDestination ? deliveryDestination.value : '';
+    const deliveryInfo = await resolveDeliveryFee(vehicleData, destination);
+    const deliveryFee = deliveryInfo.fee;
+    lastDeliveryBreakdown = deliveryInfo.breakdown;
 
     const { tier, feePerDay } = getSelectedInsurance();
     const insuranceFee = feePerDay * days * qty;
-    lastInsuranceFee = insuranceFee;
-    lastInsuranceTier = tier;
 
-    const subtotal = rentalTotal + deliveryFee + insuranceFee + BOOKING_FEE;
-    const downPayment = Math.round(subtotal * DOWN_PAYMENT_PERCENT);
-    const balance = subtotal - downPayment;
+    // Rental subtotal = vehicle + delivery + insurance
+    const rentalSubtotal = rentalTotal + deliveryFee + insuranceFee;
 
-    lastSubtotal = subtotal;
-    lastDownPayment = downPayment;
-    lastBalance = balance;
+    // Service fee (V-Rent's 15%, charged to customer)
+    const serviceFee = Math.round(rentalSubtotal * SERVICE_FEE_RATE);
+    const totalAtPickup = rentalSubtotal + serviceFee;
 
+    // Security deposit: fixed 20% of rental subtotal (refundable, not owner-set)
+    const deposit = Math.round(rentalSubtotal * SECURITY_DEPOSIT_RATE);
+
+    // ---- Write rows ----
     summaryPricePerDay.textContent = `RM ${pricePerDay}`;
     summaryDays.textContent = `${days} day${days > 1 ? 's' : ''}`;
     summaryQuantity.textContent = qty;
@@ -300,12 +479,17 @@ function updateSummary() {
         hideEl(summaryQuantityRow);
     }
 
+    // Delivery row
     const deliveryRow = document.getElementById('summaryDeliveryRow');
     const deliveryValue = document.getElementById('summaryDeliveryFee');
     if (deliveryRow && deliveryValue) {
         if (deliveryFee > 0) {
             showEl(deliveryRow, 'flex');
-            deliveryValue.textContent = `RM ${deliveryFee}`;
+            deliveryValue.textContent = `RM ${deliveryFee}${lastDeliveryBreakdown ? ' · ' + lastDeliveryBreakdown : ''}`;
+        } else if (destination && lastDeliveryBreakdown) {
+            // Show the reason even when fee = 0 (e.g. no route configured)
+            showEl(deliveryRow, 'flex');
+            deliveryValue.textContent = lastDeliveryBreakdown;
         } else {
             hideEl(deliveryRow);
         }
@@ -321,14 +505,15 @@ function updateSummary() {
         }
     }
 
-    if (summarySubtotal) summarySubtotal.textContent = `RM ${subtotal}`;
-    if (summaryDownPayment) summaryDownPayment.textContent = `RM ${downPayment}`;
-    if (summaryBalance) summaryBalance.textContent = `RM ${balance}`;
-    if (summaryTotal) summaryTotal.textContent = `RM ${subtotal}`;
+    if (summarySubtotal) summarySubtotal.textContent = `RM ${rentalSubtotal}`;
+    if (summaryServiceFee) summaryServiceFee.textContent = `RM ${serviceFee}`;
+    if (summaryDeposit) summaryDeposit.textContent = `RM ${deposit}`;
+    if (summaryAtPickup) summaryAtPickup.textContent = `RM ${totalAtPickup}`;
+    if (summaryTotal) summaryTotal.textContent = `RM ${totalAtPickup + deposit}`;
 }
 
 // ============================================================
-// 12. LOAD USER DATA + LICENCE DISPLAY
+// 15. LOAD USER DATA + LICENCE DISPLAY
 // ============================================================
 async function loadUserData(user) {
     currentUser = user;
@@ -367,7 +552,7 @@ function renderLicenceDisplay() {
     if (classes.length > 0 && status === 'Approved') {
         let matchNote = '';
         if (vehicleData) {
-            const { required, reason } = getVehicleRequirements(vehicleData);
+            const { required } = getVehicleRequirements(vehicleData);
             if (required.length > 0) {
                 const ok = required.some(c => classes.includes(c));
                 if (ok) {
@@ -401,7 +586,7 @@ function renderLicenceDisplay() {
 }
 
 // ============================================================
-// 13. FORM SUBMISSION
+// 16. FORM SUBMISSION
 // ============================================================
 form.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -465,6 +650,29 @@ form.addEventListener('submit', async function (e) {
         return;
     }
 
+    // ---- AVAILABILITY (final guard, prevents race conditions) ----
+    const conflicts = await findConflicts(vehicleData.id, pickupDate.value, returnDate.value);
+    if (conflicts.length > 0) {
+        const dates = conflicts.map(c => `${c.pickupDate} → ${c.returnDate}`).join(', ');
+        alert(
+            'This vehicle is not available on your selected dates.\n\n' +
+            'Already booked: ' + dates + '\n\n' +
+            'Please choose different dates.'
+        );
+        checkAvailabilityLive();
+        return;
+    }
+
+    // ---- DELIVERY DESTINATION (required if delivery is chosen) ----
+    const pm = vehicleData.pickupMethod || 'Pickup';
+    const offersDelivery = pm === 'Delivery' || pm === 'Both';
+    const destination = deliveryDestination ? deliveryDestination.value : '';
+
+    if (offersDelivery && pm === 'Delivery' && !destination) {
+        alert('Please select a delivery destination state.');
+        return;
+    }
+
     // ---- CONTRACTOR VALIDATION ----
     const isTruckOrHeavy = vehicleData.category === 'trucks' || vehicleData.category === 'heavy-machinery';
     if (isTruckOrHeavy) {
@@ -487,22 +695,30 @@ form.addEventListener('submit', async function (e) {
     if (days < 1) days = 1;
 
     const rentalTotal = pricePerDay * days * qty;
-    const vrentDeliveryFee = shouldChargeDelivery(vehicleData)
-        ? getMachineryDeliveryFee(vehicleData.operatingWeight)
-        : 0;
+
+    // Delivery (async)
+    const deliveryInfo = await resolveDeliveryFee(vehicleData, destination);
+    const vrentDeliveryFee = deliveryInfo.fee;
 
     const { tier: insuranceTier, feePerDay: insurancePerDay } = getSelectedInsurance();
     const insuranceFee = insurancePerDay * days * qty;
 
-    const subtotal = rentalTotal + vrentDeliveryFee + insuranceFee + BOOKING_FEE;
-    const downPayment = Math.round(subtotal * DOWN_PAYMENT_PERCENT);
-    const balanceDue = subtotal - downPayment;
+    // Rental subtotal = what owner earns
+    const rentalSubtotal = rentalTotal + vrentDeliveryFee + insuranceFee;
 
-    // ---- Payment method from tick group ----
+    // Service fee (V-Rent revenue, charged to customer)
+    const serviceFee = Math.round(rentalSubtotal * SERVICE_FEE_RATE);
+    const totalAtPickup = rentalSubtotal + serviceFee;
+
+    // Security deposit: fixed 20% of rental subtotal (refundable, not owner-set)
+    const deposit = Math.round(rentalSubtotal * SECURITY_DEPOSIT_RATE);
+
+    // ---- Payment method ----
     const paymentGroup = document.querySelector('[data-field="paymentMethod"]');
     const paymentMethod = paymentGroup ? (paymentGroup.dataset.selected || 'FPX') : 'FPX';
 
     const ownerId = vehicleData.ownerId || vehicleData.ownerUID || null;
+    const originState = vehicleData.rentalLocation || vehicleData.location || '';
 
     const bookingData = {
         // ---- Vehicle ----
@@ -534,17 +750,38 @@ form.addEventListener('submit', async function (e) {
         days: days,
         pricePerDay: pricePerDay,
 
+        // ---- Delivery snapshot ----
+        deliveryOriginState: originState || null,
+        deliveryDestinationState: destination || null,
+        deliveryBreakdown: deliveryInfo.breakdown,
+        deliverySource: deliveryInfo.source,
+
         // ---- Pricing breakdown ----
-        rentalSubtotal: rentalTotal,
+        rentalSubtotal: rentalSubtotal,
         deliveryFee: vrentDeliveryFee,
         insuranceTier: insuranceTier,
         insuranceFee: insuranceFee,
-        bookingFee: BOOKING_FEE,
-        subtotal: subtotal,
-        downPayment: downPayment,
-        balanceDue: balanceDue,
-        totalPrice: subtotal,
+
+        // Service fee (V-Rent revenue, charged to customer)
+        serviceFeeRate: SERVICE_FEE_RATE,
+        serviceFee: serviceFee,
+
+        // Deposit (refundable, held at booking) — fixed 20%
+        securityDeposit: deposit,
+        securityDepositRate: SECURITY_DEPOSIT_RATE,
+
+        // Renter payments
+        totalPrice: totalAtPickup,               // at pickup
+        amountDueNow: deposit,                   // at booking (deposit only)
+        amountDueAtPickup: totalAtPickup,        // at pickup
         paymentMethod: paymentMethod,
+
+        // Owner payout — 100% of rental subtotal
+        ownerPayout: rentalSubtotal,
+
+        // Deposit lifecycle
+        depositStatus: 'Held',
+        depositRefundedAt: null,
 
         // ---- Notes ----
         notes: bookingNotes.value.trim() || '',
@@ -572,9 +809,7 @@ form.addEventListener('submit', async function (e) {
 
     try {
         const docRef = await window.db.collection('bookings').add(bookingData);
-
         sessionStorage.setItem('lastBookingId', docRef.id);
-
         hideEl(form);
         showEl(bookingStatus, 'block');
     } catch (err) {
@@ -586,7 +821,7 @@ form.addEventListener('submit', async function (e) {
 });
 
 // ============================================================
-// 14. RECEIVED VEHICLE (renter handover confirmation)
+// 17. RECEIVED VEHICLE (renter handover + admin notification)
 // ============================================================
 function initReceivedButton() {
     const btn = document.getElementById('confirmReceivedBtn');
@@ -618,6 +853,30 @@ function initReceivedButton() {
                 status: 'Active'
             });
 
+            const bookingSnap = await window.db.collection('bookings').doc(bookingId).get();
+            const b = bookingSnap.data() || {};
+
+            await window.db.collection('notifications').add({
+                type: 'pickup',
+                bookingId: bookingId,
+                vehicleId: b.vehicleId || null,
+                vehicleName: b.vehicleName || 'Vehicle',
+                vehicleImage: b.vehicleImage || null,
+                renterId: b.renterId || null,
+                renterName: b.renterName || 'Renter',
+                renterPhone: b.renterPhone || '',
+                ownerId: b.ownerId || null,
+                ownerName: b.ownerName || '',
+                ownerPhone: b.ownerPhone || '',
+                rentalSubtotal: b.rentalSubtotal || 0,
+                serviceFee: b.serviceFee || 0,
+                totalPrice: b.totalPrice || 0,
+                securityDeposit: b.securityDeposit || 0,
+                confirmedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                read: false,
+                adminReadAt: null
+            });
+
             btn.innerHTML = '<i class="fas fa-check"></i> Confirmed!';
             btn.style.background = 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)';
             btn.style.color = '#FFFFFF';
@@ -635,7 +894,7 @@ function initReceivedButton() {
 }
 
 // ============================================================
-// 15. AUTH STATE LISTENER (with verification gate)
+// 18. AUTH STATE LISTENER (with verification gate)
 // ============================================================
 document.addEventListener('DOMContentLoaded', function () {
     if (!window.auth) {

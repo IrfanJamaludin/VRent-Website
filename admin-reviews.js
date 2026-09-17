@@ -1,4 +1,5 @@
 // admin-reviews.js - Reviews moderation (only flagged need attention)
+// + live sidebar badge counts
 
 let allReviews = [];
 let currentFilter = 'flagged';
@@ -28,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
             bindSidebar();
             bindTabs();
             bindModalButtons();
+            initSidebarBadges();   // ← NEW: live badge counts
             await loadReviews();
         } catch (err) {
             console.error('Auth error:', err);
@@ -55,6 +57,46 @@ function bindSidebar() {
             }
         });
     }
+}
+
+// ============================================================
+// 2b. LIVE SIDEBAR BADGES (Notifications / Verifications / Vehicles)
+// ============================================================
+function initSidebarBadges() {
+    const setBadge = (id, count) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (count > 0) {
+            el.textContent = count > 99 ? '99+' : count;
+            el.style.display = 'inline-flex';
+        } else {
+            el.style.display = 'none';
+        }
+    };
+
+    // Unread notifications (handover alerts)
+    window.db.collection('notifications')
+        .where('read', '==', false)
+        .onSnapshot(
+            snap => setBadge('navNotifBadge', snap.size),
+            err => console.warn('Notif badge error:', err)
+        );
+
+    // Pending verifications
+    window.db.collection('verification')
+        .where('status', '==', 'Pending')
+        .onSnapshot(
+            snap => setBadge('navVerifBadge', snap.size),
+            err => console.warn('Verif badge error:', err)
+        );
+
+    // Pending vehicle listings
+    window.db.collection('vehicles')
+        .where('approvalStatus', '==', 'Pending')
+        .onSnapshot(
+            snap => setBadge('navVehicleBadge', snap.size),
+            err => console.warn('Vehicle badge error:', err)
+        );
 }
 
 // ============================================================

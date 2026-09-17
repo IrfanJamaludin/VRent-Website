@@ -71,6 +71,9 @@
             <form id="bookingForm" class="hidden">
                 <div class="booking-card">
 
+                    <!-- Availability warning (populated by JS when conflicts exist) -->
+                    <div id="availabilityWarning" style="display:none;"></div>
+
                     <!-- Vehicle Summary -->
                     <div class="vehicle-summary" id="vehicleSummary">
                         <div class="vehicle-image">
@@ -91,7 +94,7 @@
                         <i class="fas fa-truck-moving"></i>
                         <div>
                             <strong>Delivered by V-Rent</strong>
-                            <span>Our team delivers this equipment directly to your site. The delivery fee is included in your total below.</span>
+                            <span>Our team delivers this equipment directly to your site. The delivery fee is calculated automatically from operating weight.</span>
                         </div>
                     </div>
 
@@ -126,14 +129,36 @@
                                 </small>
                             </div>
 
-                            <!-- Delivery Address -->
-                            <div class="form-group full">
-                                <label for="deliveryAddress">Delivery Address <span class="required">*</span></label>
-                                <input type="text" id="deliveryAddress" placeholder="Full address for vehicle delivery" />
+                            <!-- Delivery Destination State (shown when owner offers delivery) -->
+                            <div class="form-group full" id="deliveryDestinationGroup" style="display:none;">
+                                <label for="deliveryDestination">Delivery Destination State <span class="required">*</span></label>
+                                <select id="deliveryDestination">
+                                    <option value="">Select Destination State</option>
+                                    <option value="Johor">Johor</option>
+                                    <option value="Kedah">Kedah</option>
+                                    <option value="Kelantan">Kelantan</option>
+                                    <option value="Melaka">Melaka</option>
+                                    <option value="Negeri Sembilan">Negeri Sembilan</option>
+                                    <option value="Pahang">Pahang</option>
+                                    <option value="Penang">Penang</option>
+                                    <option value="Perak">Perak</option>
+                                    <option value="Perlis">Perlis</option>
+                                    <option value="Selangor">Selangor</option>
+                                    <option value="Terengganu">Terengganu</option>
+                                    <option value="Kuala Lumpur">Kuala Lumpur</option>
+                                    <option value="Putrajaya">Putrajaya</option>
+                                    <option value="Labuan">Labuan</option>
+                                </select>
                                 <small class="field-hint">
                                     <i class="fas fa-info-circle"></i>
-                                    Required if Delivery pickup method is selected
+                                    Delivery fee is calculated from the vehicle's origin state to your destination.
                                 </small>
+                            </div>
+
+                            <!-- Full Delivery Address (optional) -->
+                            <div class="form-group full" id="deliveryAddressGroup" style="display:none;">
+                                <label for="deliveryAddress">Full Delivery Address</label>
+                                <input type="text" id="deliveryAddress" placeholder="Street address, city, postcode" />
                             </div>
 
                             <!-- Pickup Location -->
@@ -142,7 +167,7 @@
                                 <input type="text" id="pickupLocation" placeholder="e.g. Kuala Lumpur" required />
                             </div>
 
-                            <!-- Return Address (NOW MANDATORY) -->
+                            <!-- Return Address (MANDATORY) -->
                             <div class="form-group full">
                                 <label for="returnAddress">Return Address <span class="required">*</span></label>
                                 <input type="text" id="returnAddress" placeholder="Full address where the vehicle will be returned" required />
@@ -156,7 +181,7 @@
                         </div>
                     </div>
 
-                    <!-- ================= CONTRACTOR INFO (trucks & heavy machinery only) ================= -->
+                    <!-- ================= CONTRACTOR INFO ================= -->
                     <div class="form-section hidden" id="contractorSection">
                         <h2 class="section-title"><i class="fas fa-building"></i> Contractor / Business Information</h2>
                         <p class="section-hint">This booking is for a company or project. Please provide the following details.</p>
@@ -262,7 +287,7 @@
                         </div>
                     </div>
 
-                    <!-- ================= PAYMENT METHOD (STATIC TICK) ================= -->
+                    <!-- ================= PAYMENT METHOD ================= -->
                     <div class="form-section">
                         <h2 class="section-title">Payment Method</h2>
                         <div class="tick-group payment-tick-group" data-field="paymentMethod">
@@ -312,28 +337,28 @@
                                 <span id="summaryInsurance">RM 0</span>
                             </div>
 
-                            <div class="price-row">
-                                <span>Booking Fee (Platform)</span>
-                                <span>RM 10</span>
-                            </div>
-
                             <div class="price-row subtotal">
-                                <span>Subtotal</span>
+                                <span>Rental Subtotal</span>
                                 <span id="summarySubtotal">RM 0</span>
                             </div>
 
-                            <div class="price-row highlight">
-                                <span>Down Payment (20%) — Due Now</span>
-                                <span id="summaryDownPayment">RM 0</span>
+                            <div class="price-row">
+                                <span>V-Rent Service Fee (15%)</span>
+                                <span id="summaryServiceFee">RM 0</span>
                             </div>
 
-                            <div class="price-row">
-                                <span style="color:#88909C;">Balance Due on Pickup</span>
-                                <span id="summaryBalance" style="color:#88909C;">RM 0</span>
+                            <div class="price-row highlight">
+                                <span>Security Deposit (Refundable) — Due Now</span>
+                                <span id="summaryDeposit">RM 0</span>
+                            </div>
+
+                            <div class="price-row" style="color:#88909C; font-size:0.88rem;">
+                                <span>Rental + Service Fee (pay at pickup)</span>
+                                <span id="summaryAtPickup" style="color:#88909C;">RM 0</span>
                             </div>
 
                             <div class="price-row total">
-                                <span>Total Rental Cost</span>
+                                <span>Total Renter Pays</span>
                                 <span id="summaryTotal">RM 0</span>
                             </div>
 
@@ -366,7 +391,7 @@
                     <p>Your booking request has been sent to the owner.</p>
                     <p class="status-note">You will be notified once the owner approves it.</p>
 
-                    <!-- CHECKPOINT #1: Renter receives vehicle (only after owner approves) -->
+                    <!-- Renter pickup handover confirmation -->
                     <div id="pickupConfirmBox" style="display:none;">
                         <div class="confirm-box">
                             <i class="fas fa-key confirm-icon"></i>
@@ -409,7 +434,7 @@
     </footer>
 
     <!-- ============================================================
-         AUTH GATE MODAL (Sign In) — redesigned
+         AUTH GATE MODAL (Sign In)
     ============================================================ -->
     <div class="auth-gate-overlay" id="authGateOverlay" role="dialog" aria-modal="true" aria-labelledby="authGateTitle">
         <div class="auth-gate-card">
@@ -476,7 +501,7 @@
     </div>
 
     <!-- ============================================================
-         VERIFY GATE MODAL — redesigned
+         VERIFY GATE MODAL
     ============================================================ -->
     <div class="auth-gate-overlay" id="verifyGateOverlay" role="dialog" aria-modal="true" aria-labelledby="verifyGateTitle">
         <div class="auth-gate-card">

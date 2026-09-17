@@ -15,19 +15,51 @@
     <!-- ============================================================ -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <img src="WhatsApp Image 2026-08-12 at 18.52.58.jpeg" alt="V-Rent Logo" class="sidebar-logo" />
+            <img src="vrent-logo.jpeg" alt="V-Rent Logo" class="sidebar-logo" />
             <span>V-Rent Admin</span>
         </div>
+
         <nav class="sidebar-nav">
-            <a href="admin-dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a href="admin-vehicles.html"><i class="fas fa-car"></i> Vehicles</a>
-            <a href="admin-bookings.html"><i class="fas fa-calendar-check"></i> Bookings</a>
-            <a href="admin-users.html"><i class="fas fa-users"></i> Users</a>
-            <a href="admin-verifications.html"><i class="fas fa-id-card"></i> Verifications</a>
-            <a href="admin-reviews.html" class="active"><i class="fas fa-star"></i> Reviews</a>
+            <!-- OVERVIEW -->
+            <a href="admin-dashboard.html">
+                <i class="fas fa-chart-pie"></i> Dashboard
+            </a>
+
+            <!-- ACTION REQUIRED -->
+            <a href="admin-notifications.html">
+                <i class="fas fa-bell"></i> Notifications
+                <span class="nav-badge" id="navNotifBadge" style="display:none;">0</span>
+            </a>
+            <a href="admin-verifications.html">
+                <i class="fas fa-id-card"></i> Verifications
+                <span class="nav-badge" id="navVerifBadge" style="display:none;">0</span>
+            </a>
+            <a href="admin-vehicles.html">
+                <i class="fas fa-car"></i> Vehicles
+                <span class="nav-badge" id="navVehicleBadge" style="display:none;">0</span>
+            </a>
+
+            <!-- MANAGE DATA -->
+            <a href="admin-bookings.html">
+                <i class="fas fa-calendar-check"></i> Bookings
+            </a>
+            <a href="admin-users.html">
+                <i class="fas fa-users"></i> Users
+            </a>
+            <a href="admin-delivery-rates.html">
+                <i class="fas fa-truck"></i> Delivery Rates
+            </a>
+
+            <!-- FEEDBACK -->
+            <a href="admin-reviews.html" class="active">
+                <i class="fas fa-star"></i> Reviews
+            </a>
         </nav>
+
         <div class="sidebar-footer">
-            <button id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            <button id="adminLogoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
         </div>
     </aside>
 
@@ -37,7 +69,9 @@
     <main class="admin-main">
         <header class="admin-header">
             <div class="admin-header-left">
-                <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
                 <h1>Reviews Management</h1>
             </div>
         </header>
@@ -96,11 +130,15 @@
             <!-- Content -->
             <div class="table-container">
                 <div class="table-header">
-                    <h3 id="tableTitle"><i class="fas fa-flag" style="color:#EF4444;"></i> Flagged Reviews</h3>
+                    <h3 id="tableTitle">
+                        <i class="fas fa-flag" style="color:#EF4444;"></i> Flagged Reviews
+                    </h3>
                     <span class="table-count" id="tableCount">0 items</span>
                 </div>
                 <div id="reviewsList">
-                    <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading reviews...</div>
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i> Loading reviews...
+                    </div>
                 </div>
             </div>
 

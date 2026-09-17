@@ -1,5 +1,7 @@
 // RentVehicle.js - Full listing logic for V-Rent (with verification gate + auto-license)
-// Peninsular Malaysia only — no cross-border, no outstation configuration needed
+// Peninsular Malaysia only — no mileage policy, no outstation, no commercial use
+// No owner-set delivery fee (admin-controlled state-to-state)
+// No owner-set security deposit (fixed 20% rate, computed at booking)
 
 // ============================================================
 // 1. DATA CONFIGURATION
@@ -266,7 +268,7 @@ const specTemplates = {
             <label for="operatingWeight">Operating Weight (kg) <span class="required">*</span></label>
             <input type="number" id="operatingWeight" placeholder="20000" min="100" required />
             <small class="field-hint">
-                <i class="fas fa-info-circle"></i> Used to calculate delivery fee automatically.
+                <i class="fas fa-info-circle"></i> Used to calculate low-loader delivery fee automatically.
             </small>
         </div>
         <div class="form-group">
@@ -302,7 +304,7 @@ const specTemplates = {
             <div class="radio-group" id="deliveryArrangementGroup">
                 <label class="radio-label">
                     <input type="radio" name="deliveryArrangement" value="VRent" checked />
-                    Use V-Rent Delivery (fee applies)
+                    Use V-Rent Low Loader (fee applies)
                 </label>
                 <label class="radio-label">
                     <input type="radio" name="deliveryArrangement" value="Self" />
@@ -423,12 +425,6 @@ const roadTaxGroup = document.getElementById('roadTaxGroup');
 const insuranceLabel = document.getElementById('insuranceLabel');
 const pickupMethodGroup = document.getElementById('pickupMethodGroup');
 const vrentDeliveryBadge = document.getElementById('vrentDeliveryBadge');
-const deliveryFeeGroup = document.getElementById('deliveryFeeGroup');
-
-// Tick group references (Outstation removed — Peninsular-only platform)
-const mileagePolicyGroup = document.querySelector('[data-field="mileagePolicy"]');
-const mileageLimitGroup = document.getElementById('mileageLimitGroup');
-const mileageExcessGroup = document.getElementById('mileageExcessGroup');
 
 let uploadedImageUrls = [];
 let currentUser = null;
@@ -450,38 +446,7 @@ function populateYears() {
 populateYears();
 
 // ============================================================
-// 7. TICK GROUPS — MILEAGE POLICY ONLY
-// ============================================================
-function initTickGroups() {
-    if (!mileagePolicyGroup) return;
-
-    // Sync initial dataset
-    const initial = mileagePolicyGroup.querySelector('.tick-btn.active');
-    if (initial) mileagePolicyGroup.dataset.selected = initial.dataset.value;
-
-    mileagePolicyGroup.addEventListener('click', (e) => {
-        const btn = e.target.closest('.tick-btn');
-        if (!btn) return;
-
-        mileagePolicyGroup.querySelectorAll('.tick-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        mileagePolicyGroup.dataset.selected = btn.dataset.value;
-
-        const isLimited = btn.dataset.value === 'Limited';
-        if (mileageLimitGroup) mileageLimitGroup.style.display = isLimited ? 'flex' : 'none';
-        if (mileageExcessGroup) mileageExcessGroup.style.display = isLimited ? 'flex' : 'none';
-        if (isLimited) {
-            const ml = document.getElementById('mileageLimit');
-            if (ml && !ml.value) ml.value = '300';
-            const me = document.getElementById('mileageExcess');
-            if (me && !me.value) me.value = '0.50';
-        }
-    });
-}
-initTickGroups();
-
-// ============================================================
-// 8. CATEGORY CHANGE HANDLER
+// 7. CATEGORY CHANGE HANDLER
 // ============================================================
 categorySelect.addEventListener('change', function () {
     const category = this.value;
@@ -543,28 +508,20 @@ function applyCategoryVisibility(category) {
     if (isMachinery) {
         if (pickupMethodGroup) pickupMethodGroup.style.display = 'none';
         if (vrentDeliveryBadge) vrentDeliveryBadge.style.display = 'block';
-        if (deliveryFeeGroup) deliveryFeeGroup.style.display = 'none';
 
         const deliveryRadio = document.querySelector('input[name="pickupMethod"][value="Delivery"]');
         if (deliveryRadio) deliveryRadio.checked = true;
     } else {
         if (pickupMethodGroup) pickupMethodGroup.style.display = 'flex';
         if (vrentDeliveryBadge) vrentDeliveryBadge.style.display = 'none';
-        if (deliveryFeeGroup) deliveryFeeGroup.style.display = 'flex';
 
         const pickupRadio = document.querySelector('input[name="pickupMethod"][value="Pickup"]');
         if (pickupRadio) pickupRadio.checked = true;
-
-        const feeInput = document.getElementById('deliveryFee');
-        if (feeInput) {
-            feeInput.disabled = true;
-            feeInput.value = 0;
-        }
     }
 }
 
 // ============================================================
-// 9. AUTO-DERIVED LICENSE DISPLAY
+// 8. AUTO-DERIVED LICENSE DISPLAY
 // ============================================================
 function updateLicenseDisplay() {
     const box = document.getElementById('licenseInfoBox');
@@ -618,7 +575,7 @@ function attachLicenseFieldListeners() {
 }
 
 // ============================================================
-// 10. WEEKLY PRICE
+// 9. WEEKLY PRICE (cap = pricePerDay × 7, suggestion = 10% off)
 // ============================================================
 function getStandardWeeklyPrice() {
     const perDay = parseFloat(pricePerDayInput.value) || 0;
@@ -711,7 +668,7 @@ pricePerWeekInput.addEventListener('input', function () {
 });
 
 // ============================================================
-// 11. AVAILABILITY GUARDS
+// 10. AVAILABILITY GUARDS
 // ============================================================
 function todayISO() {
     const d = new Date();
@@ -733,7 +690,7 @@ function setupAvailabilityGuards() {
 setupAvailabilityGuards();
 
 // ============================================================
-// 12. INSPECTION GUARDS
+// 11. INSPECTION GUARDS (weekdays + office hours)
 // ============================================================
 function setupInspectionGuards() {
     const today = new Date();
@@ -775,7 +732,7 @@ function setupInspectionGuards() {
 setupInspectionGuards();
 
 // ============================================================
-// 13. IMAGE UPLOAD (Cloudinary)
+// 12. IMAGE UPLOAD (Cloudinary)
 // ============================================================
 uploadArea.addEventListener('click', () => fileInput.click());
 
@@ -890,29 +847,7 @@ async function handleFiles(files) {
 }
 
 // ============================================================
-// 14. DELIVERY FEE TOGGLE (non-machinery)
-// ============================================================
-document.addEventListener('DOMContentLoaded', function () {
-    const pickupRadios = document.querySelectorAll('input[name="pickupMethod"]');
-    const deliveryFeeInput = document.getElementById('deliveryFee');
-
-    pickupRadios.forEach(radio => {
-        radio.addEventListener('change', function () {
-            if (categorySelect.value === 'heavy-machinery') return;
-
-            if (this.value === 'Pickup') {
-                deliveryFeeInput.disabled = true;
-                deliveryFeeInput.value = 0;
-            } else {
-                deliveryFeeInput.disabled = false;
-                if (deliveryFeeInput.value === '0') deliveryFeeInput.value = '';
-            }
-        });
-    });
-});
-
-// ============================================================
-// 15. CHECKBOX HELPER
+// 13. CHECKBOX HELPER
 // ============================================================
 function getCheckboxValues(containerId) {
     const container = document.getElementById(containerId);
@@ -925,7 +860,7 @@ function getCheckboxValues(containerId) {
 }
 
 // ============================================================
-// 16. FORM SUBMISSION
+// 14. FORM SUBMISSION
 // ============================================================
 form.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -998,22 +933,9 @@ form.addEventListener('submit', async function (e) {
     const availableFrom = availableFromInput.value;
     const availableTo = availableToInput.value;
 
-    // ---- Mileage policy (from tick group) ----
-    const mileagePolicy = mileagePolicyGroup?.dataset.selected || 'Unlimited';
-    const mileageLimit = mileagePolicy === 'Limited'
-        ? (parseInt(document.getElementById('mileageLimit').value) || 0)
-        : 0;
-    const mileageExcessRate = mileagePolicy === 'Limited'
-        ? (parseFloat(document.getElementById('mileageExcess').value) || 0)
-        : 0;
-
     const pickupMethod = isMachinery
         ? 'Delivery'
         : (document.querySelector('input[name="pickupMethod"]:checked')?.value || 'Pickup');
-    const deliveryFee = isMachinery
-        ? 0
-        : (parseFloat(document.getElementById('deliveryFee').value) || 0);
-    const securityDeposit = parseFloat(document.getElementById('securityDeposit').value) || 0;
     const rentalRules = getCheckboxValues('rentalRulesGroup');
     const description = document.getElementById('vehicleDescription').value.trim();
     const inspectionDate = inspectionDateInput.value;
@@ -1045,18 +967,6 @@ form.addEventListener('submit', async function (e) {
     if (availableFrom && availableTo && availableTo < availableFrom) {
         alert('Available "To" date must be after the "From" date.');
         return;
-    }
-
-    // ---- Mileage policy validation ----
-    if (mileagePolicy === 'Limited') {
-        if (!mileageLimit || mileageLimit < 50) {
-            alert('Please enter a valid daily mileage cap (minimum 50 km).');
-            return;
-        }
-        if (!mileageExcessRate || mileageExcessRate <= 0) {
-            alert('Please enter a valid excess charge per km.');
-            return;
-        }
     }
 
     // ---- Inspection weekday + hours ----
@@ -1102,19 +1012,12 @@ form.addEventListener('submit', async function (e) {
         availableFrom: availableFrom || null,
         availableTo: availableTo || null,
 
-        // ---- Mileage policy fields ----
-        mileagePolicy,
-        mileageLimit,
-        mileageExcessRate,
-
         // ---- Outstation: hardcoded — Peninsular-only platform ----
         outstationScope: 'Peninsular',
         outstationAllowed: true,
         outstationFee: 0,
 
         pickupMethod,
-        deliveryFee,
-        securityDeposit,
         rentalRules,
         description,
         images: uploadedImageUrls,
@@ -1179,7 +1082,7 @@ form.addEventListener('submit', async function (e) {
         vehicleData.deliveredByVRent = (arrangement === 'VRent');
     }
 
-    // ---- AUTO-DERIVE required license ----
+    // ---- AUTO-DERIVE required license from vehicle data (JPJ categories) ----
     if (typeof window.getRequiredLicense === 'function') {
         const licenseInfo = window.getRequiredLicense(vehicleData);
         vehicleData.requiredLicense = licenseInfo.required || [];
@@ -1218,7 +1121,7 @@ form.addEventListener('submit', async function (e) {
 });
 
 // ============================================================
-// 17. LOAD USER DATA
+// 15. LOAD USER DATA
 // ============================================================
 function loadUserData(user) {
     currentUser = user;
@@ -1246,7 +1149,7 @@ function loadUserData(user) {
 }
 
 // ============================================================
-// 18. INIT
+// 16. INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', function () {
     if (!window.auth) {
