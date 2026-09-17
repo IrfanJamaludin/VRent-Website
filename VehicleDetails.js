@@ -1,4 +1,5 @@
 // VehicleDetails.js — with auto-derived license requirements + auth/verify gates
+// Availability calendar now reads from public vehicleAvailability subcollection
 
 // ============================================================
 // IMAGE HELPERS (handles array, string, or missing)
@@ -341,75 +342,91 @@ function toast(message, type = 'info') {
 
 // ============================================================
 // 8. AVAILABILITY CALENDAR
+// Public read — uses vehicleAvailability/{vehicleId}/ranges
+// (no auth required, no PII exposed)
 // ============================================================
 async function loadAvailabilityCalendar(vehicleId) {
     const container = document.getElementById('availabilityCalendar');
     if (!container) return;
 
-    try {
-        container.innerHTML = `<div class="loading-spinner" style="padding:20px 0;">
-            <i class="fas fa-spinner fa-spin"></i>
-            <p style="font-size:0.85rem;">Loading availability...</p>
-        </div>`;
+    container.innerHTML = `<div class="loading-spinner" style="padding:20px 0;">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p style="font-size:0.85rem;">Loading availability...</p>
+    </div>`;
 
-        const snapshot = await window.db.collection('bookings')
-            .where('vehicleId', '==', vehicleId)
+    let bookedRanges = [];
+
+    try {
+        // ✅ Public subcollection — no auth needed, no booking PII
+        const snapshot = await window.db
+            .collection('vehicleAvailability')
+            .doc(vehicleId)
+            .collection('ranges')
             .get();
 
-        const bookedDates = new Set();
         snapshot.forEach(doc => {
-            const data = doc.data();
-            const status = data.status || 'Pending';
-            if (['Pending', 'Approved', 'Confirmed', 'Active'].includes(status)) {
-                const start = new Date(data.pickupDate || data.dates?.from);
-                const end = new Date(data.returnDate || data.dates?.to);
-                if (start && end && !isNaN(start) && !isNaN(end)) {
-                    const current = new Date(start);
-                    while (current <= end) {
-                        bookedDates.add(current.toISOString().split('T')[0]);
-                        current.setDate(current.getDate() + 1);
-                    }
-                }
+            const r = doc.data();
+            if (r.from && r.to) {
+                bookedRanges.push({
+                    from: r.from,
+                    to: r.to,
+                    status: r.status || 'Pending'
+                });
             }
         });
 
-        const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
+    } catch (error) {
+        // Graceful fallback — still render an empty calendar
+        console.warn('Availability subcollection not accessible, showing default:', error.message);
+        bookedRanges = [];
+    }
 
-        let html = `<div class="calendar-grid">`;
-        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
-            html += `<div class="calendar-day header">${day}</div>`;
-        });
-
-        for (let i = 0; i < 30; i++) {
-            const date = new Date(today);
-            date.setDate(today.getDate() + i);
-            const dateStr = date.toISOString().split('T')[0];
-            const isBooked = bookedDates.has(dateStr);
-            const isToday = dateStr === todayStr;
-
-            html += `
-                <div class="calendar-day ${isBooked ? 'booked' : 'available'} ${isToday ? 'today' : ''}"
-                     title="${dateStr} ${isBooked ? 'Booked' : 'Available'}">
-                    ${date.getDate()}
-                </div>
-            `;
+    // Build blocked-dates set (still per-day for the grid)
+    const bookedDates = new Set();
+    bookedRanges.forEach(r => {
+        const start = new Date(r.from);
+        const end = new Date(r.to);
+        if (isNaN(start) || isNaN(end)) return;
+        const current = new Date(start);
+        while (current <= end) {
+            bookedDates.add(current.toISOString().split('T')[0]);
+            current.setDate(current.getDate() + 1);
         }
+    });
 
-        html += `</div>`;
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+
+    let html = `<div class="calendar-grid">`;
+    ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
+        html += `<div class="calendar-day header">${day}</div>`;
+    });
+
+    for (let i = 0; i < 30; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        const dateStr = date.toISOString().split('T')[0];
+        const isBooked = bookedDates.has(dateStr);
+        const isToday = dateStr === todayStr;
+
         html += `
-            <div class="calendar-legend">
-                <span class="legend-item"><span class="legend-color available"></span> Available</span>
-                <span class="legend-item"><span class="legend-color booked"></span> Booked</span>
-                <span class="legend-item"><span class="legend-color today"></span> Today</span>
+            <div class="calendar-day ${isBooked ? 'booked' : 'available'} ${isToday ? 'today' : ''}"
+                 title="${dateStr} ${isBooked ? 'Booked' : 'Available'}">
+                ${date.getDate()}
             </div>
         `;
-
-        container.innerHTML = html;
-    } catch (error) {
-        console.error('Error loading calendar:', error);
-        container.innerHTML = `<p style="color:var(--text-muted);font-size:0.85rem;">Could not load availability calendar.</p>`;
     }
+
+    html += `</div>`;
+    html += `
+        <div class="calendar-legend">
+            <span class="legend-item"><span class="legend-color available"></span> Available</span>
+            <span class="legend-item"><span class="legend-color booked"></span> Booked</span>
+            <span class="legend-item"><span class="legend-color today"></span> Today</span>
+        </div>
+    `;
+
+    container.innerHTML = html;
 }
 
 // ============================================================

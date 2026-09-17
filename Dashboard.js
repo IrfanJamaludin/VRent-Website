@@ -1,5 +1,7 @@
 // Dashboard.js — includes rental requests tab + verified licence card (owner view)
 // + quick categories counts + owner return-handover confirmation
+// + admin notification on return handover
+// + vehicle availability sync (frees dates on completion)
 
 // ============================================================
 // 1. STATE & DOM ELEMENTS
@@ -12,8 +14,6 @@ let userFavourites = [];
 let recentActivities = [];
 
 const userNameDisplay = document.getElementById('userNameDisplay');
-
-// (Stat card elements removed — Quick Categories now handle counts)
 
 const vehiclesList = document.getElementById('vehiclesList');
 const bookingsList = document.getElementById('bookingsList');
@@ -110,6 +110,10 @@ function canSeeRenterContact(status) {
     return CONTACT_VISIBLE_STATUSES.includes((status || '').toLowerCase());
 }
 
+function formatRM(n) {
+    return `RM ${(Number(n) || 0).toLocaleString('en-MY')}`;
+}
+
 // Update Quick Categories counts (helper lives in Dashboard.html)
 function updateQuickCategoryBadges() {
     if (typeof window.updateQuickBadge !== 'function') return;
@@ -118,6 +122,42 @@ function updateQuickCategoryBadges() {
     window.updateQuickBadge('quickRentalCount',   rentalRequests.length);
     window.updateQuickBadge('quickFavCount',      userFavourites.length);
 }
+
+// ============================================================
+// 3b. VEHICLE AVAILABILITY SYNC
+// Keeps the public `vehicleAvailability/{vehicleId}/ranges` mirror in sync
+// when a booking is cancelled, rejected, or completed.
+// ============================================================
+async function syncAvailabilityRange(bookingId, vehicleId, status, from, to) {
+    if (!vehicleId || !bookingId) return;
+
+    const FREE_STATUSES = ['Completed', 'Cancelled', 'Rejected'];
+
+    try {
+        const rangeRef = window.db
+            .collection('vehicleAvailability')
+            .doc(vehicleId)
+            .collection('ranges')
+            .doc(bookingId);
+
+        if (FREE_STATUSES.includes(status)) {
+            // Delete — vehicle is free again on those dates
+            await rangeRef.delete().catch(() => {});
+        } else {
+            // Upsert with the new status
+            await rangeRef.set({
+                from,
+                to,
+                status,
+                bookingId,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+        }
+    } catch (err) {
+        console.warn('Could not sync availability range:', err);
+    }
+}
+window.syncAvailabilityRange = syncAvailabilityRange;
 
 // ============================================================
 // 4. TAB SWITCHING
@@ -175,7 +215,7 @@ function showLoadingSkeletons() {
 }
 
 // ============================================================
-// 6. LOAD USER PROFILE (+ verified licence card)
+// 6. LOAD USER PROFILE
 // ============================================================
 async function loadUserProfile(user) {
     try {
@@ -658,6 +698,22 @@ function renderRentalRequests(requests) {
             ? `<span><i class="fas fa-cubes"></i> ${r.quantity} units</span>`
             : '';
 
+        // Financial breakdown (15% service fee model)
+        const rentalSubtotal = Number(r.rentalSubtotal || 0);
+        const totalPrice = Number(r.totalPrice || 0);
+        const deposit = Number(r.securityDeposit || 0);
+        const serviceFee = Number(r.serviceFee || 0);
+
+        const financeBlock = rentalSubtotal > 0 ? `
+            <div class="item-finance" style="width:100%; display:flex; flex-wrap:wrap; gap:14px; padding-top:10px; margin-top:8px; border-top:1px dashed #EBEEF2; font-size:0.78rem; color:#88909C;">
+                <span>Rental: <strong style="color:#11141A;">${formatRM(rentalSubtotal)}</strong></span>
+                <span>Service Fee (15%): <strong style="color:#B8932B;">${formatRM(serviceFee)}</strong></span>
+                <span>Total Paid: <strong style="color:#11141A;">${formatRM(totalPrice)}</strong></span>
+                <span>Deposit: <strong style="color:#059669;">${formatRM(deposit)}</strong></span>
+                <span>Your Payout: <strong style="color:#11141A;">${formatRM(rentalSubtotal)}</strong></span>
+            </div>
+        ` : '';
+
         // OWNER RETURN-HANDOVER BUTTON — only show when booking is Active
         const returnButton = statusLower === 'active' ? `
             <button class="btn-owner-received" data-booking-id="${r.id}">
@@ -671,12 +727,13 @@ function renderRentalRequests(requests) {
                 <span class="item-title">${escapeHtml(r.vehicleName || 'Vehicle')}</span>
                 <div class="item-sub">
                     <span><i class="fas fa-calendar"></i> ${escapeHtml(r.pickupDate || 'N/A')} – ${escapeHtml(r.returnDate || 'N/A')}</span>
-                    <span><i class="fas fa-money-bill"></i> RM${r.totalPrice || 0}</span>
+                    <span><i class="fas fa-money-bill"></i> ${formatRM(totalPrice)}</span>
                     ${qtyLine}
                 </div>
             </div>
             <span class="item-status status-${statusLower}">${escapeHtml(status)}</span>
             ${contactBlock}
+            ${financeBlock}
             ${returnButton}
         </div>`;
     }).join('');
@@ -684,6 +741,7 @@ function renderRentalRequests(requests) {
 
 // ============================================================
 // 11b. OWNER RETURN HANDOVER — "I've Received the Vehicle Back"
+//      Updates booking + writes admin notification + frees dates
 // ============================================================
 document.addEventListener('click', async (e) => {
     const btn = e.target.closest('.btn-owner-received');
@@ -705,10 +763,46 @@ document.addEventListener('click', async (e) => {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Confirming...';
 
     try {
+        // 1) Update the booking
         await window.db.collection('bookings').doc(bookingId).update({
             ownerReceivedAt: firebase.firestore.FieldValue.serverTimestamp(),
             ownerReceivedBy: currentUser ? currentUser.uid : null,
             status: 'Completed'
+        });
+
+        // 2) Fetch fresh booking data
+        const bookingSnap = await window.db.collection('bookings').doc(bookingId).get();
+        const b = bookingSnap.exists ? bookingSnap.data() : {};
+
+        // 3) Free up the dates in the public availability mirror
+        await syncAvailabilityRange(
+            bookingId,
+            b.vehicleId,
+            'Completed',
+            b.pickupDate,
+            b.returnDate
+        );
+
+        // 4) Write admin notification
+        await window.db.collection('notifications').add({
+            type: 'return',
+            bookingId: bookingId,
+            vehicleId: b.vehicleId || null,
+            vehicleName: b.vehicleName || 'Vehicle',
+            vehicleImage: b.vehicleImage || null,
+            renterId: b.renterId || null,
+            renterName: b.renterName || 'Renter',
+            renterPhone: b.renterPhone || '',
+            ownerId: b.ownerId || null,
+            ownerName: b.ownerName || (currentUser ? currentUser.displayName : '') || '',
+            ownerPhone: b.ownerPhone || '',
+            rentalSubtotal: b.rentalSubtotal || 0,
+            serviceFee: b.serviceFee || 0,
+            totalPrice: b.totalPrice || 0,
+            securityDeposit: b.securityDeposit || 0,
+            confirmedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            read: false,
+            adminReadAt: null
         });
 
         btn.innerHTML = '<i class="fas fa-check"></i> Completed';
@@ -808,14 +902,14 @@ async function removeFavourite(vehicleId) {
 window.removeFavourite = removeFavourite;
 
 // ============================================================
-// 14. UPDATE STATS (now just updates quick-category counts)
+// 14. UPDATE STATS
 // ============================================================
 function updateStats() {
     updateQuickCategoryBadges();
 }
 
 // ============================================================
-// 15. LOAD VERIFICATION STATUS (badge + form toggle)
+// 15. LOAD VERIFICATION STATUS
 // ============================================================
 async function loadVerificationStatus(uid) {
     try {

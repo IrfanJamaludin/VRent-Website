@@ -1,8 +1,8 @@
 // Booking.js - Vehicle booking with verified licence check
-// + Availability conflict check
-// + State-to-state delivery rates (with vehicle type multipliers)
-// + Machinery weight-based delivery (special case)
-// + 15% Service Fee + 20% Refundable Deposit (fixed rate) + Handover confirmation
+// + Public availability calendar (vehicleAvailability subcollection)
+// + Owner snapshot (fixes missing owner info in notifications)
+// + State-to-state delivery rates + Machinery weight-based delivery
+// + 15% Service Fee + 20% Refundable Deposit + Handover confirmation
 // Peninsular Malaysia only
 
 // ============================================================
@@ -51,30 +51,63 @@ const VEHICLE_TYPE_MULTIPLIERS = {
 };
 
 // ============================================================
-// 3. AVAILABILITY — statuses that block a date range
+// 3. AVAILABILITY — reads from PUBLIC vehicleAvailability subcollection
 // ============================================================
 const BLOCKING_STATUSES = ['Pending', 'Approved', 'Paid', 'Active'];
 
+/**
+ * Reads block-out ranges from the PUBLIC vehicleAvailability subcollection.
+ * This makes the availability check work for guests + signed-in users without
+ * exposing the private `bookings` collection (which contains renter PII).
+ */
 async function findConflicts(vehicleId, startDate, endDate) {
     if (!vehicleId || !startDate || !endDate) return [];
     try {
-        const snap = await window.db.collection('bookings')
-            .where('vehicleId', '==', vehicleId)
+        const snap = await window.db
+            .collection('vehicleAvailability')
+            .doc(vehicleId)
+            .collection('ranges')
             .get();
 
         const conflicts = [];
         snap.forEach(doc => {
-            const b = doc.data();
-            if (!BLOCKING_STATUSES.includes(b.status)) return;
-            // Overlap test: existing.start <= reqEnd AND existing.end >= reqStart
-            if (b.pickupDate <= endDate && b.returnDate >= startDate) {
-                conflicts.push({ id: doc.id, ...b });
+            const r = doc.data();
+            if (!BLOCKING_STATUSES.includes(r.status)) return;
+            // Overlap test
+            if (r.from <= endDate && r.to >= startDate) {
+                conflicts.push({ id: doc.id, ...r });
             }
         });
         return conflicts;
     } catch (err) {
         console.error('Availability check failed:', err);
         return [];
+    }
+}
+
+/**
+ * Writes the date range into the public vehicleAvailability subcollection.
+ * Called right after a successful booking.
+ */
+async function mirrorAvailabilityRange(bookingId, vehicleId, from, to, status, renterId, ownerId) {
+    if (!bookingId || !vehicleId || !from || !to) return;
+    try {
+        await window.db
+            .collection('vehicleAvailability')
+            .doc(vehicleId)
+            .collection('ranges')
+            .doc(bookingId)
+            .set({
+                from,
+                to,
+                status: status || 'Pending',
+                bookingId,
+                renterId: renterId || null,
+                ownerId: ownerId || null,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+    } catch (err) {
+        console.warn('Could not mirror availability range:', err);
     }
 }
 
@@ -111,16 +144,9 @@ async function getDeliveryRate(originState, destinationState, vehicleCategory) {
     return Math.round(route.baseRate * multiplier);
 }
 
-/**
- * Resolves the full delivery fee for the booking.
- * - Heavy machinery delivered by V-Rent → weight-based low-loader fee
- * - Others with destination state → state-to-state × vehicle type multiplier
- * - Same-state → looks up a {State}__{State} rate row (if configured)
- */
 async function resolveDeliveryFee(vehicle, destinationState) {
     if (!vehicle) return { fee: 0, source: 'none', breakdown: null };
 
-    // Heavy machinery special case
     if (shouldChargeDelivery(vehicle)) {
         const fee = getMachineryDeliveryFee(vehicle.operatingWeight);
         return {
@@ -173,6 +199,45 @@ function getVehicleRequirements(vehicle) {
         return window.getRequiredLicense(vehicle);
     }
     return { required: normalizeLicenseArray(vehicle && vehicle.requiredLicense), reason: '' };
+}
+
+// ============================================================
+// 5b. OWNER INFO RESOLVER (fixes missing owner name/phone)
+// ============================================================
+async function resolveOwnerInfo(vehicle) {
+    if (!vehicle) return { name: 'Owner', email: '', phone: 'Not provided' };
+
+    // 1) Vehicle doc snapshot (fastest — no extra read)
+    if (vehicle.ownerName && vehicle.ownerPhone) {
+        return {
+            name: vehicle.ownerName,
+            email: vehicle.ownerEmail || '',
+            phone: vehicle.ownerPhone
+        };
+    }
+
+    // 2) Fallback: read from users collection
+    const ownerId = vehicle.ownerId || vehicle.ownerUID;
+    if (!ownerId) {
+        return { name: 'Unknown Owner', email: '', phone: 'Not provided' };
+    }
+
+    try {
+        const snap = await window.db.collection('users').doc(ownerId).get();
+        if (snap.exists) {
+            const u = snap.data();
+            const fullName = `${u.firstName || ''} ${u.lastName || ''}`.trim();
+            return {
+                name: fullName || u.username || 'Owner',
+                email: u.email || '',
+                phone: u.phone || 'Not provided'
+            };
+        }
+    } catch (err) {
+        console.warn('Could not fetch owner info:', err);
+    }
+
+    return { name: 'Unknown Owner', email: '', phone: 'Not provided' };
 }
 
 // ============================================================
@@ -294,7 +359,7 @@ function showAvailabilityWarning(conflicts) {
     }
 
     const dates = conflicts
-        .map(c => `${c.pickupDate || '?'} → ${c.returnDate || '?'}`)
+        .map(c => `${c.from || '?'} → ${c.to || '?'}`)
         .join(', ');
 
     banner.style.display = 'block';
@@ -312,7 +377,6 @@ async function checkAvailabilityLive() {
     const myId = ++lastConflictCheckId;
     const conflicts = await findConflicts(vehicleData.id, pickupDate.value, returnDate.value);
 
-    // Ignore stale responses if user changed dates again
     if (myId !== lastConflictCheckId) return;
 
     showAvailabilityWarning(conflicts);
@@ -393,20 +457,17 @@ function renderVehicle(vehicle) {
     showEl(quantityGroup, isTruckOrHeavy ? 'block' : 'none');
     showEl(contractorSection, isTruckOrHeavy ? 'block' : 'none');
 
-    // Delivery UI: show destination picker only if owner offers delivery
     const pm = vehicle.pickupMethod || 'Pickup';
     const offersDelivery = pm === 'Delivery' || pm === 'Both';
     showEl(deliveryDestinationGroup, offersDelivery ? 'block' : 'none');
     showEl(deliveryAddressGroup, offersDelivery ? 'block' : 'none');
 
-    // Machinery delivery badge (weight-based info)
     const deliveryNotice = document.getElementById('vrentDeliveryNotice');
     if (deliveryNotice) {
         const show = vehicle.category === 'heavy-machinery' && vehicle.deliveredByVRent === true;
         showEl(deliveryNotice, show ? 'flex' : 'none');
     }
 
-    // Date defaults
     const today = new Date().toISOString().split('T')[0];
     pickupDate.min = today;
     returnDate.min = today;
@@ -438,7 +499,7 @@ function renderVehicle(vehicle) {
 }
 
 // ============================================================
-// 14. PRICE SUMMARY (async — awaits delivery rate lookup)
+// 14. PRICE SUMMARY
 // ============================================================
 async function updateSummary() {
     const start = new Date(pickupDate.value + 'T' + (pickupTime.value || '09:00'));
@@ -449,7 +510,6 @@ async function updateSummary() {
     const qty = parseInt(quantity.value) || 1;
     const rentalTotal = pricePerDay * days * qty;
 
-    // Delivery: resolve from destination state (async)
     const destination = deliveryDestination ? deliveryDestination.value : '';
     const deliveryInfo = await resolveDeliveryFee(vehicleData, destination);
     const deliveryFee = deliveryInfo.fee;
@@ -458,17 +518,11 @@ async function updateSummary() {
     const { tier, feePerDay } = getSelectedInsurance();
     const insuranceFee = feePerDay * days * qty;
 
-    // Rental subtotal = vehicle + delivery + insurance
     const rentalSubtotal = rentalTotal + deliveryFee + insuranceFee;
-
-    // Service fee (V-Rent's 15%, charged to customer)
     const serviceFee = Math.round(rentalSubtotal * SERVICE_FEE_RATE);
     const totalAtPickup = rentalSubtotal + serviceFee;
-
-    // Security deposit: fixed 20% of rental subtotal (refundable, not owner-set)
     const deposit = Math.round(rentalSubtotal * SECURITY_DEPOSIT_RATE);
 
-    // ---- Write rows ----
     summaryPricePerDay.textContent = `RM ${pricePerDay}`;
     summaryDays.textContent = `${days} day${days > 1 ? 's' : ''}`;
     summaryQuantity.textContent = qty;
@@ -479,7 +533,6 @@ async function updateSummary() {
         hideEl(summaryQuantityRow);
     }
 
-    // Delivery row
     const deliveryRow = document.getElementById('summaryDeliveryRow');
     const deliveryValue = document.getElementById('summaryDeliveryFee');
     if (deliveryRow && deliveryValue) {
@@ -487,7 +540,6 @@ async function updateSummary() {
             showEl(deliveryRow, 'flex');
             deliveryValue.textContent = `RM ${deliveryFee}${lastDeliveryBreakdown ? ' · ' + lastDeliveryBreakdown : ''}`;
         } else if (destination && lastDeliveryBreakdown) {
-            // Show the reason even when fee = 0 (e.g. no route configured)
             showEl(deliveryRow, 'flex');
             deliveryValue.textContent = lastDeliveryBreakdown;
         } else {
@@ -643,17 +695,16 @@ form.addEventListener('submit', async function (e) {
         return;
     }
 
-    // ---- RETURN ADDRESS (MANDATORY) ----
     if (!returnAddress || !returnAddress.value.trim()) {
         alert('Please enter a return address.');
         returnAddress && returnAddress.focus();
         return;
     }
 
-    // ---- AVAILABILITY (final guard, prevents race conditions) ----
+    // ---- AVAILABILITY (final guard) ----
     const conflicts = await findConflicts(vehicleData.id, pickupDate.value, returnDate.value);
     if (conflicts.length > 0) {
-        const dates = conflicts.map(c => `${c.pickupDate} → ${c.returnDate}`).join(', ');
+        const dates = conflicts.map(c => `${c.from} → ${c.to}`).join(', ');
         alert(
             'This vehicle is not available on your selected dates.\n\n' +
             'Already booked: ' + dates + '\n\n' +
@@ -663,7 +714,7 @@ form.addEventListener('submit', async function (e) {
         return;
     }
 
-    // ---- DELIVERY DESTINATION (required if delivery is chosen) ----
+    // ---- DELIVERY DESTINATION ----
     const pm = vehicleData.pickupMethod || 'Pickup';
     const offersDelivery = pm === 'Delivery' || pm === 'Both';
     const destination = deliveryDestination ? deliveryDestination.value : '';
@@ -696,21 +747,15 @@ form.addEventListener('submit', async function (e) {
 
     const rentalTotal = pricePerDay * days * qty;
 
-    // Delivery (async)
     const deliveryInfo = await resolveDeliveryFee(vehicleData, destination);
     const vrentDeliveryFee = deliveryInfo.fee;
 
     const { tier: insuranceTier, feePerDay: insurancePerDay } = getSelectedInsurance();
     const insuranceFee = insurancePerDay * days * qty;
 
-    // Rental subtotal = what owner earns
     const rentalSubtotal = rentalTotal + vrentDeliveryFee + insuranceFee;
-
-    // Service fee (V-Rent revenue, charged to customer)
     const serviceFee = Math.round(rentalSubtotal * SERVICE_FEE_RATE);
     const totalAtPickup = rentalSubtotal + serviceFee;
-
-    // Security deposit: fixed 20% of rental subtotal (refundable, not owner-set)
     const deposit = Math.round(rentalSubtotal * SECURITY_DEPOSIT_RATE);
 
     // ---- Payment method ----
@@ -720,6 +765,9 @@ form.addEventListener('submit', async function (e) {
     const ownerId = vehicleData.ownerId || vehicleData.ownerUID || null;
     const originState = vehicleData.rentalLocation || vehicleData.location || '';
 
+    // ✅ Resolve owner info (fixes missing owner in notifications)
+    const ownerInfo = await resolveOwnerInfo(vehicleData);
+
     const bookingData = {
         // ---- Vehicle ----
         vehicleId: vehicleData.id,
@@ -727,6 +775,11 @@ form.addEventListener('submit', async function (e) {
         vehicleCategory: vehicleData.category,
         vehicleImage: (vehicleData.images && vehicleData.images[0]) || null,
         ownerId: ownerId,
+
+        // ---- Owner snapshot ----
+        ownerName: ownerInfo.name,
+        ownerEmail: ownerInfo.email,
+        ownerPhone: ownerInfo.phone,
 
         // ---- Renter ----
         renterId: currentUser.uid,
@@ -762,37 +815,30 @@ form.addEventListener('submit', async function (e) {
         insuranceTier: insuranceTier,
         insuranceFee: insuranceFee,
 
-        // Service fee (V-Rent revenue, charged to customer)
         serviceFeeRate: SERVICE_FEE_RATE,
         serviceFee: serviceFee,
 
-        // Deposit (refundable, held at booking) — fixed 20%
         securityDeposit: deposit,
         securityDepositRate: SECURITY_DEPOSIT_RATE,
 
-        // Renter payments
-        totalPrice: totalAtPickup,               // at pickup
-        amountDueNow: deposit,                   // at booking (deposit only)
-        amountDueAtPickup: totalAtPickup,        // at pickup
+        totalPrice: totalAtPickup,
+        amountDueNow: deposit,
+        amountDueAtPickup: totalAtPickup,
         paymentMethod: paymentMethod,
 
-        // Owner payout — 100% of rental subtotal
         ownerPayout: rentalSubtotal,
 
-        // Deposit lifecycle
         depositStatus: 'Held',
         depositRefundedAt: null,
 
-        // ---- Notes ----
         notes: bookingNotes.value.trim() || '',
 
-        // ---- Status & timestamps ----
         status: 'Pending',
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         renterReceivedAt: null,
         ownerReceivedAt: null,
 
-        // ---- Contractor (trucks & heavy machinery only) ----
+        // ---- Contractor ----
         isContractor: isTruckOrHeavy,
         companyName: isTruckOrHeavy ? companyName.value.trim() : null,
         contactPerson: isTruckOrHeavy ? contactPerson.value.trim() : null,
@@ -810,6 +856,19 @@ form.addEventListener('submit', async function (e) {
     try {
         const docRef = await window.db.collection('bookings').add(bookingData);
         sessionStorage.setItem('lastBookingId', docRef.id);
+
+        // ✅ Mirror range into PUBLIC vehicleAvailability subcollection
+        //    Powers the calendar on VehicleDetails.html for guests
+        await mirrorAvailabilityRange(
+            docRef.id,
+            vehicleData.id,
+            pickupDate.value,
+            returnDate.value,
+            'Pending',
+            currentUser.uid,
+            ownerId
+        );
+
         hideEl(form);
         showEl(bookingStatus, 'block');
     } catch (err) {
@@ -856,6 +915,17 @@ function initReceivedButton() {
             const bookingSnap = await window.db.collection('bookings').doc(bookingId).get();
             const b = bookingSnap.data() || {};
 
+            // Update the availability range to 'Active'
+            await mirrorAvailabilityRange(
+                bookingId,
+                b.vehicleId,
+                b.pickupDate,
+                b.returnDate,
+                'Active',
+                b.renterId,
+                b.ownerId
+            );
+
             await window.db.collection('notifications').add({
                 type: 'pickup',
                 bookingId: bookingId,
@@ -866,8 +936,8 @@ function initReceivedButton() {
                 renterName: b.renterName || 'Renter',
                 renterPhone: b.renterPhone || '',
                 ownerId: b.ownerId || null,
-                ownerName: b.ownerName || '',
-                ownerPhone: b.ownerPhone || '',
+                ownerName: b.ownerName || 'Owner',
+                ownerPhone: b.ownerPhone || 'Not provided',
                 rentalSubtotal: b.rentalSubtotal || 0,
                 serviceFee: b.serviceFee || 0,
                 totalPrice: b.totalPrice || 0,
@@ -894,7 +964,7 @@ function initReceivedButton() {
 }
 
 // ============================================================
-// 18. AUTH STATE LISTENER (with verification gate)
+// 18. AUTH STATE LISTENER
 // ============================================================
 document.addEventListener('DOMContentLoaded', function () {
     if (!window.auth) {
