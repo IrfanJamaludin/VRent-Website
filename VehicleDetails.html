@@ -103,6 +103,85 @@
                             <span class="per-day">/ day</span>
                         </div>
 
+                        <!-- ============================================================ -->
+                        <!-- OWNER INFO (MASKED)                                          -->
+                        <!-- ============================================================ -->
+                        <div class="owner-info-card" id="ownerInfoCard" style="display:none;">
+                            <div class="owner-avatar" id="ownerAvatar">?</div>
+                            <div class="owner-details">
+                                <div class="owner-name-row">
+                                    <strong id="ownerNameDisplay">Owner</strong>
+                                    <span class="owner-verified-badge" id="ownerVerifiedBadge" style="display:none;">
+                                        <i class="fas fa-check-circle"></i> Verified
+                                    </span>
+                                </div>
+                                <span class="owner-contact-hint" id="ownerContactHint">
+                                    <i class="fas fa-lock"></i> Contact revealed after booking approval
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- ============================================================ -->
+                        <!-- RENTAL RULES (GLANCE)                                        -->
+                        <!-- ============================================================ -->
+                        <div class="rules-preview" id="rulesPreview" style="display:none;">
+                            <h4><i class="fas fa-clipboard-list"></i> Rental Rules</h4>
+                            <div class="rules-chips" id="rulesChips"></div>
+                        </div>
+
+                        <!-- ============================================================ -->
+                        <!-- LEGAL STATUS + FUEL POLICY + RENTAL PERIOD                   -->
+                        <!-- ============================================================ -->
+                        <div class="legal-status-grid" id="legalStatusGrid" style="display:none;">
+
+                            <div class="status-item" id="insuranceStatusItem">
+                                <i class="fas fa-shield-alt"></i>
+                                <div>
+                                    <span class="status-label">Insurance</span>
+                                    <span class="status-value" id="insuranceStatusValue">-</span>
+                                </div>
+                            </div>
+
+                            <div class="status-item" id="roadTaxStatusItem">
+                                <i class="fas fa-file-invoice"></i>
+                                <div>
+                                    <span class="status-label">Road Tax</span>
+                                    <span class="status-value" id="roadTaxStatusValue">-</span>
+                                </div>
+                            </div>
+
+                            <div class="status-item" id="fuelPolicyItem">
+                                <i class="fas fa-gas-pump"></i>
+                                <div>
+                                    <span class="status-label">Fuel Policy</span>
+                                    <span class="status-value" id="fuelPolicyValue">-</span>
+                                </div>
+                            </div>
+
+                            <div class="status-item" id="rentalPeriodItem">
+                                <i class="fas fa-calendar-day"></i>
+                                <div>
+                                    <span class="status-label">Rental Period</span>
+                                    <span class="status-value" id="rentalPeriodValue">-</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- ============================================================ -->
+                        <!-- EXISTING DAMAGE DISCLOSURE                                   -->
+                        <!-- ============================================================ -->
+                        <div class="damage-disclosure" id="damageDisclosure" style="display:none;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div>
+                                <strong>Pre-existing damage</strong>
+                                <span id="damageText">-</span>
+                            </div>
+                        </div>
+
+                        <!-- ============================================================ -->
+                        <!-- SPECS GRID                                                   -->
+                        <!-- ============================================================ -->
                         <div class="vehicle-specs-grid">
                             <div class="spec-item">
                                 <i class="fas fa-calendar-alt"></i>
@@ -249,7 +328,7 @@
     </footer>
 
     <!-- ============================================================
-         AUTH GATE MODAL — "Sign In to Book" (redesigned)
+         AUTH GATE MODAL — "Sign In to Book"
          ============================================================ -->
     <div class="auth-gate-overlay" id="authGateOverlay" role="dialog" aria-modal="true" aria-labelledby="authGateTitle">
         <div class="auth-gate-card">
@@ -323,7 +402,7 @@
     </div>
 
     <!-- ============================================================
-         VERIFICATION GATE MODAL — "Verify Your Identity" (redesigned)
+         VERIFICATION GATE MODAL — "Verify Your Identity"
          ============================================================ -->
     <div class="auth-gate-overlay" id="verifyGateOverlay" role="dialog" aria-modal="true" aria-labelledby="verifyGateTitle">
         <div class="auth-gate-card">
@@ -480,9 +559,6 @@
                     window.hideVerifyGate();
                 }
             });
-
-            // ---- Auto-gate: nothing on load for this page ----
-            // The Book Now button triggers the appropriate gate.
         })();
     </script>
 </body>

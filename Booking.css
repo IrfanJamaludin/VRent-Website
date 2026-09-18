@@ -185,7 +185,7 @@ button {
     background: #F8F9FA;
     border: 1px solid #EBEEF2;
     border-radius: 16px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 
 .vehicle-image {
@@ -253,6 +253,132 @@ button {
 #vehicleLocation i {
     color: #D4AF37;
     margin-right: 4px;
+}
+
+/* ============================================================
+   RENTAL CONTRACT CARD (owner terms + rules + damage + legal)
+   ============================================================ */
+.contract-card {
+    background: linear-gradient(135deg, #F8F9FA 0%, #FFFFFF 100%);
+    border: 1px solid #EBEEF2;
+    border-radius: 16px;
+    padding: 20px 22px;
+    margin: 0 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.contract-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.contract-row > i {
+    width: 22px;
+    color: #D4AF37;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    text-align: center;
+    margin-top: 2px;
+}
+
+.contract-row > div {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.contract-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #88909C;
+}
+
+.contract-value {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #11141A;
+    line-height: 1.4;
+}
+
+.contract-sub {
+    font-size: 0.75rem;
+    color: #88909C;
+    font-style: italic;
+}
+
+.contract-rules {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.rule-tag {
+    padding: 4px 10px;
+    border-radius: 40px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid;
+    white-space: nowrap;
+}
+
+.rule-tag.ok {
+    background: rgba(16, 185, 129, 0.08);
+    color: #059669;
+    border-color: rgba(16, 185, 129, 0.25);
+}
+
+.rule-tag.no {
+    background: rgba(239, 68, 68, 0.06);
+    color: #DC2626;
+    border-color: rgba(239, 68, 68, 0.22);
+}
+
+/* Damage block — slightly highlighted to draw attention */
+.contract-damage {
+    background: rgba(245, 158, 11, 0.06);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin: 0 -14px;
+}
+
+.contract-damage > i {
+    color: #D97706;
+}
+
+.contract-damage .contract-value {
+    color: #4A5568;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+/* Legal warning — only shows when insurance/road tax expired */
+.contract-warning {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 10px;
+    color: #991B1B;
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.5;
+    animation: warnIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.contract-warning i {
+    color: #DC2626;
+    font-size: 1.1rem;
+    flex-shrink: 0;
 }
 
 /* ============================================================
@@ -1409,6 +1535,14 @@ body.auth-gate-open {
         padding: 20px 16px;
         margin-top: 20px;
     }
+
+    /* Contract card adjustments */
+    .contract-card {
+        padding: 16px 18px;
+        gap: 12px;
+    }
+    .contract-row > i { font-size: 1rem; }
+    .contract-value { font-size: 0.88rem; }
 }
 
 /* ============================================================
@@ -1505,6 +1639,17 @@ body.auth-gate-open {
         padding: 12px 14px;
         font-size: 0.82rem;
     }
+
+    /* Contract card — compact */
+    .contract-card {
+        padding: 14px 16px;
+        border-radius: 14px;
+    }
+    .contract-label { font-size: 0.64rem; }
+    .contract-value { font-size: 0.85rem; }
+    .rule-tag { font-size: 0.7rem; padding: 3px 9px; }
+    .contract-damage { margin: 0 -10px; padding: 10px 12px; }
+    .contract-warning { padding: 10px 12px; font-size: 0.78rem; }
 }
 
 /* ============================================================
@@ -1532,4 +1677,7 @@ body.auth-gate-open {
         font-size: 0.82rem;
         padding: 12px 18px;
     }
+
+    .contract-row > i { display: none; }
+    .contract-row { gap: 0; }
 }

@@ -58,7 +58,7 @@
             <!-- Page Header -->
             <div class="page-header">
                 <h1 class="page-title">Book This Vehicle</h1>
-                <p class="page-subtitle">Fill in the details to complete your booking.</p>
+                <p class="page-subtitle">Review the contract below, then fill in your details.</p>
             </div>
 
             <!-- Loading State -->
@@ -87,6 +87,63 @@
                             <p id="vehiclePrice">RM 0 <span>/ day</span></p>
                             <p id="vehicleLocation"><i class="fas fa-map-marker-alt"></i> Location</p>
                         </div>
+                    </div>
+
+                    <!-- ================= RENTAL CONTRACT CARD ================= -->
+                    <div class="contract-card" id="contractCard">
+
+                        <!-- Owner info -->
+                        <div class="contract-row" id="contractOwnerRow" style="display:none;">
+                            <i class="fas fa-user-tie"></i>
+                            <div>
+                                <span class="contract-label">Owner</span>
+                                <span class="contract-value" id="contractOwnerName">—</span>
+                                <span class="contract-sub" id="contractOwnerContact">Contact revealed after approval</span>
+                            </div>
+                        </div>
+
+                        <!-- Rental rules -->
+                        <div class="contract-row" id="contractRulesRow" style="display:none;">
+                            <i class="fas fa-clipboard-list"></i>
+                            <div>
+                                <span class="contract-label">Rental Rules</span>
+                                <div class="contract-rules" id="contractRules"></div>
+                            </div>
+                        </div>
+
+                        <!-- Fuel policy -->
+                        <div class="contract-row" id="contractFuelRow" style="display:none;">
+                            <i class="fas fa-gas-pump"></i>
+                            <div>
+                                <span class="contract-label">Fuel Policy</span>
+                                <span class="contract-value" id="contractFuelPolicy">—</span>
+                            </div>
+                        </div>
+
+                        <!-- Rental period -->
+                        <div class="contract-row" id="contractPeriodRow" style="display:none;">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <span class="contract-label">Rental Period</span>
+                                <span class="contract-value" id="contractPeriod">—</span>
+                            </div>
+                        </div>
+
+                        <!-- Legal warning (only shows if expired) -->
+                        <div class="contract-warning" id="contractLegalWarning" style="display:none;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span id="contractLegalWarningText"></span>
+                        </div>
+
+                        <!-- Existing damage -->
+                        <div class="contract-row contract-damage" id="contractDamageRow" style="display:none;">
+                            <i class="fas fa-tools"></i>
+                            <div>
+                                <span class="contract-label">Pre-existing Damage</span>
+                                <span class="contract-value" id="contractDamage">—</span>
+                            </div>
+                        </div>
+
                     </div>
 
                     <!-- V-Rent Delivery Notice (machinery only) -->
@@ -368,6 +425,14 @@
                     <!-- ================= AGREEMENT ================= -->
                     <div class="form-section">
                         <div class="agreement-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="agreeRules" required />
+                                <span>
+                                    I have read and agree to the <strong>rental rules</strong>,
+                                    <strong>fuel policy</strong>, and <strong>pre-existing damage</strong>
+                                    disclosure above.
+                                </span>
+                            </label>
                             <label class="checkbox-label">
                                 <input type="checkbox" id="agreeTerms" required />
                                 <span>I agree to the <a href="#">Terms &amp; Conditions</a> and <a href="#">Cancellation Policy</a>.</span>

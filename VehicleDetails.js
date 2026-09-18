@@ -1,5 +1,6 @@
 // VehicleDetails.js — with auto-derived license requirements + auth/verify gates
-// Availability calendar now reads from public vehicleAvailability subcollection
+// Availability calendar reads from public vehicleAvailability subcollection
+// Contract details rendered on VehicleDetails page (owner + rules + legal + damage)
 
 // ============================================================
 // IMAGE HELPERS (handles array, string, or missing)
@@ -117,6 +118,35 @@ function addRecentlyViewed(vehicleId) {
         if (recent.length > 10) recent = recent.slice(0, 10);
         localStorage.setItem('vrent_recently_viewed', JSON.stringify(recent));
     } catch (e) { /* ignore */ }
+}
+
+// ============================================================
+// 5b. HELPERS — mask owner name, status badge
+// ============================================================
+function maskName(fullName) {
+    if (!fullName) return 'Owner';
+    const parts = String(fullName).trim().split(/\s+/);
+    if (parts.length === 1) return parts[0];
+    return parts[0] + ' ' + parts.slice(1).map(p => p.charAt(0).toUpperCase() + '.').join(' ');
+}
+
+function renderStatusBadge(elementId, status) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    const s = (status || '').toLowerCase();
+    if (s === 'active') {
+        el.textContent = 'Active';
+        el.className = 'status-value success';
+    } else if (s === 'expired') {
+        el.textContent = 'Expired';
+        el.className = 'status-value danger';
+    } else if (s === 'renewing') {
+        el.textContent = 'Renewing';
+        el.className = 'status-value warning';
+    } else {
+        el.textContent = 'Not specified';
+        el.className = 'status-value neutral';
+    }
 }
 
 // ============================================================
@@ -252,6 +282,113 @@ function renderVehicle(vehicle) {
 
     // Book Now
     setupBookNow(vehicle);
+
+    // ✅ Contract details (owner + rules + legal + damage)
+    renderContractDetails(vehicle);
+}
+
+// ============================================================
+// 6b. CONTRACT DETAILS RENDERING
+// ============================================================
+function renderContractDetails(vehicle) {
+    // ---- Owner info (masked) ----
+    const ownerInfoCard = document.getElementById('ownerInfoCard');
+    const ownerNameDisplay = document.getElementById('ownerNameDisplay');
+    const ownerAvatar = document.getElementById('ownerAvatar');
+    const ownerVerifiedBadge = document.getElementById('ownerVerifiedBadge');
+
+    if (ownerInfoCard && vehicle.ownerName) {
+        const masked = maskName(vehicle.ownerName);
+        ownerNameDisplay.textContent = masked;
+        ownerAvatar.textContent = masked.charAt(0).toUpperCase();
+        ownerVerifiedBadge.style.display = 'inline-flex';
+        ownerInfoCard.style.display = 'flex';
+    } else if (ownerInfoCard) {
+        ownerInfoCard.style.display = 'none';
+    }
+
+    // ---- Rental rules chips ----
+    const rulesPreview = document.getElementById('rulesPreview');
+    const rulesChips = document.getElementById('rulesChips');
+    const rules = Array.isArray(vehicle.rentalRules) ? vehicle.rentalRules : [];
+
+    const ALL_RULES = [
+        { value: 'Smoking Allowed',  label: 'Smoking',  negLabel: 'No Smoking' },
+        { value: 'Pets Allowed',     label: 'Pets',     negLabel: 'No Pets' },
+        { value: 'Off-Road Allowed', label: 'Off-Road', negLabel: 'On-Road Only' }
+    ];
+
+    if (rulesPreview && rulesChips) {
+        rulesChips.innerHTML = ALL_RULES.map(r => {
+            const allowed = rules.includes(r.value);
+            const cls = allowed ? 'allowed' : 'restricted';
+            const text = allowed ? `${r.label} Allowed` : r.negLabel;
+            const icon = allowed ? 'fa-check-circle' : 'fa-ban';
+            return `<span class="rule-chip ${cls}">
+                <i class="fas ${icon}"></i> ${text}
+            </span>`;
+        }).join('');
+        rulesPreview.style.display = 'block';
+    }
+
+    // ---- Legal status grid ----
+    const legalGrid = document.getElementById('legalStatusGrid');
+    const hasAnyLegal = vehicle.insuranceStatus
+        || vehicle.roadTaxStatus
+        || vehicle.fuelPolicy
+        || vehicle.minRentalPeriod;
+
+    if (legalGrid && hasAnyLegal) {
+        legalGrid.style.display = 'grid';
+
+        // Insurance
+        if (vehicle.insuranceStatus) {
+            document.getElementById('insuranceStatusItem').style.display = 'flex';
+            renderStatusBadge('insuranceStatusValue', vehicle.insuranceStatus);
+        } else {
+            document.getElementById('insuranceStatusItem').style.display = 'none';
+        }
+
+        // Road tax
+        if (vehicle.roadTaxStatus) {
+            document.getElementById('roadTaxStatusItem').style.display = 'flex';
+            renderStatusBadge('roadTaxStatusValue', vehicle.roadTaxStatus);
+        } else {
+            document.getElementById('roadTaxStatusItem').style.display = 'none';
+        }
+
+        // Fuel policy
+        if (vehicle.fuelPolicy) {
+            const fuelValue = document.getElementById('fuelPolicyValue');
+            fuelValue.textContent = vehicle.fuelPolicy;
+            fuelValue.className = 'status-value neutral';
+            document.getElementById('fuelPolicyItem').style.display = 'flex';
+        } else {
+            document.getElementById('fuelPolicyItem').style.display = 'none';
+        }
+
+        // Rental period
+        const rentalPeriodValue = document.getElementById('rentalPeriodValue');
+        const min = vehicle.minRentalPeriod || 1;
+        const max = vehicle.maxRentalPeriod || 30;
+        rentalPeriodValue.textContent = `${min}–${max} days`;
+        rentalPeriodValue.className = 'status-value neutral';
+        document.getElementById('rentalPeriodItem').style.display = 'flex';
+    } else if (legalGrid) {
+        legalGrid.style.display = 'none';
+    }
+
+    // ---- Existing damage disclosure ----
+    const damageBox = document.getElementById('damageDisclosure');
+    const damageText = document.getElementById('damageText');
+    if (damageBox && damageText) {
+        if (vehicle.existingDamage && vehicle.existingDamage.trim()) {
+            damageText.textContent = vehicle.existingDamage;
+            damageBox.style.display = 'flex';
+        } else {
+            damageBox.style.display = 'none';
+        }
+    }
 }
 
 // ============================================================
@@ -343,7 +480,6 @@ function toast(message, type = 'info') {
 // ============================================================
 // 8. AVAILABILITY CALENDAR
 // Public read — uses vehicleAvailability/{vehicleId}/ranges
-// (no auth required, no PII exposed)
 // ============================================================
 async function loadAvailabilityCalendar(vehicleId) {
     const container = document.getElementById('availabilityCalendar');
@@ -357,7 +493,6 @@ async function loadAvailabilityCalendar(vehicleId) {
     let bookedRanges = [];
 
     try {
-        // ✅ Public subcollection — no auth needed, no booking PII
         const snapshot = await window.db
             .collection('vehicleAvailability')
             .doc(vehicleId)
@@ -376,12 +511,10 @@ async function loadAvailabilityCalendar(vehicleId) {
         });
 
     } catch (error) {
-        // Graceful fallback — still render an empty calendar
         console.warn('Availability subcollection not accessible, showing default:', error.message);
         bookedRanges = [];
     }
 
-    // Build blocked-dates set (still per-day for the grid)
     const bookedDates = new Set();
     bookedRanges.forEach(r => {
         const start = new Date(r.from);

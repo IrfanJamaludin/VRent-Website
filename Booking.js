@@ -3,6 +3,7 @@
 // + Owner snapshot (fixes missing owner info in notifications)
 // + State-to-state delivery rates + Machinery weight-based delivery
 // + 15% Service Fee + 20% Refundable Deposit + Handover confirmation
+// + Rental Contract Card with rule enforcement + audit snapshot
 // Peninsular Malaysia only
 
 // ============================================================
@@ -41,7 +42,6 @@ const INSURANCE_FEES = {               // RM per day
     Premium: 50
 };
 
-// Vehicle type multipliers applied to base state-to-state rate
 const VEHICLE_TYPE_MULTIPLIERS = {
     'motorcycles':     0.6,
     'cars':            1.0,
@@ -55,11 +55,6 @@ const VEHICLE_TYPE_MULTIPLIERS = {
 // ============================================================
 const BLOCKING_STATUSES = ['Pending', 'Approved', 'Paid', 'Active'];
 
-/**
- * Reads block-out ranges from the PUBLIC vehicleAvailability subcollection.
- * This makes the availability check work for guests + signed-in users without
- * exposing the private `bookings` collection (which contains renter PII).
- */
 async function findConflicts(vehicleId, startDate, endDate) {
     if (!vehicleId || !startDate || !endDate) return [];
     try {
@@ -73,7 +68,6 @@ async function findConflicts(vehicleId, startDate, endDate) {
         snap.forEach(doc => {
             const r = doc.data();
             if (!BLOCKING_STATUSES.includes(r.status)) return;
-            // Overlap test
             if (r.from <= endDate && r.to >= startDate) {
                 conflicts.push({ id: doc.id, ...r });
             }
@@ -85,10 +79,6 @@ async function findConflicts(vehicleId, startDate, endDate) {
     }
 }
 
-/**
- * Writes the date range into the public vehicleAvailability subcollection.
- * Called right after a successful booking.
- */
 async function mirrorAvailabilityRange(bookingId, vehicleId, from, to, status, renterId, ownerId) {
     if (!bookingId || !vehicleId || !from || !to) return;
     try {
@@ -202,12 +192,11 @@ function getVehicleRequirements(vehicle) {
 }
 
 // ============================================================
-// 5b. OWNER INFO RESOLVER (fixes missing owner name/phone)
+// 5b. OWNER INFO RESOLVER
 // ============================================================
 async function resolveOwnerInfo(vehicle) {
     if (!vehicle) return { name: 'Owner', email: '', phone: 'Not provided' };
 
-    // 1) Vehicle doc snapshot (fastest — no extra read)
     if (vehicle.ownerName && vehicle.ownerPhone) {
         return {
             name: vehicle.ownerName,
@@ -216,7 +205,6 @@ async function resolveOwnerInfo(vehicle) {
         };
     }
 
-    // 2) Fallback: read from users collection
     const ownerId = vehicle.ownerId || vehicle.ownerUID;
     if (!ownerId) {
         return { name: 'Unknown Owner', email: '', phone: 'Not provided' };
@@ -238,6 +226,16 @@ async function resolveOwnerInfo(vehicle) {
     }
 
     return { name: 'Unknown Owner', email: '', phone: 'Not provided' };
+}
+
+// ============================================================
+// 5c. NAME MASKING (for public-facing display)
+// ============================================================
+function maskName(fullName) {
+    if (!fullName) return 'Owner';
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0];
+    return parts[0] + ' ' + parts.slice(1).map(p => p.charAt(0).toUpperCase() + '.').join(' ');
 }
 
 // ============================================================
@@ -438,7 +436,84 @@ function getSelectedInsurance() {
 }
 
 // ============================================================
-// 13. RENDER VEHICLE
+// 13. RENDER RENTAL CONTRACT CARD
+// ============================================================
+function renderContractCard(vehicle) {
+    const card = document.getElementById('contractCard');
+    if (!card) return;
+
+    // ---- Owner ----
+    const ownerRow = document.getElementById('contractOwnerRow');
+    if (ownerRow && vehicle.ownerName) {
+        ownerRow.style.display = 'flex';
+        const nameEl = document.getElementById('contractOwnerName');
+        if (nameEl) nameEl.textContent = maskName(vehicle.ownerName);
+        const contactEl = document.getElementById('contractOwnerContact');
+        if (contactEl) contactEl.textContent = 'Full contact shared after owner approves your booking';
+    }
+
+    // ---- Rental Rules ----
+    const rulesRow = document.getElementById('contractRulesRow');
+    const rulesContainer = document.getElementById('contractRules');
+    const rules = Array.isArray(vehicle.rentalRules) ? vehicle.rentalRules : [];
+
+    const ALL_RULES = [
+        { value: 'Smoking Allowed',  label: 'Smoking',  negLabel: 'No Smoking' },
+        { value: 'Pets Allowed',     label: 'Pets',     negLabel: 'No Pets' },
+        { value: 'Off-Road Allowed', label: 'Off-Road', negLabel: 'On-Road Only' }
+    ];
+
+    if (rulesRow && rulesContainer) {
+        rulesContainer.innerHTML = ALL_RULES.map(r => {
+            const allowed = rules.includes(r.value);
+            const cls = allowed ? 'ok' : 'no';
+            const text = allowed ? `${r.label} Allowed` : r.negLabel;
+            return `<span class="rule-tag ${cls}">${text}</span>`;
+        }).join('');
+        rulesRow.style.display = 'flex';
+    }
+
+    // ---- Fuel Policy ----
+    const fuelRow = document.getElementById('contractFuelRow');
+    if (fuelRow && vehicle.fuelPolicy) {
+        fuelRow.style.display = 'flex';
+        const fuelEl = document.getElementById('contractFuelPolicy');
+        if (fuelEl) fuelEl.textContent = vehicle.fuelPolicy;
+    }
+
+    // ---- Rental Period ----
+    const periodRow = document.getElementById('contractPeriodRow');
+    if (periodRow) {
+        const min = vehicle.minRentalPeriod || 1;
+        const max = vehicle.maxRentalPeriod || 30;
+        const periodEl = document.getElementById('contractPeriod');
+        if (periodEl) periodEl.textContent = `${min} – ${max} days`;
+        periodRow.style.display = 'flex';
+    }
+
+    // ---- Legal Status Warning ----
+    const legalWarning = document.getElementById('contractLegalWarning');
+    const legalText = document.getElementById('contractLegalWarningText');
+    const issues = [];
+    if ((vehicle.insuranceStatus || '').toLowerCase() === 'expired') issues.push('Insurance expired');
+    if ((vehicle.roadTaxStatus || '').toLowerCase() === 'expired') issues.push('Road tax expired');
+
+    if (issues.length > 0 && legalWarning && legalText) {
+        legalWarning.style.display = 'flex';
+        legalText.textContent = `${issues.join(' · ')}. You cannot book this vehicle until the owner renews them.`;
+    }
+
+    // ---- Existing Damage ----
+    const damageRow = document.getElementById('contractDamageRow');
+    if (damageRow && vehicle.existingDamage && vehicle.existingDamage.trim()) {
+        damageRow.style.display = 'flex';
+        const damageEl = document.getElementById('contractDamage');
+        if (damageEl) damageEl.textContent = vehicle.existingDamage;
+    }
+}
+
+// ============================================================
+// 14. RENDER VEHICLE
 // ============================================================
 function renderVehicle(vehicle) {
     vehicleData = vehicle;
@@ -492,6 +567,9 @@ function renderVehicle(vehicle) {
     initTickGroups();
     initInsuranceOptions();
 
+    // ✅ NEW — populate the contract card
+    renderContractCard(vehicle);
+
     hideEl(loadingState);
     showEl(form, 'block');
     updateSummary();
@@ -499,7 +577,7 @@ function renderVehicle(vehicle) {
 }
 
 // ============================================================
-// 14. PRICE SUMMARY
+// 15. PRICE SUMMARY
 // ============================================================
 async function updateSummary() {
     const start = new Date(pickupDate.value + 'T' + (pickupTime.value || '09:00'));
@@ -565,7 +643,7 @@ async function updateSummary() {
 }
 
 // ============================================================
-// 15. LOAD USER DATA + LICENCE DISPLAY
+// 16. LOAD USER DATA + LICENCE DISPLAY
 // ============================================================
 async function loadUserData(user) {
     currentUser = user;
@@ -638,7 +716,7 @@ function renderLicenceDisplay() {
 }
 
 // ============================================================
-// 16. FORM SUBMISSION
+// 17. FORM SUBMISSION
 // ============================================================
 form.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -682,11 +760,57 @@ form.addEventListener('submit', async function (e) {
         }
     }
 
+    // ---- LEGAL STATUS VALIDATION ----
+    if ((vehicleData.insuranceStatus || '').toLowerCase() === 'expired') {
+        alert('This vehicle\'s insurance has expired. It cannot be booked until the owner renews it.');
+        return;
+    }
+    if ((vehicleData.roadTaxStatus || '').toLowerCase() === 'expired') {
+        alert('This vehicle\'s road tax has expired. It cannot be booked until the owner renews it.');
+        return;
+    }
+
     // ---- DATE VALIDATION ----
     const startDate = new Date(pickupDate.value);
     const endDate = new Date(returnDate.value);
     if (endDate < startDate) {
         alert('Return date must be after pickup date.');
+        return;
+    }
+
+    // ---- AVAILABLE WINDOW VALIDATION ----
+    if (vehicleData.availableFrom && pickupDate.value < vehicleData.availableFrom) {
+        alert(
+            `This vehicle is only available from ${vehicleData.availableFrom}.\n\n` +
+            `Please choose a later pickup date.`
+        );
+        return;
+    }
+    if (vehicleData.availableTo && returnDate.value > vehicleData.availableTo) {
+        alert(
+            `This vehicle is only available until ${vehicleData.availableTo}.\n\n` +
+            `Please choose an earlier return date.`
+        );
+        return;
+    }
+
+    // ---- RENTAL PERIOD VALIDATION (min/max days) ----
+    const minDays = vehicleData.minRentalPeriod || 1;
+    const maxDays = vehicleData.maxRentalPeriod || 30;
+    const daysCheck = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) || 1;
+
+    if (daysCheck < minDays) {
+        alert(
+            `This vehicle requires a minimum rental of ${minDays} day${minDays > 1 ? 's' : ''}.\n\n` +
+            `Your booking is ${daysCheck} day${daysCheck > 1 ? 's' : ''}.`
+        );
+        return;
+    }
+    if (daysCheck > maxDays) {
+        alert(
+            `This vehicle allows a maximum rental of ${maxDays} days.\n\n` +
+            `Your booking is ${daysCheck} days.`
+        );
         return;
     }
 
@@ -733,6 +857,13 @@ form.addEventListener('submit', async function (e) {
         }
     }
 
+    // ---- RULES ACKNOWLEDGEMENT ----
+    const agreeRules = document.getElementById('agreeRules');
+    if (agreeRules && !agreeRules.checked) {
+        alert('Please confirm you have read and agree to the rental rules, fuel policy, and pre-existing damage disclosure.');
+        return;
+    }
+
     if (!document.getElementById('agreeTerms').checked) {
         alert('Please agree to the terms and conditions.');
         return;
@@ -758,14 +889,12 @@ form.addEventListener('submit', async function (e) {
     const totalAtPickup = rentalSubtotal + serviceFee;
     const deposit = Math.round(rentalSubtotal * SECURITY_DEPOSIT_RATE);
 
-    // ---- Payment method ----
     const paymentGroup = document.querySelector('[data-field="paymentMethod"]');
     const paymentMethod = paymentGroup ? (paymentGroup.dataset.selected || 'FPX') : 'FPX';
 
     const ownerId = vehicleData.ownerId || vehicleData.ownerUID || null;
     const originState = vehicleData.rentalLocation || vehicleData.location || '';
 
-    // ✅ Resolve owner info (fixes missing owner in notifications)
     const ownerInfo = await resolveOwnerInfo(vehicleData);
 
     const bookingData = {
@@ -838,6 +967,21 @@ form.addEventListener('submit', async function (e) {
         renterReceivedAt: null,
         ownerReceivedAt: null,
 
+        // ---- ✅ Contract snapshot (owner terms at booking time) ----
+        contractSnapshot: {
+            ownerName: vehicleData.ownerName || ownerInfo.name || null,
+            ownerPhone: vehicleData.ownerPhone || ownerInfo.phone || null,
+            ownerEmail: vehicleData.ownerEmail || ownerInfo.email || null,
+            rentalRules: vehicleData.rentalRules || [],
+            fuelPolicy: vehicleData.fuelPolicy || null,
+            minRentalPeriod: vehicleData.minRentalPeriod || 1,
+            maxRentalPeriod: vehicleData.maxRentalPeriod || 30,
+            insuranceStatus: vehicleData.insuranceStatus || null,
+            roadTaxStatus: vehicleData.roadTaxStatus || null,
+            existingDamage: vehicleData.existingDamage || null,
+            rulesAcknowledgedAt: firebase.firestore.FieldValue.serverTimestamp()
+        },
+
         // ---- Contractor ----
         isContractor: isTruckOrHeavy,
         companyName: isTruckOrHeavy ? companyName.value.trim() : null,
@@ -857,8 +1001,7 @@ form.addEventListener('submit', async function (e) {
         const docRef = await window.db.collection('bookings').add(bookingData);
         sessionStorage.setItem('lastBookingId', docRef.id);
 
-        // ✅ Mirror range into PUBLIC vehicleAvailability subcollection
-        //    Powers the calendar on VehicleDetails.html for guests
+        // Mirror range into PUBLIC vehicleAvailability subcollection
         await mirrorAvailabilityRange(
             docRef.id,
             vehicleData.id,
@@ -880,7 +1023,7 @@ form.addEventListener('submit', async function (e) {
 });
 
 // ============================================================
-// 17. RECEIVED VEHICLE (renter handover + admin notification)
+// 18. RECEIVED VEHICLE (renter handover + admin notification)
 // ============================================================
 function initReceivedButton() {
     const btn = document.getElementById('confirmReceivedBtn');
@@ -915,7 +1058,6 @@ function initReceivedButton() {
             const bookingSnap = await window.db.collection('bookings').doc(bookingId).get();
             const b = bookingSnap.data() || {};
 
-            // Update the availability range to 'Active'
             await mirrorAvailabilityRange(
                 bookingId,
                 b.vehicleId,
@@ -964,7 +1106,7 @@ function initReceivedButton() {
 }
 
 // ============================================================
-// 18. AUTH STATE LISTENER
+// 19. AUTH STATE LISTENER
 // ============================================================
 document.addEventListener('DOMContentLoaded', function () {
     if (!window.auth) {

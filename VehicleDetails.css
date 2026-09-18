@@ -284,6 +284,226 @@ button {
     color: rgba(17, 20, 26, 0.4);
 }
 
+/* ============================================================
+   OWNER INFO CARD (masked)
+   ============================================================ */
+.owner-info-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: #F8F9FA;
+    border: 1px solid #EBEEF2;
+    border-radius: 12px;
+    margin: 4px 0;
+}
+
+.owner-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #D4AF37, #B8932B);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.owner-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.owner-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+    flex-wrap: wrap;
+}
+
+.owner-name-row strong {
+    font-size: 0.95rem;
+    color: #11141A;
+}
+
+.owner-verified-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 40px;
+    background: rgba(16, 185, 129, 0.12);
+    color: #059669;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.owner-contact-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: #88909C;
+    line-height: 1.4;
+}
+
+/* ============================================================
+   RENTAL RULES PREVIEW
+   ============================================================ */
+.rules-preview {
+    margin: 4px 0;
+}
+
+.rules-preview h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #11141A;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rules-preview h4 i {
+    color: #D4AF37;
+}
+
+.rules-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.rule-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 40px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid;
+    transition: all 0.2s ease;
+}
+
+.rule-chip.allowed {
+    background: rgba(16, 185, 129, 0.10);
+    color: #059669;
+    border-color: rgba(16, 185, 129, 0.25);
+}
+
+.rule-chip.restricted {
+    background: rgba(239, 68, 68, 0.08);
+    color: #DC2626;
+    border-color: rgba(239, 68, 68, 0.25);
+}
+
+/* ============================================================
+   LEGAL STATUS GRID (insurance, road tax, fuel, rental period)
+   ============================================================ */
+.legal-status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 4px 0;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: #F8F9FA;
+    border: 1px solid #EBEEF2;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.status-item:hover {
+    background: #FFFFFF;
+    border-color: rgba(212, 175, 55, 0.25);
+}
+
+.status-item > i {
+    color: #D4AF37;
+    font-size: 1rem;
+    flex-shrink: 0;
+    width: 20px;
+    text-align: center;
+}
+
+.status-item > div {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.status-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #88909C;
+    line-height: 1.2;
+}
+
+.status-value {
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.status-value.success { color: #059669; }
+.status-value.danger  { color: #DC2626; }
+.status-value.warning { color: #D97706; }
+.status-value.neutral { color: #11141A; }
+
+/* ============================================================
+   EXISTING DAMAGE DISCLOSURE
+   ============================================================ */
+.damage-disclosure {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 12px;
+    margin: 4px 0;
+}
+
+.damage-disclosure > i {
+    color: #D97706;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.damage-disclosure > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.damage-disclosure strong {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #92400E;
+    line-height: 1.3;
+}
+
+.damage-disclosure span {
+    font-size: 0.85rem;
+    color: #4A5568;
+    line-height: 1.5;
+}
+
 /* ----- SPECS GRID ----- */
 .vehicle-specs-grid {
     display: grid;
@@ -1409,6 +1629,42 @@ body.auth-gate-open {
     .vrent-delivery-notice > i { font-size: 1.4rem; }
     .vrent-delivery-notice strong { font-size: 0.9rem; }
     .vrent-delivery-notice span { font-size: 0.78rem; }
+
+    /* New sections — tablet adjustments */
+    .legal-status-grid {
+        gap: 8px;
+    }
+    .status-item {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+    .status-label { font-size: 0.62rem; }
+    .status-value { font-size: 0.82rem; }
+
+    .owner-info-card {
+        padding: 12px 14px;
+        gap: 12px;
+    }
+    .owner-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+    .owner-name-row strong { font-size: 0.9rem; }
+    .owner-contact-hint { font-size: 0.72rem; }
+
+    .rules-preview h4 { font-size: 0.85rem; margin-bottom: 8px; }
+    .rule-chip {
+        padding: 5px 10px;
+        font-size: 0.75rem;
+    }
+
+    .damage-disclosure {
+        padding: 12px 14px;
+        gap: 10px;
+    }
+    .damage-disclosure strong { font-size: 0.84rem; }
+    .damage-disclosure span { font-size: 0.82rem; }
 }
 
 @media (max-width: 480px) {
@@ -1461,6 +1717,20 @@ body.auth-gate-open {
         padding: 12px;
     }
 
+    /* New sections — mobile adjustments */
+    .legal-status-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .owner-info-card {
+        padding: 12px;
+    }
+
+    .damage-disclosure {
+        padding: 12px 14px;
+    }
+
     /* Auth gate */
     .auth-gate-card {
         padding: 30px 22px 22px;
@@ -1485,4 +1755,15 @@ body.auth-gate-open {
     .auth-gate-title { font-size: 1.1rem; }
     .auth-gate-icon { width: 60px; height: 60px; font-size: 1.5rem; }
     .auth-gate-lock { width: 24px; height: 24px; font-size: 0.62rem; }
+
+    /* Compact status grid */
+    .status-item {
+        padding: 9px 11px;
+    }
+    .status-value { font-size: 0.8rem; }
+
+    .rule-chip {
+        font-size: 0.72rem;
+        padding: 4px 9px;
+    }
 }
